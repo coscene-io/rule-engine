@@ -2,7 +2,7 @@ from coscene.engine import Engine, RuleSet
 from coscene.dsl import *
 
 # Assumed imports from dsl package, used in the following rules:
-#   topic, msg, ts, evaluate, seq, seconds, kv, create_moment
+#   topic, msg, ts, evaluate, seq, seconds, kv, set_val, get_val, create_moment
 
 rules = RuleSet()
 
