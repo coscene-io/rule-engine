@@ -1,9 +1,10 @@
 from .dsl.condition import Condition
+from .dsl.actions import Action
 
 class Rule:
     def __init__(self, condition, action):
         assert isinstance(condition, Condition)
-        # TODO: Check action class
+        assert isinstance(action, Action)
 
         self.__cond = condition
         self.__action = action
@@ -21,6 +22,8 @@ class Engine:
         self.__data = data
 
     def run(self):
-        pass
-
+        for item in self.__data:
+            for rule in self.__rules:
+                if rule.eval_condition(item):
+                    rule.run_action(item)
 
