@@ -28,8 +28,14 @@ class PointCondition(Condition):
     def __contains__(self, other):
         return self.__wrap_binary_op(other, op.contains)
 
+    def __eq__(self, other):
+        return self.__wrap_binary_op(other, op.eq)
+
     def __gt__(self, other):
         return self.__wrap_binary_op(other, op.gt)
+
+    def __call__(self, *args, **kwargs):
+        return self.map_condition_value(lambda f: f(*args, **kwargs))
 
     def __getattr__(self, name):
         return self.map_condition_value(lambda x: getattr(x, name))
