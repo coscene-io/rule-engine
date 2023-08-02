@@ -19,8 +19,9 @@ class TestAction(Action):
     def __init__(self):
         self.collector = []
 
-    def run(self, data):
-        self.collector.append(data)
+    def run(self, item, scope):
+        self.collector.append(item)
+
 
 class FullEngineTest(unittest.TestCase):
     def test_topic_match(self):
@@ -32,13 +33,16 @@ class FullEngineTest(unittest.TestCase):
         self.assertEqual(len(result), 5, result)
 
     def test_complex_conditions(self):
-        result = self.__run_test(topic_is('t2') and msg.int_value > 3)
+        result = self.__run_test(topic_is('t2') & msg.int_value > 2)
         self.assertEqual(len(result), 2, result)
 
     def test_function_calls(self):
         result = self.__run_test(msg.str_value.upper() == 'HELLO')
         self.assertEqual(len(result), 4, result)
 
+    def test_get_set_values(self):
+        result = self.__run_test(set_value('somekey', msg.str_value) & get_value('somekey') == 'hello')
+        self.assertEqual(len(result), 4, result)
 
     def __run_test(self, condition):
         action = TestAction()

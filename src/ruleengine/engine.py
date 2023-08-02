@@ -10,10 +10,11 @@ class Rule:
         self.__action = action
 
     def eval_condition(self, item):
-        return self.__cond.evaluate_condition_at(item, {})[0]
+        scope = {}
+        return self.__cond.evaluate_condition_at(item, scope), scope
 
-    def run_action(self, item):
-        return self.__action.run(item)
+    def run_action(self, item, scope):
+        return self.__action.run(item, scope)
 
 
 class Engine:
@@ -24,6 +25,7 @@ class Engine:
     def run(self):
         for item in self.__data:
             for rule in self.__rules:
-                if rule.eval_condition(item):
-                    rule.run_action(item)
+                result, scope = rule.eval_condition(item)
+                if result:
+                    rule.run_action(item, scope)
 

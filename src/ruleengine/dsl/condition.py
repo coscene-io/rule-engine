@@ -3,29 +3,40 @@ import operator as op
 
 class Condition(ABC):
     @abstractmethod
-    def evaluate_condition_at(self, item):
+    def evaluate_condition_at(self, item, scope):
         pass
 
+
 class PointCondition(Condition):
-    def __init__(self, thunk=lambda item, scope: (item, scope)):
+    def __init__(self, thunk=lambda item, scope: item):
         super().__init__()
         self.__thunk = thunk
+
+    @staticmethod
+    def wrap(value):
+        if isinstance(value, PointCondition):
+            return value
+        return PointCondition(lambda item, scope: value)
 
     def evaluate_condition_at(self, item, scope):
         return self.__thunk(item, scope)
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
-            value_1, scope_1 = self.__thunk(item, scope)
-            mapped = mapper(value_1)
+            mapped = mapper(self.evaluate_condition_at(item, scope))
             if isinstance(mapped, PointCondition):
-                value_2, scope_2 = value.evaluate_condition_at(item, scope_1)
-                return value_2, { **scope_1, **scope_2 }
-            return mapped, scope_1
+                return mapped.evaluate_condition_at(item, scope)
+            return mapped
         return PointCondition(new_thunk)
 
     def __and__(self, other):
-        return self.__wrap_binary_op(other, op.and_)
+        def new_thunk(item, scope):
+             new_value = self.evaluate_condition_at(item, scope)
+             if not new_value:
+                 return new_value
+             return PointCondition.wrap(other).evaluate_condition_at(item, scope)
+
+        return PointCondition(new_thunk)
 
     def __contains__(self, other):
         return self.__wrap_binary_op(other, op.contains)
@@ -43,10 +54,7 @@ class PointCondition(Condition):
         return self.map_condition_value(lambda x: getattr(x, name))
 
     def __wrap_binary_op(self, other, op):
-        if isinstance(other, PointCondition):
-            return self.map_condition_value(
-                lambda x: other.map_condition_value(
-                    lambda y: op(x, y)))
-        return self.map_condition_value(lambda x: op(x, other))
-
+        return self.map_condition_value(
+            lambda x: PointCondition.wrap(other).map_condition_value(
+                lambda y: op(x, y)))
 
