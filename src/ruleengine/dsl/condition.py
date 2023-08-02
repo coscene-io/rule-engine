@@ -8,6 +8,25 @@ class Condition(ABC):
 
 
 class PointCondition(Condition):
+    """
+    Defines a condition to be evaluated on a single message.
+
+    It is assumed that the message has three fields, mirroring those of the ROS
+    bag reader API:
+
+    - topic
+    - msg
+    - ts
+
+    To make the DSL look nice at the end, this class ends up taking on a lot of
+    the complexity. If you're familiar with monads, this class is a combination
+    of Future and State. `map_condition_value` is both map and flatmap, and
+    `wrap` is lift.
+
+    If you're not familiar with monads, this is going to be very confusing. I'm
+    sorry.
+
+    """
     def __init__(self, thunk=lambda item, scope: item):
         super().__init__()
         self.__thunk = thunk
