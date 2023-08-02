@@ -28,6 +28,9 @@ class PointCondition(Condition):
     def __contains__(self, other):
         return self.__wrap_binary_op(other, op.contains)
 
+    def __gt__(self, other):
+        return self.__wrap_binary_op(other, op.gt)
+
     def __getattr__(self, name):
         return self.map_condition_value(lambda x: getattr(x, name))
 

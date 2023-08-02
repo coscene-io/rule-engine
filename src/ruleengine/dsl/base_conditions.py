@@ -1,4 +1,4 @@
-from .condition import PointCondition, evaluate
+from .condition import PointCondition
 
 msg = PointCondition(lambda x: x.msg)
 ts = PointCondition(lambda x: x.ts)
