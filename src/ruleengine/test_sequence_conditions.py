@@ -10,7 +10,8 @@ TestMessage = namedtuple('TestMessage', 'int_value str_value')
 
 simple_sequence = [
     TestDataItem('t1', TestMessage(1, 'hello'), 0),
-    TestDataItem('t2', TestMessage(2, 'hello'), 1),
+    TestDataItem('t1', TestMessage(2, 'hello'), 0),
+    TestDataItem('t2', TestMessage(1, 'hello'), 1),
     TestDataItem('t2', TestMessage(2, 'hello'), 1),
     TestDataItem('t1', TestMessage(3, 'hello'), 2),
     TestDataItem('t1', TestMessage(3, 'hello'), 3),
@@ -32,11 +33,11 @@ class TestAction(Action):
         self.collector.append((item, scope))
 
 
+def get_start_times(res):
+    return [i[1]['start_time'] for i in res]
+
 class SequenceConditionTest(unittest.TestCase):
     def test_sustained_sequence(self):
-        def get_start_times(res):
-            return [i[1]['start_time'] for i in res]
-
         result = self.__run_test(sustained(always, msg.str_value == 'hello', 2))
         self.assertEqual(get_start_times(result), [0, 5])
 
@@ -48,6 +49,27 @@ class SequenceConditionTest(unittest.TestCase):
 
         result = self.__run_test(sustained(topic_is('t1'), msg.str_value == 'hello', 6))
         self.assertEqual(get_start_times(result), [])
+
+    def test_sequence_pattern(self):
+        result = self.__run_test(sequential(
+            topic_is('t1') & msg.int_value == 1,
+            topic_is('t2') & (msg.int_value == 4) & set_value('somekey', msg.int_value),
+            topic_is('t2') & msg.int_value == get_value('somekey'),
+            duration=4))
+        self.assertEqual(get_start_times(result), [0])
+
+        result = self.__run_test(sequential(
+            topic_is('t1') & msg.int_value == 1,
+            topic_is('t2') & (msg.int_value == 4) & set_value('somekey', msg.int_value),
+            topic_is('t2') & msg.int_value == get_value('somekey'),
+            duration=2))
+        self.assertEqual(get_start_times(result), [])
+
+        result = self.__run_test(sequential(
+            topic_is('t1') & set_value('somekey', msg.int_value),
+            topic_is('t2') & msg.int_value == get_value('somekey'),
+            duration=3))
+        self.assertEqual(get_start_times(result), [0, 0])
 
     def __run_test(self, condition):
         action = TestAction()

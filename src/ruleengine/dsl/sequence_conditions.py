@@ -11,12 +11,15 @@ def sustained(context_condition, variable_condition, duration):
     """
     return context_condition & SustainedCondition(variable_condition, duration)
 
+def sequential(*conditions, duration=None):
+    return SequenceMatchCondition(list(conditions), duration)
+
 
 class SustainedCondition(Condition):
     def __init__(self, variable_condition, duration):
         super().__init__()
-        assert isinstance(variable_condition, Condition)
 
+        assert isinstance(variable_condition, Condition)
         self.__variable = variable_condition
         self.__duration = duration
         self.__start = None
@@ -41,4 +44,48 @@ class SustainedCondition(Condition):
 
         return False, new_scope
 
+
+class SequenceMatchCondition(Condition):
+    def __init__(self, sequence, duration=None):
+        super().__init__()
+
+        for c in sequence:
+            assert isinstance(c, Condition)
+
+        self.__seq = sequence
+        self.__duration = duration
+
+        # List of (start time, current index, scope) tuple. Each item denotes
+        # one ongoing matching sequence, with start time being the time of the
+        # first matched condition, and current index is the next condition to be
+        # matched
+        self.__ongoings = []
+
+    def evaluate_condition_at(self, item, scope):
+        ongoings = []
+        success = None
+        for start, curr_index, curr_scope in self.__ongoings:
+            if self.__duration is not None and item.ts - start > self.__duration:
+                continue
+
+            matched, new_scope = self.__seq[curr_index].evaluate_condition_at(item, curr_scope)
+            if matched:
+                if curr_index + 1 == len(self.__seq):
+                    success = start, new_scope
+                else:
+                    ongoings.append((start, curr_index + 1, new_scope))
+
+            else:
+                ongoings.append((start, curr_index, curr_scope))
+
+        self.__ongoings = ongoings
+
+        if success:
+            return True, { **success[1], 'start_time': success[0] }
+
+        matched, new_scope = self.__seq[0].evaluate_condition_at(item, scope)
+        if matched:
+            self.__ongoings.append((item.ts, 1, new_scope))
+
+        return False, scope
 
