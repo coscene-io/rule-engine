@@ -1,4 +1,4 @@
-from .condition import Condition, ThunkCondition
+from .condition import Condition
 
 def sustained(context_condition, variable_condition, duration):
     """
