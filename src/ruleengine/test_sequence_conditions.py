@@ -22,6 +22,7 @@ simple_sequence = [
     TestDataItem('t2', TestMessage(4, 'hello'), 5),
     TestDataItem('t2', TestMessage(4, 'hello'), 6),
     TestDataItem('t2', TestMessage(4, 'hello'), 7),
+    TestDataItem('t2', TestMessage(4, 'hello'), 7),
     TestDataItem('t2', TestMessage(4, 'hello'), 9),
 ]
 
@@ -72,8 +73,17 @@ class SequenceConditionTest(unittest.TestCase):
         self.assertEqual(get_start_times(result), [0, 0])
 
     def test_repeated(self):
-        result = self.__run_test(repeated(always, 2, 1))
+        result = self.__run_test(repeated(always, 2, 5))
         self.assertEqual(get_start_times(result), [0])
+
+        result = self.__run_test(repeated(topic_is('t2'), 2, 5))
+        self.assertEqual(get_start_times(result), [1])
+
+        result = self.__run_test(repeated(topic_is('t2'), 5, 5))
+        self.assertEqual(get_start_times(result), [4])
+
+        result = self.__run_test(repeated(topic_is('t2'), 2, 0.5))
+        self.assertEqual(get_start_times(result), [1, 3, 4, 7])
 
     def __run_test(self, condition):
         action = TestAction()

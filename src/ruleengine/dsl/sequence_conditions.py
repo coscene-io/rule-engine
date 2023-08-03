@@ -1,4 +1,4 @@
-from .condition import Condition
+from .condition import Condition, ThunkCondition
 
 def sustained(context_condition, variable_condition, duration):
     """
@@ -28,7 +28,7 @@ def repeated(condition, times, duration):
     window_count = SlidingWindowCondition(duration).map_condition_value(
         lambda items: ThunkCondition(count_matches(items)))
 
-    return SustainedCondition(window_count > times)
+    return SustainedCondition(window_count >= times)
 
 
 class SustainedCondition(Condition):
@@ -72,7 +72,7 @@ class SlidingWindowCondition(Condition):
         self.__buffer.append(item)
         res = None
         for idx, buf_item in enumerate(self.__buffer):
-            if buf_item.ts >= item.ts - duration:
+            if buf_item.ts >= item.ts - self.__duration:
                 res = self.__buffer[idx:]
                 break
 
