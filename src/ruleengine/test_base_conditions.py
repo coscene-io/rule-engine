@@ -23,7 +23,7 @@ class TestAction(Action):
         self.collector.append(item)
 
 
-class FullEngineTest(unittest.TestCase):
+class BaseConditionTest(unittest.TestCase):
     def test_topic_match(self):
         result = self.__run_test(topic_is('t1'))
         self.assertEqual(len(result), 2, result)
