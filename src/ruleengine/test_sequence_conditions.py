@@ -34,17 +34,20 @@ class TestAction(Action):
 
 class SequenceConditionTest(unittest.TestCase):
     def test_sustained_sequence(self):
+        def get_start_times(res):
+            return [i[1]['start_time'] for i in res]
+
         result = self.__run_test(sustained(always, msg.str_value == 'hello', 2))
-        self.assertEqual(len(result), 2, result)
+        self.assertEqual(get_start_times(result), [0, 5])
 
         result = self.__run_test(sustained(always, msg.str_value == 'hello', 6))
-        self.assertEqual(len(result), 0, result)
+        self.assertEqual(get_start_times(result), [])
 
         result = self.__run_test(sustained(topic_is('t1'), msg.str_value == 'hello', 2))
-        self.assertEqual(len(result), 1, result)
+        self.assertEqual(get_start_times(result), [0])
 
         result = self.__run_test(sustained(topic_is('t1'), msg.str_value == 'hello', 6))
-        self.assertEqual(len(result), 0, result)
+        self.assertEqual(get_start_times(result), [])
 
     def __run_test(self, condition):
         action = TestAction()
