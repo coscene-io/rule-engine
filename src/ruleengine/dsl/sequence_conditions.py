@@ -1,4 +1,4 @@
-from .ruleengine.dsl.condition import PointCondition, Condition
+from .condition import PointCondition, Condition
 
 def sustained(context_condition, variable_condition, duration):
     return FilterCondition(context_condition, SustainedCondition(variable_condition, duration))
@@ -25,7 +25,7 @@ class SustainedCondition(Condition):
         if self.__start is None:
             self.__start = item.ts
 
-        if item.ts - self.__start > duration:
+        if item.ts - self.__start > self.__duration:
             scope['start_time'] = self.__start
             self.__active = True
             return True
