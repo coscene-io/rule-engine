@@ -7,18 +7,13 @@ topic = PointCondition().map_condition_value(lambda x: x.topic)
 
 def get_value(key):
     return PointCondition.wrap(key).map_condition_value(
-            lambda key: PointCondition(lambda item, scope: scope[key]))
+            lambda key: PointCondition(lambda item, scope: (scope[key], {})))
 
 def set_value(key, value):
-    def get_condition(new_key, new_value):
-        def new_thunk(item, scope):
-            scope[new_key] = new_value
-            return True
-        return PointCondition(new_thunk)
-
     return PointCondition.wrap(key).map_condition_value(
         lambda actual_key: PointCondition.wrap(value).map_condition_value(
-            lambda actual_value: get_condition(actual_key, actual_value)))
+            lambda actual_value: PointCondition(
+                lambda item, scope: (True, { actual_key: actual_value }))))
 
 def topic_is(name):
     return topic.map_condition_value(lambda t: t == name)

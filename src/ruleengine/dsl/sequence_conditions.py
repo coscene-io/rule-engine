@@ -22,21 +22,23 @@ class SustainedCondition(Condition):
         self.__active = False
 
     def evaluate_condition_at(self, item, scope):
-        if not self.__variable.evaluate_condition_at(item, scope):
+        value, scope_update = self.__variable.evaluate_condition_at(item, scope)
+        if not value:
             self.__start = None
             self.__active = False
-            return False
+            return False, scope_update
 
         if self.__active:
-            return False
+            return False, scope_update
 
         if self.__start is None:
             self.__start = item.ts
 
         if item.ts - self.__start > self.__duration:
-            scope['start_time'] = self.__start
             self.__active = True
-            return True
+            return True, { **scope_update, 'start_time': self.__start }
+
+        return False, scope_update
 
 
 class FilterCondition(Condition):
@@ -48,7 +50,10 @@ class FilterCondition(Condition):
         self.__child = child_condition
 
     def evaluate_condition_at(self, item, scope):
-        if not self.__filter.evaluate_condition_at(item, scope):
-            return False
+        value, scope_update = self.__filter.evaluate_condition_at(item, scope)
+        if not value:
+            return False, scope_update
 
-        return self.__child.evaluate_condition_at(item, scope)
+        value2, update2 = self.__child.evaluate_condition_at(item, scope | scope_update)
+        return value2, scope_update | update2
+

@@ -27,7 +27,7 @@ class PointCondition(Condition):
     sorry.
 
     """
-    def __init__(self, thunk=lambda item, scope: item):
+    def __init__(self, thunk=lambda item, scope: (item, {})):
         super().__init__()
         self.__thunk = thunk
 
@@ -35,25 +35,30 @@ class PointCondition(Condition):
     def wrap(value):
         if isinstance(value, PointCondition):
             return value
-        return PointCondition(lambda item, scope: value)
+        return PointCondition(lambda item, scope: (value, {}))
 
     def evaluate_condition_at(self, item, scope):
         return self.__thunk(item, scope)
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
-            mapped = mapper(self.evaluate_condition_at(item, scope))
-            if isinstance(mapped, PointCondition):
-                return mapped.evaluate_condition_at(item, scope)
-            return mapped
+            value1, scope1 = self.evaluate_condition_at(item, scope)
+            mapped = mapper(value1)
+            if not isinstance(mapped, PointCondition):
+                return mapped, scope1
+
+            value2, scope2 = mapped.evaluate_condition_at(item, scope | scope1)
+            return value2, scope1 | scope2
         return PointCondition(new_thunk)
 
     def __and__(self, other):
         def new_thunk(item, scope):
-             new_value = self.evaluate_condition_at(item, scope)
-             if not new_value:
-                 return new_value
-             return PointCondition.wrap(other).evaluate_condition_at(item, scope)
+             value1, scope1 = self.evaluate_condition_at(item, scope)
+             if not value1:
+                 return value1, scope1
+
+             value2, scope2 = PointCondition.wrap(other).evaluate_condition_at(item, scope | scope1)
+             return value2, scope1 | scope2
 
         return PointCondition(new_thunk)
 
