@@ -67,8 +67,7 @@ class SequenceConditionTest(unittest.TestCase):
 
         result = self.__run_test(sequential(
             topic_is('t1') & set_value('somekey', msg.int_value),
-            topic_is('t2') & msg.int_value == get_value('somekey'),
-            duration=3))
+            topic_is('t2') & msg.int_value == get_value('somekey')))
         self.assertEqual(get_start_times(result), [0, 0])
 
     def __run_test(self, condition):
