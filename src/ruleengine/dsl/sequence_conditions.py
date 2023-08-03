@@ -1,6 +1,14 @@
 from .condition import PointCondition, Condition
 
 def sustained(context_condition, variable_condition, duration):
+    """
+    This condition triggers when the variable condition continues to be true for
+    the given duration.
+
+    The context condition is used to limit the scope of the variable condition.
+    For example, we might say "if topic X has value Y for 10 seconds", which
+    translates to context being topic == X, and variable being value == Y
+    """
     return FilterCondition(context_condition, SustainedCondition(variable_condition, duration))
 
 
