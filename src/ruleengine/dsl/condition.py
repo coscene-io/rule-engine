@@ -2,12 +2,6 @@ from abc import ABC, abstractmethod
 import operator as op
 
 class Condition(ABC):
-    @abstractmethod
-    def evaluate_condition_at(self, item, scope):
-        pass
-
-
-class PointCondition(Condition):
     """
     Defines a condition to be evaluated on a single message.
 
@@ -27,35 +21,34 @@ class PointCondition(Condition):
     sorry.
 
     """
-    def __init__(self, thunk=lambda item, scope: item):
-        super().__init__()
-        self.__thunk = thunk
+
+    @abstractmethod
+    def evaluate_condition_at(self, item, scope):
+        pass
 
     @staticmethod
     def wrap(value):
-        if isinstance(value, PointCondition):
+        if isinstance(value, Condition):
             return value
-        return PointCondition(lambda item, scope: value)
-
-    def evaluate_condition_at(self, item, scope):
-        return self.__thunk(item, scope)
+        return ThunkCondition(lambda item, scope: (value, scope))
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
-            mapped = mapper(self.evaluate_condition_at(item, scope))
-            if isinstance(mapped, PointCondition):
-                return mapped.evaluate_condition_at(item, scope)
-            return mapped
-        return PointCondition(new_thunk)
+            value1, scope = self.evaluate_condition_at(item, scope)
+            mapped = mapper(value1)
+            if not isinstance(mapped, Condition):
+                return mapped, scope
+
+            return mapped.evaluate_condition_at(item, scope)
+        return ThunkCondition(new_thunk)
 
     def __and__(self, other):
         def new_thunk(item, scope):
-             new_value = self.evaluate_condition_at(item, scope)
-             if not new_value:
-                 return new_value
-             return PointCondition.wrap(other).evaluate_condition_at(item, scope)
-
-        return PointCondition(new_thunk)
+             value1, scope = self.evaluate_condition_at(item, scope)
+             if not value1:
+                 return value1, scope
+             return Condition.wrap(other).evaluate_condition_at(item, scope)
+        return ThunkCondition(new_thunk)
 
     def __contains__(self, other):
         return self.__wrap_binary_op(other, op.contains)
@@ -74,6 +67,25 @@ class PointCondition(Condition):
 
     def __wrap_binary_op(self, other, op):
         return self.map_condition_value(
-            lambda x: PointCondition.wrap(other).map_condition_value(
+            lambda x: Condition.wrap(other).map_condition_value(
                 lambda y: op(x, y)))
+
+    def __bool__(self):
+        raise NotImplementedError("""
+        It is intentional that Condition objects should not be used as boolean values.
+
+        If you're trying to use boolean operators with conditions, please use bitwise equivalents instead:
+          a and b -> a & b
+          a or b -> a | b
+
+        """)
+
+
+class ThunkCondition(Condition):
+    def __init__(self, thunk):
+        super().__init__()
+        self.__thunk = thunk
+
+    def evaluate_condition_at(self, item, scope):
+        return self.__thunk(item, scope)
 

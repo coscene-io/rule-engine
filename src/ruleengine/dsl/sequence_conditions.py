@@ -1,4 +1,4 @@
-from .condition import PointCondition, Condition
+from .condition import Condition
 
 def sustained(context_condition, variable_condition, duration):
     """
@@ -9,12 +9,13 @@ def sustained(context_condition, variable_condition, duration):
     For example, we might say "if topic X has value Y for 10 seconds", which
     translates to context being topic == X, and variable being value == Y
     """
-    return FilterCondition(context_condition, SustainedCondition(variable_condition, duration))
+    return context_condition & SustainedCondition(variable_condition, duration)
 
 
 class SustainedCondition(Condition):
     def __init__(self, variable_condition, duration):
-        assert isinstance(variable_condition, PointCondition)
+        super().__init__()
+        assert isinstance(variable_condition, Condition)
 
         self.__variable = variable_condition
         self.__duration = duration
@@ -22,33 +23,22 @@ class SustainedCondition(Condition):
         self.__active = False
 
     def evaluate_condition_at(self, item, scope):
-        if not self.__variable.evaluate_condition_at(item, scope):
+        value, new_scope = self.__variable.evaluate_condition_at(item, scope)
+        if not value:
             self.__start = None
             self.__active = False
-            return False
+            return False, new_scope
 
         if self.__active:
-            return False
+            return False, new_scope
 
         if self.__start is None:
             self.__start = item.ts
 
         if item.ts - self.__start > self.__duration:
-            scope['start_time'] = self.__start
             self.__active = True
-            return True
+            return True, { **new_scope, 'start_time': self.__start }
+
+        return False, new_scope
 
 
-class FilterCondition(Condition):
-    def __init__(self, filter_condition, child_condition):
-        assert isinstance(filter_condition, PointCondition)
-        assert isinstance(child_condition, Condition)
-
-        self.__filter = filter_condition
-        self.__child = child_condition
-
-    def evaluate_condition_at(self, item, scope):
-        if not self.__filter.evaluate_condition_at(item, scope):
-            return False
-
-        return self.__child.evaluate_condition_at(item, scope)

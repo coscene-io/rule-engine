@@ -10,8 +10,7 @@ class Rule:
         self.__action = action
 
     def eval_condition(self, item):
-        scope = {}
-        return self.__cond.evaluate_condition_at(item, scope), scope
+        return self.__cond.evaluate_condition_at(item, {})
 
     def run_action(self, item, scope):
         return self.__action.run(item, scope)
