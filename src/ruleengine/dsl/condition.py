@@ -2,12 +2,6 @@ from abc import ABC, abstractmethod
 import operator as op
 
 class Condition(ABC):
-    @abstractmethod
-    def evaluate_condition_at(self, item, scope):
-        pass
-
-
-class PointCondition(Condition):
     """
     Defines a condition to be evaluated on a single message.
 
@@ -27,29 +21,27 @@ class PointCondition(Condition):
     sorry.
 
     """
-    def __init__(self, thunk=lambda item, scope: (item, {})):
-        super().__init__()
-        self.__thunk = thunk
+
+    @abstractmethod
+    def evaluate_condition_at(self, item, scope):
+        pass
 
     @staticmethod
     def wrap(value):
-        if isinstance(value, PointCondition):
+        if isinstance(value, Condition):
             return value
-        return PointCondition(lambda item, scope: (value, {}))
-
-    def evaluate_condition_at(self, item, scope):
-        return self.__thunk(item, scope)
+        return ThunkCondition(lambda item, scope: (value, {}))
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
             value1, scope1 = self.evaluate_condition_at(item, scope)
             mapped = mapper(value1)
-            if not isinstance(mapped, PointCondition):
+            if not isinstance(mapped, Condition):
                 return mapped, scope1
 
             value2, scope2 = mapped.evaluate_condition_at(item, scope | scope1)
             return value2, scope1 | scope2
-        return PointCondition(new_thunk)
+        return ThunkCondition(new_thunk)
 
     def __and__(self, other):
         def new_thunk(item, scope):
@@ -57,10 +49,10 @@ class PointCondition(Condition):
              if not value1:
                  return value1, scope1
 
-             value2, scope2 = PointCondition.wrap(other).evaluate_condition_at(item, scope | scope1)
+             value2, scope2 = Condition.wrap(other).evaluate_condition_at(item, scope | scope1)
              return value2, scope1 | scope2
 
-        return PointCondition(new_thunk)
+        return ThunkCondition(new_thunk)
 
     def __contains__(self, other):
         return self.__wrap_binary_op(other, op.contains)
@@ -79,6 +71,15 @@ class PointCondition(Condition):
 
     def __wrap_binary_op(self, other, op):
         return self.map_condition_value(
-            lambda x: PointCondition.wrap(other).map_condition_value(
+            lambda x: Condition.wrap(other).map_condition_value(
                 lambda y: op(x, y)))
+
+
+class ThunkCondition(Condition):
+    def __init__(self, thunk):
+        super().__init__()
+        self.__thunk = thunk
+
+    def evaluate_condition_at(self, item, scope):
+        return self.__thunk(item, scope)
 

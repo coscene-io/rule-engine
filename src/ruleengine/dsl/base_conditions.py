@@ -1,18 +1,19 @@
-from .condition import PointCondition
+from .condition import Condition, ThunkCondition
 
-always = PointCondition.wrap(True)
-msg = PointCondition().map_condition_value(lambda x: x.msg)
-ts = PointCondition().map_condition_value(lambda x: x.ts)
-topic = PointCondition().map_condition_value(lambda x: x.topic)
+always = Condition.wrap(True)
+identity = ThunkCondition(lambda item, scope: (item, {}))
+msg = identity.map_condition_value(lambda x: x.msg)
+ts = identity.map_condition_value(lambda x: x.ts)
+topic = identity.map_condition_value(lambda x: x.topic)
 
 def get_value(key):
-    return PointCondition.wrap(key).map_condition_value(
-            lambda key: PointCondition(lambda item, scope: (scope[key], {})))
+    return Condition.wrap(key).map_condition_value(
+            lambda key: ThunkCondition(lambda item, scope: (scope[key], {})))
 
 def set_value(key, value):
-    return PointCondition.wrap(key).map_condition_value(
-        lambda actual_key: PointCondition.wrap(value).map_condition_value(
-            lambda actual_value: PointCondition(
+    return Condition.wrap(key).map_condition_value(
+        lambda actual_key: Condition.wrap(value).map_condition_value(
+            lambda actual_value: ThunkCondition(
                 lambda item, scope: (True, { actual_key: actual_value }))))
 
 def topic_is(name):
