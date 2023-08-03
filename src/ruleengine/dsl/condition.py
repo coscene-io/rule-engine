@@ -74,6 +74,16 @@ class Condition(ABC):
             lambda x: Condition.wrap(other).map_condition_value(
                 lambda y: op(x, y)))
 
+    def __bool__(self):
+        raise NotImplementedError("""
+        It is intentional that Condition objects should not be used as boolean values.
+
+        If you're trying to use boolean operators with conditions, please use bitwise equivalents instead:
+          a and b -> a & b
+          a or b -> a | b
+
+        """)
+
 
 class ThunkCondition(Condition):
     def __init__(self, thunk):
