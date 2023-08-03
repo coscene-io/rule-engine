@@ -30,28 +30,24 @@ class Condition(ABC):
     def wrap(value):
         if isinstance(value, Condition):
             return value
-        return ThunkCondition(lambda item, scope: (value, {}))
+        return ThunkCondition(lambda item, scope: (value, scope))
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
-            value1, scope1 = self.evaluate_condition_at(item, scope)
+            value1, scope = self.evaluate_condition_at(item, scope)
             mapped = mapper(value1)
             if not isinstance(mapped, Condition):
-                return mapped, scope1
+                return mapped, scope
 
-            value2, scope2 = mapped.evaluate_condition_at(item, scope | scope1)
-            return value2, scope1 | scope2
+            return mapped.evaluate_condition_at(item, scope)
         return ThunkCondition(new_thunk)
 
     def __and__(self, other):
         def new_thunk(item, scope):
-             value1, scope1 = self.evaluate_condition_at(item, scope)
+             value1, scope = self.evaluate_condition_at(item, scope)
              if not value1:
-                 return value1, scope1
-
-             value2, scope2 = Condition.wrap(other).evaluate_condition_at(item, scope | scope1)
-             return value2, scope1 | scope2
-
+                 return value1, scope
+             return Condition.wrap(other).evaluate_condition_at(item, scope)
         return ThunkCondition(new_thunk)
 
     def __contains__(self, other):
