@@ -15,8 +15,24 @@ def sequential(*conditions, duration=None):
     return SequenceMatchCondition(list(conditions), duration)
 
 
+def repeated(condition, times, duration):
+    def count_matches(items):
+        def thunk(item, scope):
+            cnt = 0
+            for i in items:
+                res, scope = condition.evaluate_condition_at(i, scope)
+                if res: cnt += 1
+            return cnt, scope
+        return thunk
+
+    window_count = SlidingWindowCondition(duration).map_condition_value(
+        lambda items: ThunkCondition(count_matches(items)))
+
+    return SustainedCondition(window_count > times)
+
+
 class SustainedCondition(Condition):
-    def __init__(self, variable_condition, duration):
+    def __init__(self, variable_condition, duration=-1):
         super().__init__()
 
         assert isinstance(variable_condition, Condition)
@@ -43,6 +59,25 @@ class SustainedCondition(Condition):
             return True, { **new_scope, 'start_time': self.__start }
 
         return False, new_scope
+
+
+class SlidingWindowCondition(Condition):
+    def __init__(self, duration):
+        super().__init__()
+        assert duration > 0
+        self.__duration = duration
+        self.__buffer = []
+
+    def evaluate_condition_at(self, item, scope):
+        self.__buffer.append(item)
+        res = None
+        for idx, buf_item in enumerate(self.__buffer):
+            if buf_item.ts >= item.ts - duration:
+                res = self.__buffer[idx:]
+                break
+
+        self.__buffer = res
+        return self.__buffer, scope
 
 
 class SequenceMatchCondition(Condition):

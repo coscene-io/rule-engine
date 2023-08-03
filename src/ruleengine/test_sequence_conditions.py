@@ -65,10 +65,15 @@ class SequenceConditionTest(unittest.TestCase):
             duration=2))
         self.assertEqual(get_start_times(result), [])
 
+        # Overlapping sequences, and without duration
         result = self.__run_test(sequential(
             topic_is('t1') & set_value('somekey', msg.int_value),
             topic_is('t2') & msg.int_value == get_value('somekey')))
         self.assertEqual(get_start_times(result), [0, 0])
+
+    def test_repeated(self):
+        result = self.__run_test(repeated(always, 2, 1))
+        self.assertEqual(get_start_times(result), [0])
 
     def __run_test(self, condition):
         action = TestAction()
