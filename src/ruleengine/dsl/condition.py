@@ -43,6 +43,8 @@ class Condition(ABC):
         return ThunkCondition(new_thunk)
 
     def __and__(self, other):
+        # We don't implement `and` using the usual __wrap_binary_op, because we
+        # need to short circuit if the first value returns false. Same for `or`
         def new_thunk(item, scope):
              value1, scope = self.evaluate_condition_at(item, scope)
              if not value1:
@@ -50,17 +52,39 @@ class Condition(ABC):
              return Condition.wrap(other).evaluate_condition_at(item, scope)
         return ThunkCondition(new_thunk)
 
-    def __contains__(self, other):
+    def __or__(self, other):
+        def new_thunk(item, scope):
+             value1, scope = self.evaluate_condition_at(item, scope)
+             if value1:
+                 return value1, scope
+             return Condition.wrap(other).evaluate_condition_at(item, scope)
+        return ThunkCondition(new_thunk)
+
+    def __invert__(self):
+        return self.map_condition_value(op.not_)
+
+    def __rshift__(self, other):
+        # Python won't let us override `a in b` properly, so we repurpose b >> a
+        # to mean "b contains a".
         return self.__wrap_binary_op(other, op.contains)
 
     def __eq__(self, other):
         return self.__wrap_binary_op(other, op.eq)
+
+    def __ne__(self, other):
+        return self.__wrap_binary_op(other, op.ne)
 
     def __gt__(self, other):
         return self.__wrap_binary_op(other, op.gt)
 
     def __ge__(self, other):
         return self.__wrap_binary_op(other, op.ge)
+
+    def __lt__(self, other):
+        return self.__wrap_binary_op(other, op.lt)
+
+    def __le__(self, other):
+        return self.__wrap_binary_op(other, op.le)
 
     def __call__(self, *args, **kwargs):
         return self.map_condition_value(lambda f: f(*args, **kwargs))
@@ -80,6 +104,10 @@ class Condition(ABC):
         If you're trying to use boolean operators with conditions, please use bitwise equivalents instead:
           a and b -> a & b
           a or b -> a | b
+          not a -> ~a
+
+        If you're trying to use the `in` operator, we've repurposed bitshift operators for that:
+          a in b -> b >> a
 
         """)
 
