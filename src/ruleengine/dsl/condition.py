@@ -59,6 +59,9 @@ class Condition(ABC):
     def __gt__(self, other):
         return self.__wrap_binary_op(other, op.gt)
 
+    def __ge__(self, other):
+        return self.__wrap_binary_op(other, op.ge)
+
     def __call__(self, *args, **kwargs):
         return self.map_condition_value(lambda f: f(*args, **kwargs))
 
