@@ -51,6 +51,7 @@ class Condition(ABC):
         return ThunkCondition(new_thunk)
 
     def __contains__(self, other):
+        print("yahaha")
         return self.__wrap_binary_op(other, op.contains)
 
     def __eq__(self, other):
