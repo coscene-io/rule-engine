@@ -26,7 +26,7 @@ def main():
     watch_log_dir = sys.argv[1]
     target_dir = sys.argv[2]
     # rules = [Rule(msg.map_condition_value(lambda x: "Link encap:UNSPEC  HWaddr" in x), PrintAction())]
-    rules = [Rule(msg.__contains__("Link encap:UNSPEC  HWaddr"), PrintAction(target_dir))]
+    rules = [Rule(msg("Link encap:UNSPEC  HWaddr"), PrintAction(target_dir))]
     Engine(rules, tailer.tail_lines_from_dir(watch_log_dir)).run()
 
 
