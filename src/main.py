@@ -17,16 +17,16 @@ class PrintAction(Action):
             "title": "Found error code",
             "description": "Found error code description",
             "timestamp": int(item.ts.timestamp()),
-            "files": [item.topic]
+            "fileList": [item.topic]
         }
         with open(os.path.join(self.target_dir, str(uuid.uuid4()) + ".json"), "w") as f:
             json.dump(json_object, f)
 
 def main():
     watch_log_dir = sys.argv[1]
-    target_dir = sys.argv[2]
+    target_dir = "/root/.ros/auto-upload"
     # rules = [Rule(msg.map_condition_value(lambda x: "Link encap:UNSPEC  HWaddr" in x), PrintAction())]
-    rules = [Rule(msg("Link encap:UNSPEC  HWaddr"), PrintAction(target_dir))]
+    rules = [Rule(msg >> "Link encap:UNSPEC  HWaddr", PrintAction(target_dir))]
     Engine(rules, tailer.tail_lines_from_dir(watch_log_dir)).run()
 
 

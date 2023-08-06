@@ -1,0 +1,15 @@
+api:
+  server_url: https://api.coscene.cn
+  project_slug: codemo/auto-upload
+
+mod:
+  name: standard
+  conf:
+    enabled: true
+
+__import__:
+  - cos://organizations/current/configMaps/device.collector
+  - /root/.config/cos/local.yaml
+
+__reload__:
+  reload_interval_in_secs: 60
