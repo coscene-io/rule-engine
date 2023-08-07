@@ -26,7 +26,7 @@ def get_timestamp_hint_from_file(filename):
             if time_candidate:
                 try:
                     parsed_time = datetime.strptime(time_candidate.group(), date_format).replace(
-                        tzinfo=pytz.timezone('Asia/Shanghai'))
+                        tzinfo=pytz.timezone('Etc/GMT-8'))
                     return parsed_time
                 except ValueError:
                     pass
@@ -42,7 +42,7 @@ def get_timestamp_with_hint(dt, hint):
         return candidate
     else:
         candidate = dt.replace(year=datetime.now().year)
-        if candidate > datetime.now().replace(tzinfo=pytz.timezone('Asia/Shanghai')):
+        if candidate > datetime.now().replace(tzinfo=pytz.timezone('Etc/GMT-8')):
             return candidate.replace(year=datetime.now().year - 1)
         return candidate
 
@@ -53,7 +53,7 @@ def get_timestamp_from_line(line, hint):
         if time_candidate:
             try:
                 parsed_time = datetime.strptime(time_candidate.group(), date_format).replace(
-                    tzinfo=pytz.timezone('Asia/Shanghai'))
+                    tzinfo=pytz.timezone('Etc/GMT-8'))
                 return get_timestamp_with_hint(parsed_time, hint)
             except ValueError:
                 pass

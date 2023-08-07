@@ -24,7 +24,7 @@ class PrintAction(Action):
             "fileList": [item.topic]
         }
         with open(os.path.join(self.target_dir, str(uuid.uuid4()) + ".json"), "w") as f:
-            print(f"==> Creating a moment: {self.title}")
+            print(f"==> Creating a moment: {self.title}, at {item.ts}")
             json.dump(json_object, f)
 
 
