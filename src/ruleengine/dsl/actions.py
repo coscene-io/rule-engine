@@ -20,7 +20,7 @@ class PrintAction(Action):
         json_object = {
             "title": self.title,
             "description": self.description,
-            "timestamp": int(item.ts.timestamp()),
+            "timestamp": item.ts,
             "fileList": [item.topic]
         }
         with open(os.path.join(self.target_dir, str(uuid.uuid4()) + ".json"), "w") as f:

@@ -20,7 +20,7 @@ def repeated(condition, times, duration):
 
 
 def debounce(condition, duration):
-    return repeated(condition, 1, duration)
+    return repeated(condition, 2, duration)
 
 
 class SustainedCondition(Condition):
@@ -57,6 +57,7 @@ class SequenceMatchCondition(Condition):
     def __init__(self, sequence, duration=None):
         super().__init__()
 
+        assert len(sequence) > 1, 'Sequence must be longer than 1'
         for c in sequence:
             assert isinstance(c, Condition)
 
