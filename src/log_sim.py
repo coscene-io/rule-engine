@@ -6,7 +6,7 @@ def main():
     source_file = sys.argv[1]
     dest_file = sys.argv[2]
 
-    lines_per_interval = 1
+    lines_per_interval = 20
     interval = 1
 
     with open(source_file) as sf:
