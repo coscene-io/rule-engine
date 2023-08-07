@@ -11,6 +11,7 @@ ADD local.yaml /root/.config/cos/local.yaml
 ADD config.yaml /root/.config/cos/config.yaml
 ADD cos /usr/local/bin/cos
 ADD sn.txt /root/.ros/sn.txt
+ADD run_cos /usr/local/bin/run_cos
 RUN mkdir /app/logs
 
 ADD logSource /app/logSource/

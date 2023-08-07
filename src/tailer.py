@@ -85,7 +85,7 @@ def tail_lines_from_dir(dir):
             for line in tail:
                 timestamp = get_timestamp_from_line(line, hint)
                 if timestamp:
-                    latest_timestamps[filename] = timestamp
+                    latest_timestamps[filename] = int(timestamp.timestamp())
                 if filename not in latest_timestamps:
                     continue
 

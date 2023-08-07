@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cos daemon &
+/app/log_listener.py "$1" &
