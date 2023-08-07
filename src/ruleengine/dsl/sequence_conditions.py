@@ -19,6 +19,10 @@ def repeated(condition, times, duration):
     return condition & SustainedCondition(SequenceMatchCondition([condition] * times, duration))
 
 
+def debounce(condition, duration):
+    return repeated(condition, 1, duration)
+
+
 class SustainedCondition(Condition):
     def __init__(self, variable_condition, duration=-1):
         super().__init__()
