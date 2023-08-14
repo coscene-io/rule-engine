@@ -1,9 +1,10 @@
 import unittest
 from collections import namedtuple
+
 from .dsl.actions import Action
 from .dsl.base_conditions import *
 from .dsl.sequence_conditions import *
-from .engine import Rule, Engine
+from .engine import Engine, Rule
 
 TestDataItem = namedtuple('TestDataItem', 'topic msg ts')
 TestMessage = namedtuple('TestMessage', 'int_value str_value')
@@ -26,6 +27,7 @@ simple_sequence = [
     TestDataItem('t2', TestMessage(4, 'hello'), 9),
 ]
 
+
 class TestAction(Action):
     def __init__(self):
         self.collector = []
@@ -36,6 +38,7 @@ class TestAction(Action):
 
 def get_start_times(res):
     return [i[1]['start_time'] for i in res]
+
 
 class SequenceConditionTest(unittest.TestCase):
     def test_sustained_sequence(self):
@@ -89,4 +92,3 @@ class SequenceConditionTest(unittest.TestCase):
         action = TestAction()
         Engine([Rule(condition, action)], simple_sequence).run()
         return action.collector
-

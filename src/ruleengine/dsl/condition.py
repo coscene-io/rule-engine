@@ -1,5 +1,6 @@
-from abc import ABC, abstractmethod
 import operator as op
+from abc import ABC, abstractmethod
+
 
 class Condition(ABC):
     """
@@ -40,24 +41,27 @@ class Condition(ABC):
                 return mapped, scope
 
             return mapped.evaluate_condition_at(item, scope)
+
         return ThunkCondition(new_thunk)
 
     def __and__(self, other):
         # We don't implement `and` using the usual __wrap_binary_op, because we
         # need to short circuit if the first value returns false. Same for `or`
         def new_thunk(item, scope):
-             value1, scope = self.evaluate_condition_at(item, scope)
-             if not value1:
-                 return value1, scope
-             return Condition.wrap(other).evaluate_condition_at(item, scope)
+            value1, scope = self.evaluate_condition_at(item, scope)
+            if not value1:
+                return value1, scope
+            return Condition.wrap(other).evaluate_condition_at(item, scope)
+
         return ThunkCondition(new_thunk)
 
     def __or__(self, other):
         def new_thunk(item, scope):
-             value1, scope = self.evaluate_condition_at(item, scope)
-             if value1:
-                 return value1, scope
-             return Condition.wrap(other).evaluate_condition_at(item, scope)
+            value1, scope = self.evaluate_condition_at(item, scope)
+            if value1:
+                return value1, scope
+            return Condition.wrap(other).evaluate_condition_at(item, scope)
+
         return ThunkCondition(new_thunk)
 
     def __invert__(self):
@@ -98,6 +102,7 @@ class Condition(ABC):
                 lambda y: op(x, y)))
 
     def __bool__(self):
+        pass
         raise NotImplementedError("""
         It is intentional that Condition objects should not be used as boolean values.
 
@@ -119,4 +124,3 @@ class ThunkCondition(Condition):
 
     def evaluate_condition_at(self, item, scope):
         return self.__thunk(item, scope)
-

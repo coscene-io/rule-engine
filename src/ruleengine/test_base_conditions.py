@@ -1,8 +1,9 @@
 import unittest
 from collections import namedtuple
+
 from .dsl.actions import Action
 from .dsl.base_conditions import *
-from .engine import Rule, Engine
+from .engine import Engine, Rule
 
 TestDataItem = namedtuple('TestDataItem', 'topic msg ts')
 TestMessage = namedtuple('TestMessage', 'int_value str_value')
@@ -14,6 +15,7 @@ simple_sequence = [
     TestDataItem('t2', TestMessage(4, 'hello'), 3),
     TestDataItem('t2', TestMessage(5, 'world'), 4),
 ]
+
 
 class TestAction(Action):
     def __init__(self):
@@ -48,4 +50,3 @@ class BaseConditionTest(unittest.TestCase):
         action = TestAction()
         Engine([Rule(condition, action)], simple_sequence).run()
         return action.collector
-
