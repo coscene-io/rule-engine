@@ -67,28 +67,23 @@ class Condition(ABC):
     def __invert__(self):
         return self.map_condition_value(op.not_)
 
-    def __rshift__(self, other):
-        # Python won't let us override `a in b` properly, so we repurpose b >> a
-        # to mean "b contains a".
-        return self.__wrap_binary_op(other, op.contains)
-
     def __eq__(self, other):
-        return self.__wrap_binary_op(other, op.eq)
+        return self.__wrap_binary_op(other, op.eq, lambda x: x)
 
     def __ne__(self, other):
-        return self.__wrap_binary_op(other, op.ne)
+        return self.__wrap_binary_op(other, op.ne, lambda x: x)
 
     def __gt__(self, other):
-        return self.__wrap_binary_op(other, op.gt)
+        return self.__wrap_binary_op(other, op.gt, float)
 
     def __ge__(self, other):
-        return self.__wrap_binary_op(other, op.ge)
+        return self.__wrap_binary_op(other, op.ge, float)
 
     def __lt__(self, other):
-        return self.__wrap_binary_op(other, op.lt)
+        return self.__wrap_binary_op(other, op.lt, float)
 
     def __le__(self, other):
-        return self.__wrap_binary_op(other, op.le)
+        return self.__wrap_binary_op(other, op.le, float)
 
     def __call__(self, *args, **kwargs):
         return self.map_condition_value(lambda f: f(*args, **kwargs))
@@ -96,10 +91,10 @@ class Condition(ABC):
     def __getattr__(self, name):
         return self.map_condition_value(lambda x: getattr(x, name))
 
-    def __wrap_binary_op(self, other, op):
+    def __wrap_binary_op(self, other, op, coerce):
         return self.map_condition_value(
             lambda x: Condition.wrap(other).map_condition_value(
-                lambda y: op(x, y)))
+                lambda y: op(coerce(x), coerce(y))))
 
     def __bool__(self):
         pass

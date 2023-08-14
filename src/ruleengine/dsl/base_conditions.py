@@ -29,5 +29,14 @@ def type_is(name):
     return msg.map_condition_value(lambda m: type(m).__name__ == name)
 
 
-def regex_is(regex_str):
-    return msg.map_condition_value(lambda m: re.compile(regex_str).match(m) is not None)
+def has(parent, child):
+    return Condition.wrap(parent).map_condition_value(
+        lambda p: Condition.wrap(child).map_condition_value(
+            lambda c: ThunkCondition(lambda item, scope: (c in p, {**scope, 'cos/contains': c if c in p else None}))))
+
+
+def regex_search(value, pattern):
+    return Condition.wrap(value).map_condition_value(
+        lambda v: re.search(pattern, v)).map_condition_value(
+        lambda match_result:
+        ThunkCondition(lambda item, scope: (match_result, {**scope, 'cos/regex': match_result})))
