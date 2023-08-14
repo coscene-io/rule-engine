@@ -1,5 +1,6 @@
-from .dsl.condition import Condition
 from .dsl.actions import Action
+from .dsl.condition import Condition
+
 
 class Rule:
     def __init__(self, condition, action):
@@ -27,4 +28,3 @@ class Engine:
                 result, scope = rule.eval_condition(item)
                 if result:
                     rule.run_action(item, scope)
-

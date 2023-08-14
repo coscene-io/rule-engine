@@ -1,9 +1,10 @@
 import unittest
 from collections import namedtuple
+
 from .dsl.actions import Action
-from .dsl.base_conditions import *
-from .dsl.sequence_conditions import *
-from .engine import Rule, Engine
+from .dsl.base_conditions import always, and_, get_value, msg, set_value, topic_is
+from .dsl.sequence_conditions import repeated, sequential, sustained
+from .engine import Engine, Rule
 
 TestDataItem = namedtuple('TestDataItem', 'topic msg ts')
 TestMessage = namedtuple('TestMessage', 'int_value str_value')
@@ -26,6 +27,7 @@ simple_sequence = [
     TestDataItem('t2', TestMessage(4, 'hello'), 9),
 ]
 
+
 class TestAction(Action):
     def __init__(self):
         self.collector = []
@@ -36,6 +38,7 @@ class TestAction(Action):
 
 def get_start_times(res):
     return [i[1]['start_time'] for i in res]
+
 
 class SequenceConditionTest(unittest.TestCase):
     def test_sustained_sequence(self):
@@ -53,23 +56,23 @@ class SequenceConditionTest(unittest.TestCase):
 
     def test_sequence_pattern(self):
         result = self.__run_test(sequential(
-            topic_is('t1') & msg.int_value == 1,
-            topic_is('t2') & (msg.int_value == 4) & set_value('somekey', msg.int_value),
-            topic_is('t2') & msg.int_value == get_value('somekey'),
+            and_(topic_is('t1'), msg.int_value == 1),
+            and_(topic_is('t2'), (msg.int_value == 4), set_value('somekey', msg.int_value)),
+            and_(topic_is('t2'), msg.int_value == get_value('somekey')),
             duration=4))
         self.assertEqual(get_start_times(result), [0])
 
         result = self.__run_test(sequential(
-            topic_is('t1') & msg.int_value == 1,
-            topic_is('t2') & (msg.int_value == 4) & set_value('somekey', msg.int_value),
-            topic_is('t2') & msg.int_value == get_value('somekey'),
+            and_(topic_is('t1'), msg.int_value == 1),
+            and_(topic_is('t2'), (msg.int_value == 4), set_value('somekey', msg.int_value)),
+            and_(topic_is('t2'), msg.int_value == get_value('somekey')),
             duration=2))
         self.assertEqual(get_start_times(result), [])
 
         # Overlapping sequences, and without duration
         result = self.__run_test(sequential(
-            topic_is('t1') & set_value('somekey', msg.int_value),
-            topic_is('t2') & msg.int_value == get_value('somekey')))
+            and_(topic_is('t1'), set_value('somekey', msg.int_value)),
+            and_(topic_is('t2'), msg.int_value == get_value('somekey'))))
         self.assertEqual(get_start_times(result), [0, 0])
 
     def test_repeated(self):
@@ -85,8 +88,8 @@ class SequenceConditionTest(unittest.TestCase):
         result = self.__run_test(repeated(topic_is('t2'), 2, 0.5))
         self.assertEqual(get_start_times(result), [1, 3, 4, 7])
 
-    def __run_test(self, condition):
+    @staticmethod
+    def __run_test(condition):
         action = TestAction()
         Engine([Rule(condition, action)], simple_sequence).run()
         return action.collector
-
