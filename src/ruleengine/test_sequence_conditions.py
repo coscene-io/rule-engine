@@ -2,8 +2,8 @@ import unittest
 from collections import namedtuple
 
 from .dsl.actions import Action
-from .dsl.base_conditions import *
-from .dsl.sequence_conditions import *
+from .dsl.base_conditions import always, get_value, msg, set_value, topic_is
+from .dsl.sequence_conditions import repeated, sequential, sustained
 from .engine import Engine, Rule
 
 TestDataItem = namedtuple('TestDataItem', 'topic msg ts')
@@ -88,7 +88,8 @@ class SequenceConditionTest(unittest.TestCase):
         result = self.__run_test(repeated(topic_is('t2'), 2, 0.5))
         self.assertEqual(get_start_times(result), [1, 3, 4, 7])
 
-    def __run_test(self, condition):
+    @staticmethod
+    def __run_test(condition):
         action = TestAction()
         Engine([Rule(condition, action)], simple_sequence).run()
         return action.collector

@@ -2,7 +2,7 @@ import unittest
 from collections import namedtuple
 
 from .dsl.actions import Action
-from .dsl.base_conditions import *
+from .dsl.base_conditions import get_value, msg, set_value, topic_is, type_is
 from .engine import Engine, Rule
 
 TestDataItem = namedtuple('TestDataItem', 'topic msg ts')
@@ -46,7 +46,8 @@ class BaseConditionTest(unittest.TestCase):
         result = self.__run_test(set_value('somekey', msg.str_value) & get_value('somekey') == 'hello')
         self.assertEqual(len(result), 4, result)
 
-    def __run_test(self, condition):
+    @staticmethod
+    def __run_test(condition):
         action = TestAction()
         Engine([Rule(condition, action)], simple_sequence).run()
         return action.collector
