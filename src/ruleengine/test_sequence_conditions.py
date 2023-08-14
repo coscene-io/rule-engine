@@ -2,7 +2,7 @@ import unittest
 from collections import namedtuple
 
 from .dsl.actions import Action
-from .dsl.base_conditions import always, get_value, msg, set_value, topic_is
+from .dsl.base_conditions import always, and_, get_value, msg, set_value, topic_is
 from .dsl.sequence_conditions import repeated, sequential, sustained
 from .engine import Engine, Rule
 
@@ -56,23 +56,23 @@ class SequenceConditionTest(unittest.TestCase):
 
     def test_sequence_pattern(self):
         result = self.__run_test(sequential(
-            topic_is('t1') & msg.int_value == 1,
-            topic_is('t2') & (msg.int_value == 4) & set_value('somekey', msg.int_value),
-            topic_is('t2') & msg.int_value == get_value('somekey'),
+            and_(topic_is('t1'), msg.int_value == 1),
+            and_(topic_is('t2'), (msg.int_value == 4), set_value('somekey', msg.int_value)),
+            and_(topic_is('t2'), msg.int_value == get_value('somekey')),
             duration=4))
         self.assertEqual(get_start_times(result), [0])
 
         result = self.__run_test(sequential(
-            topic_is('t1') & msg.int_value == 1,
-            topic_is('t2') & (msg.int_value == 4) & set_value('somekey', msg.int_value),
-            topic_is('t2') & msg.int_value == get_value('somekey'),
+            and_(topic_is('t1'), msg.int_value == 1),
+            and_(topic_is('t2'), (msg.int_value == 4), set_value('somekey', msg.int_value)),
+            and_(topic_is('t2'), msg.int_value == get_value('somekey')),
             duration=2))
         self.assertEqual(get_start_times(result), [])
 
         # Overlapping sequences, and without duration
         result = self.__run_test(sequential(
-            topic_is('t1') & set_value('somekey', msg.int_value),
-            topic_is('t2') & msg.int_value == get_value('somekey')))
+            and_(topic_is('t1'), set_value('somekey', msg.int_value)),
+            and_(topic_is('t2'), msg.int_value == get_value('somekey'))))
         self.assertEqual(get_start_times(result), [0, 0])
 
     def test_repeated(self):

@@ -44,29 +44,6 @@ class Condition(ABC):
 
         return ThunkCondition(new_thunk)
 
-    def __and__(self, other):
-        # We don't implement `and` using the usual __wrap_binary_op, because we
-        # need to short circuit if the first value returns false. Same for `or`
-        def new_thunk(item, scope):
-            value1, scope = self.evaluate_condition_at(item, scope)
-            if not value1:
-                return value1, scope
-            return Condition.wrap(other).evaluate_condition_at(item, scope)
-
-        return ThunkCondition(new_thunk)
-
-    def __or__(self, other):
-        def new_thunk(item, scope):
-            value1, scope = self.evaluate_condition_at(item, scope)
-            if value1:
-                return value1, scope
-            return Condition.wrap(other).evaluate_condition_at(item, scope)
-
-        return ThunkCondition(new_thunk)
-
-    def __invert__(self):
-        return self.map_condition_value(op.not_)
-
     def __eq__(self, other):
         return self.__wrap_binary_op(other, op.eq, lambda x: x)
 
@@ -101,13 +78,13 @@ class Condition(ABC):
         raise NotImplementedError("""
         It is intentional that Condition objects should not be used as boolean values.
 
-        If you're trying to use boolean operators with conditions, please use bitwise equivalents instead:
-          a and b -> a & b
-          a or b -> a | b
-          not a -> ~a
+        If you're trying to use boolean operators with conditions, please use function equivalents instead:
+          a and b -> and_(a, b)
+          a or b -> or_(a, b)
+          not a -> not_(a)
 
-        If you're trying to use the `in` operator, we've repurposed bitshift operators for that:
-          a in b -> b >> a
+        If you're trying to use the `in` operator, please also use function equivalent instead:
+          a in b -> has(b, a)
 
         """)
 

@@ -1,3 +1,4 @@
+from .base_conditions import and_
 from .condition import Condition
 
 
@@ -10,7 +11,7 @@ def sustained(context_condition, variable_condition, duration):
     For example, we might say "if topic X has value Y for 10 seconds", which
     translates to context being topic == X, and variable being value == Y
     """
-    return context_condition & SustainedCondition(variable_condition, duration)
+    return and_(context_condition, SustainedCondition(variable_condition, duration))
 
 
 def sequential(*conditions, duration=None):
@@ -18,7 +19,7 @@ def sequential(*conditions, duration=None):
 
 
 def repeated(condition, times, duration):
-    return condition & SustainedCondition(SequenceMatchCondition([condition] * times, duration))
+    return and_(condition, SustainedCondition(SequenceMatchCondition([condition] * times, duration)))
 
 
 def debounce(condition, duration):

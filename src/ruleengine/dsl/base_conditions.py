@@ -9,6 +9,36 @@ ts = identity.map_condition_value(lambda x: x.ts)
 topic = identity.map_condition_value(lambda x: x.topic)
 
 
+def and_(*conditions):
+    assert len(conditions) > 1, 'and_ must have at least 2 conditions'
+
+    def new_thunk(item, scope):
+        for condition in conditions[:-1]:
+            value, scope = Condition.wrap(condition).evaluate_condition_at(item, scope)
+            if not value:
+                return value, scope
+        return Condition.wrap(conditions[-1]).evaluate_condition_at(item, scope)
+
+    return ThunkCondition(new_thunk)
+
+
+def or_(*conditions):
+    assert len(conditions) > 1, 'or_ must have at least 2 conditions'
+
+    def new_thunk(item, scope):
+        for condition in conditions[:-1]:
+            value, scope = Condition.wrap(condition).evaluate_condition_at(item, scope)
+            if value:
+                return value, scope
+        return Condition.wrap(conditions[-1]).evaluate_condition_at(item, scope)
+
+    return ThunkCondition(new_thunk)
+
+
+def not_(condition):
+    return Condition.wrap(condition).map_condition_value(lambda x: not x)
+
+
 def get_value(key):
     return Condition.wrap(key).map_condition_value(
         lambda k: ThunkCondition(lambda item, scope: (scope[k], scope)))
