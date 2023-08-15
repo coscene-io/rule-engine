@@ -53,11 +53,11 @@ def set_value(key, value):
 
 
 def topic_is(name):
-    return topic.map_condition_value(lambda t: t == name)
+    return topic == name
 
 
 def type_is(name):
-    return msgtype.map_condition_value(lambda t: t == name)
+    return msgtype == name
 
 
 def has(parent, child):
