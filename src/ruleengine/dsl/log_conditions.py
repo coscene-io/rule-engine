@@ -1,5 +1,8 @@
 from .base_conditions import *
 
+# TODO: Add tests
+# TODO: Add other fields that are common for logs
+
 _is_foxglove = or_(type_is('foxglove_msgs/Log'), type_is('foxglove.Log'))
 _is_ros = type_is('rosgraph_msgs/Log')
 
