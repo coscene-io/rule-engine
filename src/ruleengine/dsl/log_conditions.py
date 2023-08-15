@@ -1,11 +1,40 @@
 from .base_conditions import *
 
-log_text = or_(
-    and_(type_is('foxglove_msgs/Log'), msg.message),
-    and_(type_is('foxglove.Log'), msg.message),
-    and_(type_is('rosgraph_msgs/Log'), msg.msg),
+_is_foxglove = or_(type_is('foxglove_msgs/Log'), type_is('foxglove.Log'))
+_is_ros = type_is('rosgraph_msgs/Log')
 
-    # Always have a default case of empty string
+log_text = or_(
+    and_(_is_ros, msg.msg),
+    and_(_is_foxglove, msg.message),
+
+    # Default case
     '',
 )
+
+log_level = or_(
+    and_(_is_ros, msg.map_condition_value(lambda m: ros_log_level(m.level))),
+    and_(_is_foxglove, msg.map_condition_value(lambda m: foxglove_log_level(m.level))),
+
+    # Default case
+    'UNKNOWN',
+)
+
+def ros_log_level(num):
+    match num:
+        case 1: return 'DEBUG'
+        case 2: return 'INFO'
+        case 4: return 'WARN'
+        case 8: return 'ERROR'
+        case 16: return 'FATAL'
+        _: return 'UNKNOWN'
+
+
+def foxglove_log_level(num):
+    match num:
+        case 1: return 'DEBUG'
+        case 2: return 'INFO'
+        case 3: return 'WARN'
+        case 4: return 'ERROR'
+        case 5: return 'FATAL'
+        _: return 'UNKNOWN'
 
