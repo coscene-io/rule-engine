@@ -4,10 +4,10 @@ from .condition import Condition, ThunkCondition
 
 always = Condition.wrap(True)
 identity = ThunkCondition(lambda item, scope: (item, scope))
-msg = identity.map_condition_value(lambda x: x.msg)
-ts = identity.map_condition_value(lambda x: x.ts)
-topic = identity.map_condition_value(lambda x: x.topic)
-msgtype = identity.map_condition_value(lambda x: x.msgtype)
+msg = identity.msg
+ts = identity.ts
+topic = identity.topic
+msgtype = identity.msgtype
 
 
 def and_(*conditions):
