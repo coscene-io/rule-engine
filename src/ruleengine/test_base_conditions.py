@@ -5,17 +5,17 @@ from .dsl.actions import Action
 from .dsl.base_conditions import and_, get_value, has, msg, regex_search, set_value, topic_is, type_is
 from .engine import Engine, Rule
 
-TestDataItem = namedtuple('TestDataItem', 'topic msg ts')
+TestDataItem = namedtuple('TestDataItem', 'topic msg ts msgtype')
 TestMessage = namedtuple('TestMessage', 'int_value str_value')
 
 simple_sequence = [
-    TestDataItem('t1', TestMessage(1, 'hello'), 0),
-    TestDataItem('t2', TestMessage(2, 'hello'), 1),
-    TestDataItem('t1', TestMessage(3, 'heLlo'), 2),
-    TestDataItem('t2', TestMessage(4, 'hello'), 3),
-    TestDataItem('t2', TestMessage(5, 'world'), 4),
-    TestDataItem('t3', TestMessage(5, 'The value is 324, which is expected to be less than 22'), 5),
-    TestDataItem('t3', TestMessage(5, 'The value is 11, which is expected to be less than 22'), 5),
+    TestDataItem('t1', TestMessage(1, 'hello'), 0, 'TestMessage'),
+    TestDataItem('t2', TestMessage(2, 'hello'), 1, 'TestMessage'),
+    TestDataItem('t1', TestMessage(3, 'heLlo'), 2, 'TestMessage'),
+    TestDataItem('t2', TestMessage(4, 'hello'), 3, 'TestMessage'),
+    TestDataItem('t2', TestMessage(5, 'world'), 4, 'TestMessage'),
+    TestDataItem('t3', TestMessage(5, 'The value is 324, which is expected to be less than 22'), 5, 'TestMessage'),
+    TestDataItem('t3', TestMessage(5, 'The value is 11, which is expected to be less than 22'), 5, 'TestMessage'),
 ]
 
 
