@@ -7,6 +7,7 @@ identity = ThunkCondition(lambda item, scope: (item, scope))
 msg = identity.map_condition_value(lambda x: x.msg)
 ts = identity.map_condition_value(lambda x: x.ts)
 topic = identity.map_condition_value(lambda x: x.topic)
+msgtype = identity.map_condition_value(lambda x: x.msgtype)
 
 
 def and_(*conditions):
@@ -56,7 +57,7 @@ def topic_is(name):
 
 
 def type_is(name):
-    return msg.map_condition_value(lambda m: type(m).__name__ == name)
+    return msgtype.map_condition_value(lambda t: t == name)
 
 
 def has(parent, child):

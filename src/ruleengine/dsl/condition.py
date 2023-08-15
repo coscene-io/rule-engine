@@ -11,12 +11,13 @@ class Condition(ABC):
 
     - topic
     - msg
+    - msgtype
     - ts
 
     To make the DSL look nice at the end, this class ends up taking on a lot of
     the complexity. If you're familiar with monads, this class is a combination
     of Future and State. `map_condition_value` is both map and flatmap, and
-    `wrap` is lift.
+    `wrap` is pure.
 
     If you're not familiar with monads, this is going to be very confusing. I'm
     sorry.
