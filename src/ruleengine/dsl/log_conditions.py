@@ -7,7 +7,7 @@ from .base_conditions import *
 _is_foxglove = or_(type_is('foxglove_msgs/Log'), type_is('foxglove.Log'))
 _is_ros = type_is('rosgraph_msgs/Log')
 
-LogLevel = Enum('LogLevel', ['DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'])
+LogLevel = Enum('LogLevel', ['UNKNOWN', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'])
 
 log_text = or_(
     and_(_is_ros, msg.msg),
@@ -25,22 +25,34 @@ log_level = or_(
     LogLevel.UNKNOWN,
 )
 
+
 def ros_log_level(num):
     match num:
-        case 1: return LogLevel.DEBUG
-        case 2: return LogLevel.INFO
-        case 4: return LogLevel.WARN
-        case 8: return LogLevel.ERROR
-        case 16: return LogLevel.FATAL
-        _: return LogLevel.UNKNOWN
+        case 1:
+            return LogLevel.DEBUG
+        case 2:
+            return LogLevel.INFO
+        case 4:
+            return LogLevel.WARN
+        case 8:
+            return LogLevel.ERROR
+        case 16:
+            return LogLevel.FATAL
+        case _:
+            return LogLevel.UNKNOWN
 
 
 def foxglove_log_level(num):
     match num:
-        case 1: return LogLevel.DEBUG
-        case 2: return LogLevel.INFO
-        case 3: return LogLevel.WARN
-        case 4: return LogLevel.ERROR
-        case 5: return LogLevel.FATAL
-        _: return LogLevel.UNKNOWN
-
+        case 1:
+            return LogLevel.DEBUG
+        case 2:
+            return LogLevel.INFO
+        case 3:
+            return LogLevel.WARN
+        case 4:
+            return LogLevel.ERROR
+        case 5:
+            return LogLevel.FATAL
+        case _:
+            return LogLevel.UNKNOWN
