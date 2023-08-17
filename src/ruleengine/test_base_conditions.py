@@ -2,7 +2,7 @@ import unittest
 from collections import namedtuple
 
 from .dsl.actions import Action
-from .dsl.base_conditions import and_, get_value, has, msg, regex_search, set_value, topic_is, type_is
+from .dsl.base_conditions import *
 from .engine import Engine, Rule
 
 TestDataItem = namedtuple('TestDataItem', 'topic msg ts msgtype')
@@ -60,6 +60,10 @@ class BaseConditionTest(unittest.TestCase):
         self.assertEqual(len(result), 3, result)
         result = self.__run_test(and_(regex_search(msg.str_value, r'e[lL]lo'),
                                       get_value('cos/regex').group(0) == 'eLlo'))
+        self.assertEqual(len(result), 1, result)
+
+    def test_concat(self):
+        result = self.__run_test(concat(msg.str_value, '---', msg.int_value) == 'hello---1')
         self.assertEqual(len(result), 1, result)
 
     def test_coerce(self):
