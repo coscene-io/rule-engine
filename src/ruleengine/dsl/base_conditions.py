@@ -11,27 +11,29 @@ msgtype = identity.msgtype
 
 
 def and_(*conditions):
-    assert len(conditions) > 1, 'and_ must have at least 2 conditions'
+    assert len(conditions) > 0, 'and_ must have at least 1 condition'
 
     def new_thunk(item, scope):
-        for condition in conditions[:-1]:
+        value = True
+        for condition in conditions:
             value, scope = Condition.wrap(condition).evaluate_condition_at(item, scope)
             if not value:
-                return value, scope
-        return Condition.wrap(conditions[-1]).evaluate_condition_at(item, scope)
+                break
+        return value, scope
 
     return ThunkCondition(new_thunk)
 
 
 def or_(*conditions):
-    assert len(conditions) > 1, 'or_ must have at least 2 conditions'
+    assert len(conditions) > 0, 'or_ must have at least 1 condition'
 
     def new_thunk(item, scope):
-        for condition in conditions[:-1]:
+        value = False
+        for condition in conditions:
             value, scope = Condition.wrap(condition).evaluate_condition_at(item, scope)
             if value:
-                return value, scope
-        return Condition.wrap(conditions[-1]).evaluate_condition_at(item, scope)
+                break
+        return value, scope
 
     return ThunkCondition(new_thunk)
 
