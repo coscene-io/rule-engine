@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+from semver.version import Version
 
 from setuptools import setup, find_packages
 
@@ -9,9 +10,10 @@ if not version:
     logging.info("RULE_ENGINE_VERSION not set, might be running in CI")
     version = "0.0.0"
 
+# Remove the leading "v" if present
 version = re.sub("^v", "", version)
-if not re.match(r"^\d+\.\d+\.\d+(-(a|b|rc)\d+)?$", version):
-    raise ValueError(f"Invalid version: {version}")
+# Semantically check the version
+version = str(Version.parse(version))
 
 
 def requires(filename="requirements.txt"):
