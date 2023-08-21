@@ -1,0 +1,33 @@
+name: Lint and Test
+
+# Reference to the two tutorials below:
+# https://github.com/marketplace/actions/install-poetry-action
+# https://testdriven.io/tips/810f9bb5-c9df-479d-baa4-290c7e0779f1/
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint-n-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip
+          restore-keys: ${{ runner.os }}-pip
+      - name: Install dependencies and api key
+        run: |
+          pip install -e .[dev]
+      - name: Lint with flake8
+        run: flake8 cos --count --show-source --statistics
+      - name: Test with pytest
+        run: |
+          pytest -p no:logging -p no:warnings --cov=cos --cov-report=xml
