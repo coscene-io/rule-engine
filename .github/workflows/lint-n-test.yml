@@ -27,7 +27,7 @@ jobs:
         run: |
           pip install -e .[dev]
       - name: Lint with flake8
-        run: flake8 cos --count --show-source --statistics
+        run: flake8 src --count --show-source --statistics
       - name: Test with pytest
         run: |
-          pytest -p no:logging -p no:warnings --cov=cos --cov-report=xml
+          pytest -p no:logging -p no:warnings
