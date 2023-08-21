@@ -8,7 +8,7 @@ if not version:
     raise ValueError('RULE_ENGINE_VERSION is not set')
 
 version = re.sub('^v', '', version)
-if not re.match(r'^\d+\.\d+\.\d+$', version):
+if not re.match(r'^\d+\.\d+\.\d+(-(a|b|rc)\d+)?$', version):
     raise ValueError(f'Invalid version: {version}')
 
 
