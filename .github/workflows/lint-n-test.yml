@@ -1,9 +1,5 @@
 name: Lint and Test
 
-# Reference to the two tutorials below:
-# https://github.com/marketplace/actions/install-poetry-action
-# https://testdriven.io/tips/810f9bb5-c9df-479d-baa4-290c7e0779f1/
-
 on:
   push:
     branches:
