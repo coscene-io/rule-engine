@@ -1,6 +1,7 @@
 name: Publish Rule Engine to PyPI
 
 on:
+  workflow_dispatch:
   release:
     types: [ published ]
 
@@ -19,6 +20,7 @@ jobs:
           pip install setuptools wheel twine
       - name: Build and publish
         env:
+          RULE_ENGINE_VERSION: ${{ github.event.release.tag_name }}
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |

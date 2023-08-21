@@ -1,4 +1,15 @@
+import os
+import re
+
 from setuptools import setup, find_packages
+
+version = os.environ.get('RULE_ENGINE_VERSION')
+if not version:
+    raise ValueError('RULE_ENGINE_VERSION is not set')
+
+version = re.sub('^v', '', version)
+if not re.match(r'^\d+\.\d+\.\d+$', version):
+    raise ValueError(f'Invalid version: {version}')
 
 
 def requires(filename='requirements.txt'):
@@ -8,7 +19,7 @@ def requires(filename='requirements.txt'):
 
 setup(
     name="cos-ruleengine",
-    version="0.1.5",
+    version=version,
     description="",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
