@@ -19,7 +19,10 @@ def sequential(*conditions, duration=None):
 
 
 def repeated(condition, times, duration):
-    return and_(condition, SustainedCondition(SequenceMatchCondition([condition] * times, duration)))
+    return and_(
+        condition,
+        SustainedCondition(SequenceMatchCondition([condition] * times, duration)),
+    )
 
 
 def debounce(condition, duration):
@@ -51,7 +54,7 @@ class SustainedCondition(Condition):
 
         if item.ts - self.__start > self.__duration:
             self.__active = True
-            return True, {**new_scope, 'start_time': self.__start}
+            return True, {**new_scope, "start_time": self.__start}
 
         return False, new_scope
 
@@ -60,7 +63,7 @@ class SequenceMatchCondition(Condition):
     def __init__(self, sequence, duration=None):
         super().__init__()
 
-        assert len(sequence) > 1, 'Sequence must be longer than 1'
+        assert len(sequence) > 1, "Sequence must be longer than 1"
         for c in sequence:
             assert isinstance(c, Condition)
 
@@ -80,7 +83,9 @@ class SequenceMatchCondition(Condition):
             if self.__duration is not None and item.ts - start > self.__duration:
                 continue
 
-            matched, new_scope = self.__seq[curr_index].evaluate_condition_at(item, curr_scope)
+            matched, new_scope = self.__seq[curr_index].evaluate_condition_at(
+                item, curr_scope
+            )
             if matched:
                 if curr_index + 1 == len(self.__seq):
                     success = start, new_scope
@@ -97,6 +102,14 @@ class SequenceMatchCondition(Condition):
             self.__ongoings.append((item.ts, 1, new_scope))
 
         if success:
-            return True, {**success[1], 'start_time': success[0]}
+            return True, {**success[1], "start_time": success[0]}
 
         return False, scope
+
+
+__all__ = [
+    "sustained",
+    "sequential",
+    "repeated",
+    "debounce",
+]

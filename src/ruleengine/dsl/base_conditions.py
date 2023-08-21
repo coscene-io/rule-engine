@@ -11,7 +11,7 @@ msgtype = identity.msgtype
 
 
 def and_(*conditions):
-    assert len(conditions) > 0, 'and_ must have at least 1 condition'
+    assert len(conditions) > 0, "and_ must have at least 1 condition"
 
     def new_thunk(item, scope):
         value = True
@@ -25,7 +25,7 @@ def and_(*conditions):
 
 
 def or_(*conditions):
-    assert len(conditions) > 0, 'or_ must have at least 1 condition'
+    assert len(conditions) > 0, "or_ must have at least 1 condition"
 
     def new_thunk(item, scope):
         value = False
@@ -48,21 +48,25 @@ def concat(*pieces):
         for p in pieces:
             value, scope = Condition.wrap(p).evaluate_condition_at(item, scope)
             str_pieces.append(str(value))
-        return ''.join(str_pieces), scope
-    return ThunkCondition(new_thunk)
+        return "".join(str_pieces), scope
 
+    return ThunkCondition(new_thunk)
 
 
 def get_value(key):
     return Condition.wrap(key).map_condition_value(
-        lambda k: ThunkCondition(lambda item, scope: (scope[k], scope)))
+        lambda k: ThunkCondition(lambda item, scope: (scope[k], scope))
+    )
 
 
 def set_value(key, value):
     return Condition.wrap(key).map_condition_value(
         lambda actual_key: Condition.wrap(value).map_condition_value(
             lambda actual_value: ThunkCondition(
-                lambda item, scope: (True, {**scope, actual_key: actual_value}))))
+                lambda item, scope: (True, {**scope, actual_key: actual_value})
+            )
+        )
+    )
 
 
 def topic_is(name):
@@ -76,11 +80,43 @@ def type_is(name):
 def has(parent, child):
     return Condition.wrap(parent).map_condition_value(
         lambda p: Condition.wrap(child).map_condition_value(
-            lambda c: ThunkCondition(lambda item, scope: (c in p, {**scope, 'cos/contains': c if c in p else None}))))
+            lambda c: ThunkCondition(
+                lambda item, scope: (
+                    c in p,
+                    {**scope, "cos/contains": c if c in p else None},
+                )
+            )
+        )
+    )
 
 
 def regex_search(value, pattern):
-    return Condition.wrap(value).map_condition_value(
-        lambda v: re.search(pattern, v)).map_condition_value(
-        lambda match_result:
-        ThunkCondition(lambda item, scope: (match_result, {**scope, 'cos/regex': match_result})))
+    return (
+        Condition.wrap(value)
+        .map_condition_value(lambda v: re.search(pattern, v))
+        .map_condition_value(
+            lambda match_result: ThunkCondition(
+                lambda item, scope: (match_result, {**scope, "cos/regex": match_result})
+            )
+        )
+    )
+
+
+__all__ = [
+    "always",
+    "identity",
+    "msg",
+    "ts",
+    "topic",
+    "msgtype",
+    "and_",
+    "or_",
+    "not_",
+    "concat",
+    "get_value",
+    "set_value",
+    "topic_is",
+    "type_is",
+    "has",
+    "regex_search",
+]
