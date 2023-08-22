@@ -16,8 +16,8 @@ class Condition(ABC):
 
     To make the DSL look nice at the end, this class ends up taking on a lot of
     the complexity. If you're familiar with monads, this class is a combination
-    of Future and State. `map_condition_value` is both map and flatmap, and
-    `wrap` is pure.
+    of Future and State and Optional. `map_condition_value` is both map and
+    flatmap, and `wrap` is pure.
 
     If you're not familiar with monads, this is going to be very confusing. I'm
     sorry.
@@ -37,6 +37,9 @@ class Condition(ABC):
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
             value1, scope = self.evaluate_condition_at(item, scope)
+            if value1 is None:
+                return value1, scope
+
             mapped = mapper(value1)
             if not isinstance(mapped, Condition):
                 return mapped, scope
@@ -46,10 +49,10 @@ class Condition(ABC):
         return ThunkCondition(new_thunk)
 
     def __eq__(self, other):
-        return self.__wrap_binary_op(other, op.eq, lambda x: x)
+        return self.__wrap_binary_op(other, op.eq)
 
     def __ne__(self, other):
-        return self.__wrap_binary_op(other, op.ne, lambda x: x)
+        return self.__wrap_binary_op(other, op.ne)
 
     def __gt__(self, other):
         return self.__wrap_binary_op(other, op.gt, float)
@@ -67,9 +70,9 @@ class Condition(ABC):
         return self.map_condition_value(lambda f: f(*args, **kwargs))
 
     def __getattr__(self, name):
-        return self.map_condition_value(lambda x: getattr(x, name))
+        return self.map_condition_value(lambda x: getattr(x, name, None))
 
-    def __wrap_binary_op(self, other, op, coerce):
+    def __wrap_binary_op(self, other, op, coerce=lambda x: x):
         return self.map_condition_value(
             lambda x: Condition.wrap(other).map_condition_value(
                 lambda y: op(coerce(x), coerce(y))

@@ -42,6 +42,14 @@ def not_(condition):
     return Condition.wrap(condition).map_condition_value(lambda x: not x)
 
 
+def is_none(condition):
+    def new_thunk(item, scope):
+        value, scope = Condition.wrap(condition).evaluate_condition_at(item, scope)
+        return value is None, scope
+
+    return ThunkCondition(new_thunk)
+
+
 def concat(*pieces):
     def new_thunk(item, scope):
         str_pieces = []
@@ -119,4 +127,5 @@ __all__ = [
     "type_is",
     "has",
     "regex_search",
+    "is_none",
 ]

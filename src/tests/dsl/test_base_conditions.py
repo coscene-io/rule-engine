@@ -67,6 +67,13 @@ class BaseConditionTest(unittest.TestCase):
         result = self.__run_test(msgtype == "FalseMessage")
         self.assertEqual(len(result), 0, result)
 
+    def test_none_values(self):
+        result = self.__run_test(msg.this.doesnt.exist == "MockMessage")
+        self.assertEqual(len(result), 0, result)
+
+        result = self.__run_test(is_none(msg.this.doesnt.exist))
+        self.assertEqual(len(result), 7, result)
+
     def test_and(self):
         result = self.__run_test(and_(msgtype == "MockMessage", topic == "t1"))
         self.assertEqual(len(result), 2, result)
@@ -116,17 +123,11 @@ class BaseConditionTest(unittest.TestCase):
 
     def test_regex(self):
         result = self.__run_test(
-            and_(
-                regex_search(msg.str_value, r"e[lL]lo"),
-                get_value("cos/regex").group(0) == "ello",
-            )
+            regex_search(msg.str_value, r"e[lL]lo").group(0) == "ello",
         )
         self.assertEqual(len(result), 3, result)
         result = self.__run_test(
-            and_(
-                regex_search(msg.str_value, r"e[lL]lo"),
-                get_value("cos/regex").group(0) == "eLlo",
-            )
+            regex_search(msg.str_value, r"e[lL]lo").group(0) == "eLlo",
         )
         self.assertEqual(len(result), 1, result)
 
@@ -138,13 +139,11 @@ class BaseConditionTest(unittest.TestCase):
 
     def test_coerce(self):
         result = self.__run_test(
-            and_(
-                regex_search(
-                    msg.str_value,
-                    r"The value is (\d+), which is expected to be less than",
-                ),
-                get_value("cos/regex").group(1) > 111,
-            )
+            regex_search(
+                msg.str_value,
+                r"The value is (\d+), which is expected to be less than",
+            ).group(1)
+            > 111,
         )
         self.assertEqual(len(result), 1, result)
 
