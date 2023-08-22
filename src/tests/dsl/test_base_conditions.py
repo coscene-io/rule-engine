@@ -67,6 +67,13 @@ class BaseConditionTest(unittest.TestCase):
         result = self.__run_test(msgtype == "FalseMessage")
         self.assertEqual(len(result), 0, result)
 
+    def test_none_values(self):
+        result = self.__run_test(msg.this.doesnt.exist == "MockMessage")
+        self.assertEqual(len(result), 0, result)
+
+        result = self.__run_test(is_none(msg.this.doesnt.exist))
+        self.assertEqual(len(result), 7, result)
+
     def test_and(self):
         result = self.__run_test(and_(msgtype == "MockMessage", topic == "t1"))
         self.assertEqual(len(result), 2, result)
