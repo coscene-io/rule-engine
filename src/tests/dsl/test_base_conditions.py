@@ -139,13 +139,11 @@ class BaseConditionTest(unittest.TestCase):
 
     def test_coerce(self):
         result = self.__run_test(
-            and_(
-                regex_search(
-                    msg.str_value,
-                    r"The value is (\d+), which is expected to be less than",
-                ),
-                get_value("cos/regex").group(1) > 111,
-            )
+            regex_search(
+                msg.str_value,
+                r"The value is (\d+), which is expected to be less than",
+            ).group(1)
+            > 111,
         )
         self.assertEqual(len(result), 1, result)
 
