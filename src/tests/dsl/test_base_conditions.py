@@ -123,11 +123,11 @@ class BaseConditionTest(unittest.TestCase):
 
     def test_regex(self):
         result = self.__run_test(
-                regex_search(msg.str_value, r"e[lL]lo").group(0) == "ello",
-            )
+            regex_search(msg.str_value, r"e[lL]lo").group(0) == "ello",
+        )
         self.assertEqual(len(result), 3, result)
         result = self.__run_test(
-                regex_search(msg.str_value, r"e[lL]lo").group(0) == "eLlo",
+            regex_search(msg.str_value, r"e[lL]lo").group(0) == "eLlo",
         )
         self.assertEqual(len(result), 1, result)
 
