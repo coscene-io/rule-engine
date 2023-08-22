@@ -75,22 +75,25 @@ class Condition(ABC):
     def __wrap_binary_op(self, other, op, coerce=lambda x: x):
         return self.map_condition_value(
             lambda x: Condition.wrap(other).map_condition_value(
-                lambda y: op(coerce(x), coerce(y))))
+                lambda y: op(coerce(x), coerce(y))
+            )
+        )
 
     def __bool__(self):
         pass
-        raise NotImplementedError("""
-        It is intentional that Condition objects should not be used as boolean values.
+        raise NotImplementedError(
+            """
+            It is intentional that Condition objects should not be used as boolean values.
 
-        If you're trying to use boolean operators with conditions, please use function equivalents instead:
-          a and b -> and_(a, b)
-          a or b -> or_(a, b)
-          not a -> not_(a)
+            If you're trying to use boolean operators with conditions, please use function equivalents instead:
+              a and b -> and_(a, b)
+              a or b -> or_(a, b)
+              not a -> not_(a)
 
-        If you're trying to use the `in` operator, please also use function equivalent instead:
-          a in b -> has(b, a)
-
-        """)
+            If you're trying to use the `in` operator, please also use function equivalent instead:
+              a in b -> has(b, a)
+            """
+        )
 
 
 class ThunkCondition(Condition):
@@ -100,3 +103,9 @@ class ThunkCondition(Condition):
 
     def evaluate_condition_at(self, item, scope):
         return self.__thunk(item, scope)
+
+
+__all__ = [
+    "Condition",
+    "ThunkCondition",
+]
