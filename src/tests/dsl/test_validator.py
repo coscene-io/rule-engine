@@ -2,8 +2,8 @@ import unittest
 
 from ruleengine.dsl.validator import validate_condition, validate_action
 
-class ValidatorTest(unittest.TestCase):
 
+class ValidatorTest(unittest.TestCase):
     def test_condition_validation(self):
         validate_condition("123")
         validate_condition("'hello'")
@@ -11,10 +11,10 @@ class ValidatorTest(unittest.TestCase):
         validate_condition("and_(topic_is('blah'), msg.something == 123)")
 
         with self.assertRaises(Exception):
-            validate_condition('')
+            validate_condition("")
 
         with self.assertRaises(Exception):
-            validate_condition('missing_function(123)')
+            validate_condition("missing_function(123)")
 
         with self.assertRaises(Exception):
             # Actions should not be part of condition
@@ -23,7 +23,6 @@ class ValidatorTest(unittest.TestCase):
         # TODO: Need to prevent using globals like `open`. The following line
         # should fail
         # validate_condition("open('/etc/passwd')")
-
 
     def test_action_validation(self):
         validate_action("create_moment('hello')")
@@ -38,5 +37,3 @@ class ValidatorTest(unittest.TestCase):
         with self.assertRaises(Exception):
             # Wrong keyword arg
             validate_action("create_moment('hello', descrin='', durion=100)")
-
-
