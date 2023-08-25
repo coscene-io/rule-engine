@@ -1,7 +1,11 @@
 import inspect
-from ruleengine import dsl
+from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
 
-base_dsl_values = dict(inspect.getmembers(dsl))
+base_dsl_values = dict(
+        inspect.getmembers(base_conditions) +
+        inspect.getmembers(log_conditions) +
+        inspect.getmembers(sequence_conditions)
+        )
 
 
 def upload(
@@ -35,10 +39,10 @@ actions_dsl_values = {
 def validate_condition(cond_str):
     # TODO: Very much not safe. Condition strings are user supplied, and we need
     # to sanitize the fuck out of it before doing eval.
-    eval(cond_str, base_dsl_values)
+    return eval(cond_str, base_dsl_values)
 
 
 def validate_action(action_str):
     # TODO: Very much not safe. Condition strings are user supplied, and we need
     # to sanitize the fuck out of it before doing eval.
-    eval(action_str, actions_dsl_values)
+    return eval(action_str, actions_dsl_values)
