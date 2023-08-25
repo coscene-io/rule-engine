@@ -20,10 +20,6 @@ class ValidatorTest(unittest.TestCase):
             # Actions should not be part of condition
             validate_condition("create_moment('hello')")
 
-        # TODO: Need to prevent using globals like `open`. The following line
-        # should fail
-        # validate_condition("open('/etc/passwd')")
-
     def test_action_validation(self):
         validate_action("create_moment('hello')")
         validate_action("create_moment('hello', description='', duration=100)")
