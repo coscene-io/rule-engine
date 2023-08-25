@@ -28,6 +28,7 @@ class ValidatorTest(unittest.TestCase):
     def test_action_validation(self):
         validate_action("create_moment('hello')")
         validate_action("create_moment('hello', description='', duration=100)")
+        validate_action("create_moment(msg.title, description='', duration=100)")
         validate_action("upload(title='hello', description='', before=1)")
 
         with self.assertRaises(Exception):
