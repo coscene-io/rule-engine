@@ -2,10 +2,10 @@ import inspect
 from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
 
 base_dsl_values = dict(
-        inspect.getmembers(base_conditions) +
-        inspect.getmembers(log_conditions) +
-        inspect.getmembers(sequence_conditions)
-        )
+    inspect.getmembers(base_conditions)
+    + inspect.getmembers(log_conditions)
+    + inspect.getmembers(sequence_conditions)
+)
 
 
 def upload(
