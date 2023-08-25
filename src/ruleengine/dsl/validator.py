@@ -33,8 +33,12 @@ actions_dsl_values = {
 
 
 def validate_condition(cond_str):
+    # TODO: Very much not safe. Condition strings are user supplied, and we need
+    # to sanitize the fuck out of it before doing eval.
     eval(cond_str, base_dsl_values)
 
 
 def validate_action(action_str):
+    # TODO: Very much not safe. Condition strings are user supplied, and we need
+    # to sanitize the fuck out of it before doing eval.
     eval(action_str, actions_dsl_values)
