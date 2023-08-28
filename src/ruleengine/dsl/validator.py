@@ -46,3 +46,22 @@ def validate_action(action_str):
     # TODO: Very much not safe. Condition strings are user supplied, and we need
     # to sanitize the fuck out of it before doing eval.
     return eval(action_str, actions_dsl_values)
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Validate condition or action strings")
+    parser.add_argument(
+        "mode",
+        help="What we're validating, action or condition",
+        choices=["action", "condition"],
+    )
+    parser.add_argument("content", help="Content string to be validated")
+    args = parser.parse_args()
+
+    match args.mode:
+        case "action":
+            validate_action(args.content)
+        case "condition":
+            validate_condition(args.content)
