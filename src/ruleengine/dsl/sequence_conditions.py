@@ -26,7 +26,30 @@ def repeated(condition, times, duration):
 
 
 def debounce(condition, duration):
-    return repeated(condition, 2, duration)
+    return and_(condition, RisingEdgeCondition(condition, duration))
+
+
+class RisingEdgeCondition(Condition):
+    def __init__(self, condition, max_gap=None):
+        assert isinstance(condition, Condition)
+        self.__condition = condition
+        self.__active = False
+        self.__last_activation = None
+        self.__max_gap = max_gap
+
+    def evaluate_condition_at(self, item, scope):
+        value, new_scope = self.__condition.evaluate_condition_at(item, scope)
+        if not value:
+            self.__active = False
+            return False, new_scope
+
+        if self.__active and (self.__max_gap is None or item.ts - self.__last_activation < self.__max_gap):
+            self.__last_activation = item.ts
+            return False, new_scope
+
+        self.__active = True
+        self.__last_activation = item.ts
+        return True, new_scope
 
 
 class SustainedCondition(Condition):

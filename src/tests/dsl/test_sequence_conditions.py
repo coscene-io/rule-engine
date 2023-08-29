@@ -3,7 +3,7 @@ from collections import namedtuple
 
 from ruleengine.dsl.actions import Action
 from ruleengine.dsl.base_conditions import *
-from ruleengine.dsl.sequence_conditions import repeated, sequential, sustained
+from ruleengine.dsl.sequence_conditions import *
 from ruleengine.engine import Engine, Rule
 
 MockDataItem = namedtuple("MockDataItem", "topic msg ts")
@@ -25,6 +25,7 @@ simple_sequence = [
     MockDataItem("t2", MockMessage(4, "hello"), 7),
     MockDataItem("t2", MockMessage(4, "hello"), 7),
     MockDataItem("t2", MockMessage(4, "hello"), 9),
+    MockDataItem("t3", MockMessage(4, "single"), 9),
 ]
 
 
@@ -38,6 +39,10 @@ class CollectAction(Action):
 
 def get_start_times(res):
     return [i[1]["start_time"] for i in res]
+
+
+def get_trigger_times(res):
+    return [i[0].ts for i in res]
 
 
 class SequenceConditionTest(unittest.TestCase):
@@ -104,6 +109,16 @@ class SequenceConditionTest(unittest.TestCase):
 
         result = self.__run_test(repeated(topic_is("t2"), 2, 0.5))
         self.assertEqual(get_start_times(result), [1, 3, 4, 7])
+
+    def test_debounce(self):
+        result = self.__run_test(debounce(msg.str_value == 'hello', 3))
+        self.assertEqual(get_trigger_times(result), [0])
+
+        result = self.__run_test(debounce(msg.str_value == 'hello', 1.5))
+        self.assertEqual(get_trigger_times(result), [0, 5, 9])
+
+        result = self.__run_test(debounce(msg.str_value == 'single', 3))
+        self.assertEqual(get_trigger_times(result), [9])
 
     @staticmethod
     def __run_test(condition):
