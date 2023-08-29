@@ -11,7 +11,10 @@ def sustained(context_condition, variable_condition, duration):
     For example, we might say "if topic X has value Y for 10 seconds", which
     translates to context being topic == X, and variable being value == Y
     """
-    return and_(context_condition, RisingEdgeCondition(SustainedCondition(variable_condition, duration)))
+    return and_(
+        context_condition,
+        RisingEdgeCondition(SustainedCondition(variable_condition, duration)),
+    )
 
 
 def sequential(*conditions, duration=None):
@@ -21,7 +24,7 @@ def sequential(*conditions, duration=None):
 def repeated(condition, times, duration):
     return and_(
         condition,
-        RisingEdgeCondition(SustainedCondition(SequenceMatchCondition([condition] * times, duration))),
+        RisingEdgeCondition( SequenceMatchCondition([condition] * times, duration)),
     )
 
 
@@ -54,7 +57,9 @@ class RisingEdgeCondition(Condition):
             self.__active = False
             return False, new_scope
 
-        if self.__active and (self.__max_gap is None or item.ts - self.__last_activation < self.__max_gap):
+        if self.__active and (
+            self.__max_gap is None or item.ts - self.__last_activation < self.__max_gap
+        ):
             self.__last_activation = item.ts
             return False, new_scope
 

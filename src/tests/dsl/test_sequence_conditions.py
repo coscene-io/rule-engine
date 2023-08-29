@@ -105,19 +105,19 @@ class SequenceConditionTest(unittest.TestCase):
         self.assertEqual(get_start_times(result), [1])
 
         result = self.__run_test(repeated(topic_is("t2"), 5, 5))
-        self.assertEqual(get_start_times(result), [4])
+        self.assertEqual(get_start_times(result), [1])
 
         result = self.__run_test(repeated(topic_is("t2"), 2, 0.5))
         self.assertEqual(get_start_times(result), [1, 3, 4, 7])
 
     def test_debounce(self):
-        result = self.__run_test(debounce(msg.str_value == 'hello', 3))
+        result = self.__run_test(debounce(msg.str_value == "hello", 3))
         self.assertEqual(get_trigger_times(result), [0])
 
-        result = self.__run_test(debounce(msg.str_value == 'hello', 1.5))
+        result = self.__run_test(debounce(msg.str_value == "hello", 1.5))
         self.assertEqual(get_trigger_times(result), [0, 5, 9])
 
-        result = self.__run_test(debounce(msg.str_value == 'single', 3))
+        result = self.__run_test(debounce(msg.str_value == "single", 3))
         self.assertEqual(get_trigger_times(result), [9])
 
     @staticmethod
