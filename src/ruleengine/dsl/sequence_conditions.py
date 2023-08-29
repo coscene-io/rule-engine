@@ -30,6 +30,17 @@ def debounce(condition, duration):
 
 
 class RisingEdgeCondition(Condition):
+    """
+    A condition that detects when child condition changes from false to true.
+
+    Once child condition becomes true, this condition will not fire unless the
+    child condition first becomes false, then back to true.
+
+    If max_gap is given, and two invocations of this condition have timestamps
+    further apart than the gap, the state is reset. It behaves as if a false is
+    inserted in the gap.
+    """
+
     def __init__(self, condition, max_gap=None):
         assert isinstance(condition, Condition)
         self.__condition = condition
@@ -53,17 +64,17 @@ class RisingEdgeCondition(Condition):
 
 
 class SustainedCondition(Condition):
-    def __init__(self, variable_condition, duration=-1):
+    def __init__(self, condition, duration=-1):
         super().__init__()
 
-        assert isinstance(variable_condition, Condition)
-        self.__variable = variable_condition
+        assert isinstance(condition, Condition)
+        self.__condition = condition
         self.__duration = duration
         self.__start = None
         self.__active = False
 
     def evaluate_condition_at(self, item, scope):
-        value, new_scope = self.__variable.evaluate_condition_at(item, scope)
+        value, new_scope = self.__condition.evaluate_condition_at(item, scope)
         if not value:
             self.__start = None
             self.__active = False
