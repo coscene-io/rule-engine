@@ -24,7 +24,7 @@ def sequential(*conditions, duration=None):
 def repeated(condition, times, duration):
     return and_(
         condition,
-        RisingEdgeCondition( SequenceMatchCondition([condition] * times, duration)),
+        RisingEdgeCondition(SequenceMatchCondition([condition] * times, duration)),
     )
 
 
