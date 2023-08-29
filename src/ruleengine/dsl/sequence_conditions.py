@@ -57,9 +57,10 @@ class RisingEdgeCondition(Condition):
             self.__active = False
             return False, new_scope
 
-        if self.__active and (
+        within_gap = (
             self.__max_gap is None or item.ts - self.__last_activation < self.__max_gap
-        ):
+        )
+        if self.__active and within_gap:
             self.__last_activation = item.ts
             return False, new_scope
 
