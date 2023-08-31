@@ -2,12 +2,12 @@ import json
 
 from .core import eval_action, eval_condition, validate_action as validate_action_inner, validate_condition as validate_condition_inner
 
-def validate_action(action_str, structured_output):
+def validate_action(action_str, structured_output = False):
     if structured_output:
         return validate_action_inner(action_str)
     eval_action(action_str)
 
-def validate_condition(cond_str, structured_output):
+def validate_condition(cond_str, structured_output=False):
     if structured_output:
         return validate_condition_inner(cond_str)
     eval_condition(cond_str)
