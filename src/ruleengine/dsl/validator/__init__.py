@@ -1,4 +1,10 @@
-from .core import validate_action, validate_condition
+from .core import eval_action, eval_condition
+
+def validate_action(action_str):
+    eval_action(action_str)
+
+def validate_condition(cond_str):
+    eval_condition(cond_str)
 
 __all__ = [
         'validate_action',
