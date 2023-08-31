@@ -14,7 +14,7 @@ def validate_expression(expr_str, injected_values):
 
     for node in ast.walk(parsed):
         match node:
-            case ast.Name(name, ctx):
+            case ast.Name(name, _):
                 if name not in injected_values:
                     return ValidationResult(
                         False, ValidationErrorType.UNDEFINED, {"name": name}
