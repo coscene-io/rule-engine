@@ -1,6 +1,9 @@
 import ast
 import inspect
 from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
+from ruleengine.dsl.condition import Condition
+from .validation_result import ValidationResult, ValidationErrorType
+from .ast import validate_expression, ValidationException
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -36,19 +39,27 @@ actions_dsl_values = {
     **base_dsl_values,
 }
 
-def eval_condition(cond_str):
-    # TODO: Very much not safe. Condition strings are user supplied, and we need
-    # to sanitize the fuck out of it before doing eval.
-    return eval(cond_str, base_dsl_values)
-
-
-def eval_action(action_str):
-    # TODO: Very much not safe. Condition strings are user supplied, and we need
-    # to sanitize the fuck out of it before doing eval.
-    return eval(action_str, actions_dsl_values)
-
 def validate_condition(cond_str):
-    pass
+    if not cond_str.strip():
+        return ValidationResult(False, ValidationErrorType.EMPTY)
+
+    expr_res = validate_expression(cond_str, base_dsl_values)
+    if not expr_res.success:
+        return expr_res
+
+    try:
+        result = eval(cond_str, base_dsl_values)
+    except Exception as e:
+        return exception_to_validation_result(e)
+
+    if not isinstance(result, Condition):
+        return ValidationResult(False, ValidationErrorType.NOT_CONDITION, f'Expected condition, not {type(result).__name__}')
+
+    return ValidationResult(True)
+
 
 def validate_action(action_str):
     pass
+
+def exception_to_validation_result(ex):
+    raise ex
