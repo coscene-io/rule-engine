@@ -20,11 +20,15 @@ actions_dsl_values = {
 
 
 def validate_condition(cond_str):
-    return _do_validate(cond_str, base_dsl_values, Condition, ValidationErrorType.NOT_CONDITION)
+    return _do_validate(
+        cond_str, base_dsl_values, Condition, ValidationErrorType.NOT_CONDITION
+    )
 
 
 def validate_action(action_str):
-    return _do_validate(action_str, actions_dsl_values, Action, ValidationErrorType.NOT_ACTION)
+    return _do_validate(
+        action_str, actions_dsl_values, Action, ValidationErrorType.NOT_ACTION
+    )
 
 
 def _do_validate(expr_str, injected_values, expected_class, class_expectation_error):
@@ -38,9 +42,9 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
     try:
         result = eval(expr_str, injected_values)
     except TypeError as e:
-        return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e) })
+        return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
     except Exception as e:
-        return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e) })
+        return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e)})
 
     if not isinstance(result, expected_class):
         return ValidationResult(
