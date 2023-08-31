@@ -53,7 +53,7 @@ def validate_condition(cond_str):
         return exception_to_validation_result(e)
 
     if not isinstance(result, Condition):
-        return ValidationResult(False, ValidationErrorType.NOT_CONDITION, f'Expected condition, not {type(result).__name__}')
+        return ValidationResult(False, ValidationErrorType.NOT_CONDITION, { 'actual': type(result).__name__})
 
     return ValidationResult(True)
 

@@ -6,24 +6,37 @@ from ruleengine.dsl.validation.validation_result import ValidationErrorType
 
 class ValidatorTest(unittest.TestCase):
     def test_condition_validation(self):
-        # self.assertTrue(validate_condition("msg").success)
-        # self.assertTrue(validate_condition("topic_is('blah')").success)
-        # self.assertTrue(validate_condition("and_(topic_is('blah'), msg.something == 123)").success)
-
-        # c = validate_condition("123")
-        # self.assertFalse(c.success)
-        # self.assertEqual(c.error_type, ValidationErrorType.NOT_CONDITION)
-
-        # c = validate_condition("'hello'")
-        # self.assertFalse(c.success)
-        # self.assertEqual(c.error_type, ValidationErrorType.NOT_CONDITION)
+        self.assertTrue(validate_condition("msg").success)
+        self.assertTrue(validate_condition("topic_is('blah')").success)
+        self.assertTrue(validate_condition("and_(topic_is('blah'), msg.something == 123)").success)
 
         c = validate_condition("    ")
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.EMPTY)
 
-        # with self.assertRaises(Exception):
-        #     validate_condition("missing_function(123)")
+        c = validate_condition("123")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.NOT_CONDITION)
+        self.assertEqual(c.details["actual"], "int")
+
+        c = validate_condition("'hello'")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.NOT_CONDITION)
+        self.assertEqual(c.details["actual"], "str")
+
+        c = validate_condition("return 1")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
+
+        c = validate_condition("msg.123")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
+
+        c = validate_condition("msg.blah(   ")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
+
+        # c = validate_condition("missing_function(123)")
 
         # with self.assertRaises(Exception):
         #     # Actions should not be part of condition

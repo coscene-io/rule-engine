@@ -1,5 +1,5 @@
 from enum import Enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 ValidationErrorType = Enum('ValidationErrorType', ['SYNTAX', 'EMPTY', 'NOT_CONDITION', 'NOT_ACTION'])
@@ -8,5 +8,5 @@ ValidationErrorType = Enum('ValidationErrorType', ['SYNTAX', 'EMPTY', 'NOT_CONDI
 class ValidationResult:
     success: bool
     error_type: Optional[ValidationErrorType] = None
-    error_message: Optional[str] = None
+    details: dict = field(default_factory=dict)
 
