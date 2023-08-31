@@ -1,8 +1,8 @@
-from enum import Enum
+from enum import StrEnum
 from dataclasses import dataclass, field
 from typing import Optional
 
-ValidationErrorType = Enum(
+ValidationErrorType = StrEnum(
     "ValidationErrorType",
     ["SYNTAX", "EMPTY", "NOT_CONDITION", "NOT_ACTION", "UNDEFINED", "TYPE", "UNKNOWN"],
 )
