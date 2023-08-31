@@ -124,7 +124,6 @@ class SequenceConditionTest(unittest.TestCase):
         result = self.__run_test(throttle(msg.str_value == "hello", 3))
         self.assertEqual(get_trigger_times(result), [0, 3, 6, 9])
 
-
     @staticmethod
     def __run_test(condition):
         action = CollectAction()
