@@ -56,16 +56,12 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual(c.details["name"], "open")
 
     def test_action_validation(self):
-        pass
-        # validate_action("create_moment('hello')")
-        # validate_action("create_moment('hello', description='', duration=100)")
-        # validate_action("create_moment(msg.title, description='', duration=100)")
-        # validate_action("upload(title='hello', description='', before=1)")
+        self.assertTrue(validate_action("create_moment('hello')").success)
+        self.assertTrue(validate_action("create_moment('hello', description='', duration=100)").success)
+        self.assertTrue(validate_action("create_moment(msg.title, description='', duration=100)").success)
+        self.assertTrue(validate_action("upload(title='hello', description='', before=1)").success)
 
-        # with self.assertRaises(Exception):
-        #     # Mispelled action name
-        #     validate_action("create_momen('hello')")
-
-        # with self.assertRaises(Exception):
-        #     # Wrong keyword arg
-        #     validate_action("create_moment('hello', descrin='', durion=100)")
+        # Wrong keyword arg
+        c = validate_action("create_moment('hello', descrin='', durion=100)")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.TYPE)

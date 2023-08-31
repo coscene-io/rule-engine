@@ -4,7 +4,7 @@ from typing import Optional
 
 ValidationErrorType = Enum(
     "ValidationErrorType",
-    ["SYNTAX", "EMPTY", "NOT_CONDITION", "NOT_ACTION", "UNDEFINED"],
+    ["SYNTAX", "EMPTY", "NOT_CONDITION", "NOT_ACTION", "UNDEFINED", "TYPE", "UNKNOWN"],
 )
 
 

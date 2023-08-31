@@ -24,7 +24,7 @@ def validate_condition(cond_str):
 
 
 def validate_action(action_str):
-    return _do_validate(cond_str, actions_dsl_values, Action)
+    return _do_validate(action_str, actions_dsl_values, Action)
 
 
 def _do_validate(expr_str, injected_values, expected_class):
@@ -35,7 +35,12 @@ def _do_validate(expr_str, injected_values, expected_class):
     if not expr_res.success:
         return expr_res
 
-    result = eval(expr_str, injected_values)
+    try:
+        result = eval(expr_str, injected_values)
+    except TypeError as e:
+        return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e) })
+    except Exception as e:
+        return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e) })
 
     if not isinstance(result, expected_class):
         return ValidationResult(
