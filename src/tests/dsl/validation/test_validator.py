@@ -30,6 +30,10 @@ class ValidatorTest(unittest.TestCase):
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
 
+        c = validate_condition("import json")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
+
         c = validate_condition("msg.123")
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
