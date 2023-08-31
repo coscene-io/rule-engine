@@ -3,7 +3,7 @@ from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
 from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
-from .ast import validate_expression, ValidationException
+from .ast import validate_expression
 from . import fake_actions
 
 base_dsl_values = dict(
