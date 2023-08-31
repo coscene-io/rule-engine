@@ -11,6 +11,9 @@ def validate_expression(expr_str, injected_values):
         return ValidationResult(False, ValidationErrorType.SYNTAX)
 
     for node in ast.walk(parsed):
-        print(node)
+        match node:
+            case ast.Name(name, ctx):
+                if name not in injected_values:
+                    return ValidationResult(False, ValidationErrorType.UNDEFINED, { 'name': name })
 
     return ValidationResult(True)
