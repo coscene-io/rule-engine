@@ -1,8 +1,10 @@
 from ruleengine.dsl.action import Action
 
+
 class NullAction(Action):
     def run(self, item, scope):
         pass
+
 
 def upload(
     before=10,
@@ -24,7 +26,8 @@ def create_moment(
 ):
     return NullAction()
 
+
 __all__ = [
-        'upload',
-        'create_moment',
-        ]
+    "upload",
+    "create_moment",
+]

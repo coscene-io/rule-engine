@@ -26,6 +26,7 @@ def validate_condition(cond_str):
 def validate_action(action_str):
     return _do_validate(cond_str, actions_dsl_values, Action)
 
+
 def _do_validate(expr_str, injected_values, expected_class):
     if not expr_str.strip():
         return ValidationResult(False, ValidationErrorType.EMPTY)
@@ -42,4 +43,3 @@ def _do_validate(expr_str, injected_values, expected_class):
         )
 
     return ValidationResult(True)
-
