@@ -11,7 +11,10 @@ def sustained(context_condition, variable_condition, duration):
     For example, we might say "if topic X has value Y for 10 seconds", which
     translates to context being topic == X, and variable being value == Y
     """
-    return and_(context_condition, SustainedCondition(variable_condition, duration))
+    return and_(
+        context_condition,
+        RisingEdgeCondition(SustainedCondition(variable_condition, duration)),
+    )
 
 
 def sequential(*conditions, duration=None):
@@ -21,39 +24,69 @@ def sequential(*conditions, duration=None):
 def repeated(condition, times, duration):
     return and_(
         condition,
-        SustainedCondition(SequenceMatchCondition([condition] * times, duration)),
+        RisingEdgeCondition(SequenceMatchCondition([condition] * times, duration)),
     )
 
 
 def debounce(condition, duration):
-    return repeated(condition, 2, duration)
+    return and_(condition, RisingEdgeCondition(condition, duration))
 
 
-class SustainedCondition(Condition):
-    def __init__(self, variable_condition, duration=-1):
-        super().__init__()
+class RisingEdgeCondition(Condition):
+    """
+    A condition that detects when child condition changes from false to true.
 
-        assert isinstance(variable_condition, Condition)
-        self.__variable = variable_condition
-        self.__duration = duration
-        self.__start = None
+    Once child condition becomes true, this condition will not fire unless the
+    child condition first becomes false, then back to true.
+
+    If max_gap is given, and two invocations of this condition have timestamps
+    further apart than the gap, the state is reset. It behaves as if a false is
+    inserted in the gap.
+    """
+
+    def __init__(self, condition, max_gap=None):
+        assert isinstance(condition, Condition)
+        self.__condition = condition
         self.__active = False
+        self.__last_activation = None
+        self.__max_gap = max_gap
 
     def evaluate_condition_at(self, item, scope):
-        value, new_scope = self.__variable.evaluate_condition_at(item, scope)
+        value, new_scope = self.__condition.evaluate_condition_at(item, scope)
         if not value:
-            self.__start = None
             self.__active = False
             return False, new_scope
 
-        if self.__active:
+        if self.__active and (
+            self.__max_gap is None or item.ts - self.__last_activation < self.__max_gap
+        ):
+            self.__last_activation = item.ts
+            return False, new_scope
+
+        self.__active = True
+        self.__last_activation = item.ts
+        return True, new_scope
+
+
+class SustainedCondition(Condition):
+    def __init__(self, condition, duration=-1):
+        super().__init__()
+
+        assert isinstance(condition, Condition)
+        self.__condition = condition
+        self.__duration = duration
+        self.__start = None
+
+    def evaluate_condition_at(self, item, scope):
+        value, new_scope = self.__condition.evaluate_condition_at(item, scope)
+        if not value:
+            self.__start = None
             return False, new_scope
 
         if self.__start is None:
             self.__start = item.ts
 
         if item.ts - self.__start > self.__duration:
-            self.__active = True
             return True, {**new_scope, "start_time": self.__start}
 
         return False, new_scope
