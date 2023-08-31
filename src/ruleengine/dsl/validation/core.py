@@ -49,5 +49,6 @@ def eval_action(action_str):
 
 def validate_condition(cond_str):
     pass
+
 def validate_action(action_str):
     pass
