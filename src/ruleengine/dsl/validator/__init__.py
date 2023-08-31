@@ -1,9 +1,15 @@
-from .core import eval_action, eval_condition
+import json
 
-def validate_action(action_str):
+from .core import eval_action, eval_condition, validate_action as validate_action_inner, validate_condition as validate_condition_inner
+
+def validate_action(action_str, structured_output):
+    if structured_output:
+        return validate_action_inner(action_str)
     eval_action(action_str)
 
-def validate_condition(cond_str):
+def validate_condition(cond_str, structured_output):
+    if structured_output:
+        return validate_condition_inner(cond_str)
     eval_condition(cond_str)
 
 __all__ = [
@@ -26,7 +32,12 @@ if __name__ == "__main__":
 
     match args.mode:
         case "action":
-            validate_action(args.content)
+            result = validate_action(args.content, args.json)
         case "condition":
-            validate_condition(args.content)
+            result = validate_condition(args.content, args.json)
+        case _:
+            pass
+
+    if args.json:
+        print(json.dumps(result.asdict()))
 

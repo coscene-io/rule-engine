@@ -47,4 +47,7 @@ def eval_action(action_str):
     # to sanitize the fuck out of it before doing eval.
     return eval(action_str, actions_dsl_values)
 
-
+def validate_condition(cond_str):
+    pass
+def validate_action(action_str):
+    pass
