@@ -5,6 +5,7 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression, ValidationException
+from . import fake_actions
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -12,31 +13,8 @@ base_dsl_values = dict(
     + inspect.getmembers(sequence_conditions)
 )
 
-
-def upload(
-    before=10,
-    title="",
-    description="",
-    labels=[],
-    extra_files=[],
-):
-    pass
-
-
-def create_moment(
-    title,
-    description="",
-    timestamp=0,
-    duration=1,
-    create_task=False,
-    assign_to=None,
-):
-    pass
-
-
 actions_dsl_values = {
-    "upload": upload,
-    "create_moment": create_moment,
+    **dict(inspect.getmembers(fake_actions)),
     **base_dsl_values,
 }
 
