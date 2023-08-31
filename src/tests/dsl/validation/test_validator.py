@@ -55,6 +55,11 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
         self.assertEqual(c.details["name"], "open")
 
+        c = validate_condition("eval('123')")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
+        self.assertEqual(c.details["name"], "eval")
+
     def test_action_validation(self):
         self.assertTrue(validate_action("create_moment('hello')").success)
         self.assertTrue(
