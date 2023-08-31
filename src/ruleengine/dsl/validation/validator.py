@@ -47,10 +47,7 @@ def validate_condition(cond_str):
     if not expr_res.success:
         return expr_res
 
-    try:
-        result = eval(cond_str, base_dsl_values)
-    except Exception as e:
-        return exception_to_validation_result(e)
+    result = eval(cond_str, base_dsl_values)
 
     if not isinstance(result, Condition):
         return ValidationResult(False, ValidationErrorType.NOT_CONDITION, { 'actual': type(result).__name__})
@@ -61,5 +58,3 @@ def validate_condition(cond_str):
 def validate_action(action_str):
     pass
 
-def exception_to_validation_result(ex):
-    raise ex
