@@ -1,8 +1,10 @@
 import ast
 from .validation_result import ValidationResult, ValidationErrorType
 
+
 class ValidationException(Exception):
     pass
+
 
 def validate_expression(expr_str, injected_values):
     try:
@@ -14,6 +16,8 @@ def validate_expression(expr_str, injected_values):
         match node:
             case ast.Name(name, ctx):
                 if name not in injected_values:
-                    return ValidationResult(False, ValidationErrorType.UNDEFINED, { 'name': name })
+                    return ValidationResult(
+                        False, ValidationErrorType.UNDEFINED, {"name": name}
+                    )
 
     return ValidationResult(True)

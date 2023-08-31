@@ -39,6 +39,7 @@ actions_dsl_values = {
     **base_dsl_values,
 }
 
+
 def validate_condition(cond_str):
     if not cond_str.strip():
         return ValidationResult(False, ValidationErrorType.EMPTY)
@@ -50,11 +51,12 @@ def validate_condition(cond_str):
     result = eval(cond_str, base_dsl_values)
 
     if not isinstance(result, Condition):
-        return ValidationResult(False, ValidationErrorType.NOT_CONDITION, { 'actual': type(result).__name__})
+        return ValidationResult(
+            False, ValidationErrorType.NOT_CONDITION, {"actual": type(result).__name__}
+        )
 
     return ValidationResult(True)
 
 
 def validate_action(action_str):
     pass
-
