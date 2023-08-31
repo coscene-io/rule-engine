@@ -49,7 +49,7 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
         self.assertEqual(c.details["name"], "create_moment")
 
-        # Builtin functions are also forbidden unless whitelisted
+        # Builtin functions are forbidden unless whitelisted
         c = validate_condition("open('some file')")
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
@@ -61,7 +61,13 @@ class ValidatorTest(unittest.TestCase):
         self.assertTrue(validate_action("create_moment(msg.title, description='', duration=100)").success)
         self.assertTrue(validate_action("upload(title='hello', description='', before=1)").success)
 
+        c = validate_action("msg.field == 1")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.NOT_ACTION)
+        self.assertIn('Condition', c.details["actual"])
+
         # Wrong keyword arg
         c = validate_action("create_moment('hello', descrin='', durion=100)")
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.TYPE)
+

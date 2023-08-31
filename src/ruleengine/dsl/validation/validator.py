@@ -20,14 +20,14 @@ actions_dsl_values = {
 
 
 def validate_condition(cond_str):
-    return _do_validate(cond_str, base_dsl_values, Condition)
+    return _do_validate(cond_str, base_dsl_values, Condition, ValidationErrorType.NOT_CONDITION)
 
 
 def validate_action(action_str):
-    return _do_validate(action_str, actions_dsl_values, Action)
+    return _do_validate(action_str, actions_dsl_values, Action, ValidationErrorType.NOT_ACTION)
 
 
-def _do_validate(expr_str, injected_values, expected_class):
+def _do_validate(expr_str, injected_values, expected_class, class_expectation_error):
     if not expr_str.strip():
         return ValidationResult(False, ValidationErrorType.EMPTY)
 
@@ -44,7 +44,7 @@ def _do_validate(expr_str, injected_values, expected_class):
 
     if not isinstance(result, expected_class):
         return ValidationResult(
-            False, ValidationErrorType.NOT_CONDITION, {"actual": type(result).__name__}
+            False, class_expectation_error, {"actual": type(result).__name__}
         )
 
     return ValidationResult(True)
