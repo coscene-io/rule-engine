@@ -1,3 +1,4 @@
+import ast
 import inspect
 from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
 
@@ -35,7 +36,6 @@ actions_dsl_values = {
     **base_dsl_values,
 }
 
-
 def validate_condition(cond_str):
     # TODO: Very much not safe. Condition strings are user supplied, and we need
     # to sanitize the fuck out of it before doing eval.
@@ -48,6 +48,10 @@ def validate_action(action_str):
     return eval(action_str, actions_dsl_values)
 
 
+def format_exception(e):
+    pass
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -58,6 +62,7 @@ if __name__ == "__main__":
         choices=["action", "condition"],
     )
     parser.add_argument("content", help="Content string to be validated")
+    parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
     match args.mode:
@@ -65,3 +70,4 @@ if __name__ == "__main__":
             validate_action(args.content)
         case "condition":
             validate_condition(args.content)
+
