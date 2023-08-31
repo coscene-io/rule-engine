@@ -1,10 +1,9 @@
+import argparse
 import json
 from dataclasses import asdict
 from ruleengine.dsl.validation.validator import validate_action, validate_condition
 
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser(description="Validate condition or action strings")
     parser.add_argument(
         "mode",
