@@ -25,7 +25,7 @@ def validate_config(config):
     if config["version"] not in ALLOWED_VERSIONS:
         return {
             "success": False,
-            errors: [{"unexpectedVersion": {"allowedVersions": ALLOWED_VERSIONS}}],
+            "errors": [{"unexpectedVersion": {"allowedVersions": ALLOWED_VERSIONS}}],
         }
 
     errors = []
