@@ -32,6 +32,10 @@ def debounce(condition, duration):
     return and_(condition, RisingEdgeCondition(condition, duration))
 
 
+def throttle(condition, duration):
+    return ThrottleCondition(condition, duration)
+
+
 class RisingEdgeCondition(Condition):
     """
     A condition that detects when child condition changes from false to true.
@@ -140,9 +144,29 @@ class SequenceMatchCondition(Condition):
         return False, scope
 
 
+class ThrottleCondition(Condition):
+    def __init__(self, condition, duration):
+        assert isinstance(condition, Condition)
+        self.__condition = condition
+        self.__duration = duration
+        self.__last_trigger = -duration
+
+    def evaluate_condition_at(self, item, scope):
+        if item.ts - self.__last_trigger < self.__duration:
+            return False, scope
+
+        value, scope = self.__condition.evaluate_condition_at(item, scope)
+        if value:
+            self.__last_trigger = item.ts
+            return value, scope
+
+        return False, scope
+
+
 __all__ = [
     "sustained",
     "sequential",
     "repeated",
     "debounce",
+    "throttle",
 ]
