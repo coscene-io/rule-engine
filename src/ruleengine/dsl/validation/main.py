@@ -31,7 +31,7 @@ def validate_config(config):
     errors = []
     for i, rule in enumerate(config["rules"]):
         errors += validate_rule(rule, i)
-    return {"success": bool(errors), "errors": errors}
+    return {"success": not bool(errors), "errors": errors}
 
 
 def validate_rule(rule, rule_index):
