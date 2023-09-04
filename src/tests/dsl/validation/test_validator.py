@@ -7,6 +7,7 @@ from ruleengine.dsl.validation.validation_result import ValidationErrorType
 class ValidatorTest(unittest.TestCase):
     def test_condition_validation(self):
         self.assertTrue(validate_condition("msg").success)
+        self.assertTrue(validate_condition("msg.aaa").success)
         self.assertTrue(validate_condition("topic_is('blah')").success)
         self.assertTrue(
             validate_condition("and_(topic_is('blah'), msg.something == 123)").success
