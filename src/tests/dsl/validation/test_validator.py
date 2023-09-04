@@ -48,6 +48,11 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
         self.assertEqual(c.details["name"], "missing_function")
 
+        c = validate_condition("missing_thing.field")
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
+        self.assertEqual(c.details["name"], "missing_thing")
+
         # Actions should not be part of condition
         c = validate_condition("create_moment('hello')")
         self.assertFalse(c.success)
