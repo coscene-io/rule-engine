@@ -3,7 +3,8 @@ import json
 from ruleengine.dsl.validation.validator import validate_action, validate_condition
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
 
-ALLOWED_VERSIONS = ['1']
+ALLOWED_VERSIONS = ["1"]
+
 
 def validate_config(config):
     """
@@ -21,53 +22,67 @@ def validate_config(config):
     # TODO: Instead of putting together these objects by hand, we should connect
     # the protos generated in cosceneapis
 
-    if config['version'] not in ALLOWED_VERSIONS:
-        return { 'success': False, errors: [ { 'unexpected_version': { 'allowed_versions': ALLOWED_VERSIONS } } ] }
+    if config["version"] not in ALLOWED_VERSIONS:
+        return {
+            "success": False,
+            errors: [{"unexpected_version": {"allowed_versions": ALLOWED_VERSIONS}}],
+        }
 
     errors = []
-    for i, rule in enumerate(config['rules']):
+    for i, rule in enumerate(config["rules"]):
         errors += validate_rule(rule, i)
-    return { 'success': bool(errors), 'errors': errors}
+    return {"success": bool(errors), "errors": errors}
 
 
 def validate_rule(rule, rule_index):
     errors = []
-    for i, cond_str in enumerate(rule['when']):
+    for i, cond_str in enumerate(rule["when"]):
         res = validate_condition(cond_str)
         if not res.success:
-            errors.append({
-                'location': {'rule_index': rule_index, 'section': 1, 'item_index': i},
-                **convert_to_json_error(res)
-                })
+            errors.append(
+                {
+                    "location": {
+                        "rule_index": rule_index,
+                        "section": 1,
+                        "item_index": i,
+                    },
+                    **convert_to_json_error(res),
+                }
+            )
 
-    for i, action_str in enumerate(rule['actions']):
+    for i, action_str in enumerate(rule["actions"]):
         res = validate_action(action_str)
         if not res.success:
-            errors.append({
-                'location': {'rule_index': rule_index, 'section': 2, 'item_index': i},
-                **convert_to_json_error(res)
-                })
+            errors.append(
+                {
+                    "location": {
+                        "rule_index": rule_index,
+                        "section": 2,
+                        "item_index": i,
+                    },
+                    **convert_to_json_error(res),
+                }
+            )
     return errors
 
 
 def convert_to_json_error(result):
     match result.error_type:
         case ValidationErrorType.SYNTAX | ValidationErrorType.EMPTY:
-            return { 'syntax_error': {}}
+            return {"syntax_error": {}}
 
         case ValidationErrorType.NOT_CONDITION:
-            return { 'not_condition': {'actual_type': result.details['actual']}}
+            return {"not_condition": {"actual_type": result.details["actual"]}}
         case ValidationErrorType.NOT_ACTION:
-            return { 'not_action': {'actual_type': result.details['actual']}}
+            return {"not_action": {"actual_type": result.details["actual"]}}
 
         case ValidationErrorType.UNDEFINED:
-            return { 'name_undefined': { 'name': result.details['name']}}
+            return {"name_undefined": {"name": result.details["name"]}}
 
         case ValidationErrorType.TYPE | ValidationErrorType.UNKNOWN:
-            return { 'generic_error': { 'msg': result.details['message']}}
+            return {"generic_error": {"msg": result.details["message"]}}
         case _:
-            raise Exception(f'Unknown error type: {result.error_type}')
-
+            raise Exception(f"Unknown error type: {result.error_type}")
 
 
 if __name__ == "__main__":
@@ -75,4 +90,4 @@ if __name__ == "__main__":
     result = validate_config(config)
 
     print(json.dumps(result))
-    exit(0 if result['success'] else 1)
+    exit(0 if result["success"] else 1)
