@@ -1,4 +1,4 @@
-from .dsl.actions import Action
+from .dsl.action import Action
 from .dsl.condition import Condition
 
 

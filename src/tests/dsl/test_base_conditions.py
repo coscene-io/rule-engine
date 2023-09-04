@@ -1,7 +1,7 @@
 import unittest
 from collections import namedtuple
 
-from ruleengine.dsl.actions import Action
+from ruleengine.dsl.action import Action
 from ruleengine.dsl.base_conditions import *
 from ruleengine.engine import Engine, Rule
 

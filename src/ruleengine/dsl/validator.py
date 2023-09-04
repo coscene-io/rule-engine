@@ -1,5 +1,10 @@
+# TODO: This validator was written in a rush. It has a number of issues, and is
+# now deprecated. After switching over to the `ruleengine.dsl.validation`
+# package, we should remove this file.
+
 import inspect
 from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
+
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
