@@ -25,7 +25,7 @@ def validate_config(config):
     if config["version"] not in ALLOWED_VERSIONS:
         return {
             "success": False,
-            errors: [{"unexpected_version": {"allowed_versions": ALLOWED_VERSIONS}}],
+            errors: [{"unexpectedVersion": {"allowedVersions": ALLOWED_VERSIONS}}],
         }
 
     errors = []
@@ -36,15 +36,32 @@ def validate_config(config):
 
 def validate_rule(rule, rule_index):
     errors = []
+    if not rule['when']:
+        errors.append({
+                    "location": {
+                        "ruleIndex": rule_index,
+                        "section": 1,
+                        },
+                    'emptySection': {}
+                    })
+    if not rule['actions']:
+        errors.append({
+                    "location": {
+                        "ruleIndex": rule_index,
+                        "section": 2,
+                        },
+                    'emptySection': {}
+                    })
+
     for i, cond_str in enumerate(rule["when"]):
         res = validate_condition(cond_str)
         if not res.success:
             errors.append(
                 {
                     "location": {
-                        "rule_index": rule_index,
+                        "ruleIndex": rule_index,
                         "section": 1,
-                        "item_index": i,
+                        "itemIndex": i,
                     },
                     **convert_to_json_error(res),
                 }
@@ -56,9 +73,9 @@ def validate_rule(rule, rule_index):
             errors.append(
                 {
                     "location": {
-                        "rule_index": rule_index,
+                        "ruleIndex": rule_index,
                         "section": 2,
-                        "item_index": i,
+                        "itemIndex": i,
                     },
                     **convert_to_json_error(res),
                 }
@@ -72,15 +89,15 @@ def convert_to_json_error(result):
             return {"syntax_error": {}}
 
         case ValidationErrorType.NOT_CONDITION:
-            return {"not_condition": {"actual_type": result.details["actual"]}}
+            return {"notCondition": {"actualType": result.details["actual"]}}
         case ValidationErrorType.NOT_ACTION:
-            return {"not_action": {"actual_type": result.details["actual"]}}
+            return {"notAction": {"actualType": result.details["actual"]}}
 
         case ValidationErrorType.UNDEFINED:
-            return {"name_undefined": {"name": result.details["name"]}}
+            return {"nameUndefined": {"name": result.details["name"]}}
 
         case ValidationErrorType.TYPE | ValidationErrorType.UNKNOWN:
-            return {"generic_error": {"msg": result.details["message"]}}
+            return {"genericError": {"msg": result.details["message"]}}
         case _:
             raise Exception(f"Unknown error type: {result.error_type}")
 
