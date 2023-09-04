@@ -3,7 +3,7 @@ import json
 from ruleengine.dsl.validation.validator import validate_action, validate_condition
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
 
-ALLOWED_VERSIONS = ["1"]
+ALLOWED_VERSIONS = ["1", "1.0.0"]
 
 
 def validate_config(config):
@@ -36,22 +36,26 @@ def validate_config(config):
 
 def validate_rule(rule, rule_index):
     errors = []
-    if not rule['when']:
-        errors.append({
-                    "location": {
-                        "ruleIndex": rule_index,
-                        "section": 1,
-                        },
-                    'emptySection': {}
-                    })
-    if not rule['actions']:
-        errors.append({
-                    "location": {
-                        "ruleIndex": rule_index,
-                        "section": 2,
-                        },
-                    'emptySection': {}
-                    })
+    if not rule["when"]:
+        errors.append(
+            {
+                "location": {
+                    "ruleIndex": rule_index,
+                    "section": 1,
+                },
+                "emptySection": {},
+            }
+        )
+    if not rule["actions"]:
+        errors.append(
+            {
+                "location": {
+                    "ruleIndex": rule_index,
+                    "section": 2,
+                },
+                "emptySection": {},
+            }
+        )
 
     for i, cond_str in enumerate(rule["when"]):
         res = validate_condition(cond_str)
