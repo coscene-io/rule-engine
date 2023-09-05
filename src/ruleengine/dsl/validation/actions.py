@@ -7,13 +7,10 @@ class AcionValidator:
         self.__impls = action_impls
 
     def upload( self, *args, **kwargs):
-
         # TODO: Validate arg types
-
         return create_upload_action(self.__impls["upload"], *args, **kwargs)
 
     def create_moment( self, *args, **kwargs):
-
         # TODO: Validate arg types
         return create_create_moment_action(self.__impls["create_moment"], *args, **kwargs)
 

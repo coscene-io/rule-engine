@@ -47,8 +47,6 @@ def create_upload_action(
     extra_files=[],
     before=10,
 ):
-    # TODO: Validate arg types
-
     args = {
         "before": before,
         "title": Condition.wrap(title),
@@ -68,8 +66,6 @@ def create_create_moment_action(
     create_task=False,
     assign_to=None,
 ):
-    # TODO: Validate arg types
-
     args = {
         "title": Condition.wrap(title),
         "description": Condition.wrap(description),
