@@ -89,9 +89,7 @@ class ValidatorTest(unittest.TestCase):
             ).success
         )
 
-        c = validate_action(
-            "create_moment('hello', description='', duration=1, 'something')", noop
-        )
+        c = validate_action("create_moment('hello', duration='', 'something')", noop)
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
 
