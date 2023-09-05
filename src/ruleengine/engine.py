@@ -36,7 +36,7 @@ class Engine:
 
 def parse_rules(rule_configs, action_impls):
     """
-    Validates rule configs and return parsed objects.2
+    Validates rule configs and return parsed objects.
 
     `rule_configs` is assumed to be a list of rule objects (see `validation.main`
     for rule object definition).
