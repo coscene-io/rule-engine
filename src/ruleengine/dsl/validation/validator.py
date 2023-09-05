@@ -4,7 +4,7 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression
-from .actions import AcionValidator
+from .actions import AcionValidator, UnknownFunctionKeywordArgException
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -42,6 +42,8 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
         res = validate_expression(expr_str, injected_values)
         if not res.success:
             return res
+    except UnknownFunctionKeywordArgException as e:
+        return ValidationResult(False, ValidationErrorType.UNDEFINED, {"name": e.name})
     except TypeError as e:
         return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
     except Exception as e:

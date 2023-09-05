@@ -95,6 +95,7 @@ class ValidatorTest(unittest.TestCase):
         self.assertIn("Condition", c.details["actual"])
 
         # Wrong keyword arg
-        c = validate_action("create_moment('hello', descrin='', durion=100)", noop)
+        c = validate_action("create_moment('hello', descrin='')", noop)
         self.assertFalse(c.success)
-        self.assertEqual(c.error_type, ValidationErrorType.TYPE)
+        self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
+        self.assertEqual("descrin", c.details["name"])
