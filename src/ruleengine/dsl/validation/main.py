@@ -2,7 +2,6 @@ from sys import argv
 import json
 from ruleengine.dsl.base_actions import noop
 from .config_validator import validate_config
-
 if __name__ == "__main__":
     config = json.loads(argv[1])
     result, _ = validate_config(config, noop)
