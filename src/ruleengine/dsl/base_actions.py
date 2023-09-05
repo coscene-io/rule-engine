@@ -41,7 +41,6 @@ class ForwardingAction(Action):
 
 
 def create_upload_action(impl):
-
     def res(
         title=concat("Device auto upload @ ", ts),
         description="",
@@ -58,6 +57,7 @@ def create_upload_action(impl):
         }
 
         return ForwardingAction(impl, args)
+
     return res
 
 
@@ -79,4 +79,5 @@ def create_create_moment_action(impl):
             "assign_to": assign_to,
         }
         return ForwardingAction(impl, args)
+
     return res
