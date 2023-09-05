@@ -1,10 +1,7 @@
 from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.base_conditions import ts
-from ruleengine.dsl.base_actions import (
-    ForwardingAction,
-    noop_upload,
-    noop_create_moment,
-)
+from ruleengine.dsl.base_actions import ForwardingAction
+
 
 
 class AcionValidator:
@@ -48,4 +45,3 @@ class AcionValidator:
         return ForwardingAction(self.__impls["create_moment"], args)
 
 
-noop = AcionValidator({"upload": noop_upload, "create_moment": noop_create_moment})

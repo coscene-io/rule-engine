@@ -4,7 +4,7 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression
-from .actions import noop, AcionValidator
+from .actions import AcionValidator
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -19,8 +19,8 @@ def validate_condition(cond_str):
     )
 
 
-def validate_action(action_str, action_impls=None):
-    action_validator = AcionValidator(action_impls) if action_impls else noop
+def validate_action(action_str, action_impls):
+    action_validator = AcionValidator(action_impls)
     action_dsl_values = {
         "upload": action_validator.create_upload_action,
         "create_moment": action_validator.create_create_moment_action,
