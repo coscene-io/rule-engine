@@ -39,6 +39,7 @@ class ForwardingAction(Action):
                 actual_args[name] = value
         self.__thunk(**actual_args)
 
+
 def create_upload_action(
     impl,
     title=concat("Device auto upload @ ", ts),
@@ -56,6 +57,7 @@ def create_upload_action(
     }
 
     return ForwardingAction(impl, args)
+
 
 def create_create_moment_action(
     impl,
