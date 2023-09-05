@@ -32,7 +32,7 @@ def validate_action(action_str):
 
 def _do_validate(expr_str, injected_values, expected_class, class_expectation_error):
     if not expr_str.strip():
-        return ValidationResult(False, ValidationErrorType.EMPTY)
+        return ValidationResult(False, error_type=ValidationErrorType.EMPTY)
 
     expr_res = validate_expression(expr_str, injected_values)
     if not expr_res.success:
@@ -41,13 +41,13 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
     try:
         result = eval(expr_str, injected_values)
     except TypeError as e:
-        return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
+        return ValidationResult(False, error_type=ValidationErrorType.TYPE, details={"message": str(e)})
     except Exception as e:
-        return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e)})
+        return ValidationResult(False, error_type=ValidationErrorType.UNKNOWN, details={"message": str(e)})
 
     if not isinstance(result, expected_class):
         return ValidationResult(
-            False, class_expectation_error, {"actual": type(result).__name__}
+            False, error_type=class_expectation_error, details={"actual": type(result).__name__}
         )
 
     return ValidationResult(True)

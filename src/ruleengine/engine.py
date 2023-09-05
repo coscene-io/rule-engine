@@ -28,3 +28,10 @@ class Engine:
                 result, scope = rule.eval_condition(item)
                 if result:
                     rule.run_action(item, scope)
+
+
+def run(rule_configs, action_impl, data):
+    """
+    """
+
+

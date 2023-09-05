@@ -1,6 +1,8 @@
 from enum import StrEnum
 from dataclasses import dataclass, field
 from typing import Optional
+from ruleengine.dsl.condition import Condition
+from ruleengine.dsl.action import Action
 
 ValidationErrorType = StrEnum(
     "ValidationErrorType",
@@ -11,5 +13,6 @@ ValidationErrorType = StrEnum(
 @dataclass
 class ValidationResult:
     success: bool
+    entity: Optional[Action | Condition] = None
     error_type: Optional[ValidationErrorType] = None
     details: dict = field(default_factory=dict)
