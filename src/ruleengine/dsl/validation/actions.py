@@ -2,8 +2,6 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.base_conditions import ts
 from ruleengine.dsl.base_actions import ForwardingAction
 
-
-
 class AcionValidator:
     def __init__(self, action_impls):
         self.__impls = action_impls

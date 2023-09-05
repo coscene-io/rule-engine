@@ -3,7 +3,7 @@ from .dsl.action import Action
 from .dsl.condition import Condition
 
 # TODO: Rule and Engine classes are deprecated, remove the code after cleaning
-# up call sites. New code should use `parse_rules` and `run` below.
+# up call sites. New code should use `run` below.
 
 
 class Rule:
