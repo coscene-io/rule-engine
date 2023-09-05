@@ -1,6 +1,6 @@
 from sys import argv
 import json
-from .actions import noop
+from ruleengine.dsl.base_actions import noop
 from .config_validator import validate_config
 
 if __name__ == "__main__":
