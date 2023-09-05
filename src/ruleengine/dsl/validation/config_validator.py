@@ -1,5 +1,3 @@
-from sys import argv
-import json
 from ruleengine.dsl.validation.validator import validate_action, validate_condition
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
 
