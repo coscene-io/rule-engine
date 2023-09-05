@@ -27,7 +27,12 @@ def create_moment(
     return NullAction()
 
 
+action_dict = {
+        "upload": upload,
+        "create_moment" : create_moment
+}
+
+
 __all__ = [
-    "upload",
-    "create_moment",
+    "action_dict",
 ]

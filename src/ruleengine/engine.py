@@ -31,18 +31,26 @@ class Engine:
                     rule.run_action(item, scope)
 
 
-def run(rule_configs, action_impl, data):
+def parse_rules(rule_configs, action_impls):
     """
-    TODO: write this
+    Validates rule configs and return parsed objects.2
+
+    `rule_configs` is assumed to be a list of rule objects (see `validation.main`
+    for rule object definition).
+
+    `action_impls` is a dictionary of actions to run when rules are triggered.
+    See `base_actions` for definition of the interface
     """
 
     rules = []
     for c in rule_configs:
-        conditions = [validate_condition(cond_str) for cond_str in c['when']]
-        actions = [validate_action(action_str) for action_str in c['actions']]
+        conditions = [validate_condition(cond_str).entity for cond_str in c['when']]
+        actions = [validate_action(action_str, action_impls).entity for action_str in c['actions']]
         rules.append((conditions, actions))
+    return rules
 
-    for item in self.__data:
+def run(rules, data):
+    for item in data:
         for conditions, actions in rules:
             for cond in conditions:
                 res, scope = cond.evaluate_condition_at(item, {})

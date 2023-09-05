@@ -4,7 +4,7 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression
-from . import fake_actions
+from .fake_actions import action_dict
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -12,21 +12,15 @@ base_dsl_values = dict(
     + inspect.getmembers(sequence_conditions)
 )
 
-actions_dsl_values = {
-    **dict(inspect.getmembers(fake_actions)),
-    **base_dsl_values,
-}
-
-
 def validate_condition(cond_str):
     return _do_validate(
         cond_str, base_dsl_values, Condition, ValidationErrorType.NOT_CONDITION
     )
 
 
-def validate_action(action_str):
+def validate_action(action_str, action_impls=action_dict):
     return _do_validate(
-        action_str, actions_dsl_values, Action, ValidationErrorType.NOT_ACTION
+        action_str, { **action_impls, **base_dsl_values}, Action, ValidationErrorType.NOT_ACTION
     )
 
 
