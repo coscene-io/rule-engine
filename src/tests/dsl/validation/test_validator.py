@@ -3,7 +3,6 @@ import unittest
 from ruleengine.dsl.validation.validator import validate_condition, validate_action
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
 
-
 class ValidatorTest(unittest.TestCase):
     def test_condition_validation(self):
         self.assertTrue(validate_condition("msg").success)

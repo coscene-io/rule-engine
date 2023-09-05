@@ -1,35 +1,34 @@
-from ruleengine.dsl.action import Action
+from ruleengine.dsl.condition import Condition
+from ruleengine.dsl.base_actions import ForwardingAction, noop_upload, noop_create_moment
 
+class AcionValidator:
+    def __init__(self, action_impls):
+        self.__impls = action_impls
 
-class NullAction(Action):
-    def run(self, item, scope):
-        pass
+    def create_upload_action(before, title, description, labels, extra_files):
+        # TODO: Validate arg types
 
+        args = {
+                'before': before,
+                'title': Condition.wrap(title),
+                'description': Condition.wrap(description),
+                'labels': labels,
+                'extra_files': extra_files
+                }
 
-def upload(
-    before=10,
-    title="",
-    description="",
-    labels=[],
-    extra_files=[],
-):
-    return NullAction()
+        return ForwardingAction(self.__impls['upload'], args)
 
+    def create_create_moment_action(title, description, timestamp, duration, create_task, assign_to):
+        # TODO: Validate arg types
 
-def create_moment(
-    title,
-    description="",
-    timestamp=0,
-    duration=1,
-    create_task=False,
-    assign_to=None,
-):
-    return NullAction()
+        args = {
+                'title': Condition.wrap(title),
+                'description': Condition.wrap(description),
+                'timestamp': timestamp,
+                'duration': Condition.wrap(duration),
+                'create_task': create_task,
+                'assign_to': assign_to
+                }
+        return ForwardingAction(self.__impls['create_moment'], args)
 
-
-noop = {"upload": upload, "create_moment": create_moment}
-
-
-__all__ = [
-    "noop",
-]
+noop = AcionValidator({ 'upload': noop_upload, 'create_moment': noop_create_moment})

@@ -42,7 +42,7 @@ def parse_rules(rule_configs, action_impls):
     for rule object definition).
 
     `action_impls` is a dictionary of actions to run when rules are triggered.
-    See `base_actions.noop` for definition of the interface
+    See `base_actions` for definition of the interface
     """
 
     rules = []
