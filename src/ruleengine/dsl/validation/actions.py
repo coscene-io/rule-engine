@@ -55,7 +55,6 @@ class AcionValidator:
 
         required_args = [1 for name, param in sig.parameters.items() if name not in kwargs and param.default is Parameter.empty]
         if len(required_args) != len(args):
-            raise Exception('nums')
-
-
+            # TODO: Make this an actual error instead of a generic error
+            raise Exception(f'Wrong number of parameters. Expected {len(required_args)} but got {len(args)}')
 
