@@ -36,7 +36,7 @@ class AcionValidator:
         args = {
             "title": Condition.wrap(title),
             "description": Condition.wrap(description),
-            "timestamp": timestamp,
+            "timestamp": Condition.wrap(timestamp),
             "duration": Condition.wrap(duration),
             "create_task": create_task,
             "assign_to": assign_to,
