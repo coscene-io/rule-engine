@@ -16,6 +16,6 @@ def validate_expression(expr_str, injected_values):
                         False, ValidationErrorType.UNDEFINED, {"name": name}
                     )
 
-    code = compile(parsed, '', mode='eval')
+    code = compile(parsed, "", mode="eval")
 
     return ValidationResult(True, entity=eval(code, injected_values))

@@ -2,6 +2,8 @@ from .dsl.validation.validator import validate_condition, validate_action
 from .dsl.action import Action
 from .dsl.condition import Condition
 
+# TODO: Rule and Engine classes are deprecated, remove the code after cleaning
+# up call sites. New code should use `parse_rules` and `run` below.
 
 class Rule:
     def __init__(self, condition, action):
@@ -39,15 +41,19 @@ def parse_rules(rule_configs, action_impls):
     for rule object definition).
 
     `action_impls` is a dictionary of actions to run when rules are triggered.
-    See `base_actions` for definition of the interface
+    See `base_actions.noop` for definition of the interface
     """
 
     rules = []
     for c in rule_configs:
-        conditions = [validate_condition(cond_str).entity for cond_str in c['when']]
-        actions = [validate_action(action_str, action_impls).entity for action_str in c['actions']]
+        conditions = [validate_condition(cond_str).entity for cond_str in c["when"]]
+        actions = [
+            validate_action(action_str, action_impls).entity
+            for action_str in c["actions"]
+        ]
         rules.append((conditions, actions))
     return rules
+
 
 def run(rules, data):
     for item in data:
@@ -58,4 +64,3 @@ def run(rules, data):
                     for action in actions:
                         action.run(item, scope)
                     break
-

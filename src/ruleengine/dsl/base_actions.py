@@ -27,10 +27,7 @@ def create_moment(
     return NullAction()
 
 
-noop = {
-        "upload": upload,
-        "create_moment" : create_moment
-}
+noop = {"upload": upload, "create_moment": create_moment}
 
 
 __all__ = [

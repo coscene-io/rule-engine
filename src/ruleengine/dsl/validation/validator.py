@@ -12,6 +12,7 @@ base_dsl_values = dict(
     + inspect.getmembers(sequence_conditions)
 )
 
+
 def validate_condition(cond_str):
     return _do_validate(
         cond_str, base_dsl_values, Condition, ValidationErrorType.NOT_CONDITION
@@ -20,14 +21,16 @@ def validate_condition(cond_str):
 
 def validate_action(action_str, action_impls=noop):
     return _do_validate(
-        action_str, { **action_impls, **base_dsl_values}, Action, ValidationErrorType.NOT_ACTION
+        action_str,
+        {**action_impls, **base_dsl_values},
+        Action,
+        ValidationErrorType.NOT_ACTION,
     )
 
 
 def _do_validate(expr_str, injected_values, expected_class, class_expectation_error):
     if not expr_str.strip():
         return ValidationResult(False, ValidationErrorType.EMPTY)
-
 
     try:
         res = validate_expression(expr_str, injected_values)
