@@ -1,11 +1,12 @@
 from ruleengine.dsl.condition import Condition
+from ruleengine.dsl.base_conditions import ts
 from ruleengine.dsl.base_actions import ForwardingAction, noop_upload, noop_create_moment
 
 class AcionValidator:
     def __init__(self, action_impls):
         self.__impls = action_impls
 
-    def create_upload_action(before, title, description, labels, extra_files):
+    def create_upload_action(self, before, title, description, labels=[], extra_files=[]):
         # TODO: Validate arg types
 
         args = {
@@ -18,7 +19,7 @@ class AcionValidator:
 
         return ForwardingAction(self.__impls['upload'], args)
 
-    def create_create_moment_action(title, description, timestamp, duration, create_task, assign_to):
+    def create_create_moment_action(self, title, description='', timestamp=ts, duration=1, create_task=False, assign_to=None):
         # TODO: Validate arg types
 
         args = {
