@@ -1,3 +1,4 @@
+from .dsl.validation.validator import validate_condition, validate_action
 from .dsl.action import Action
 from .dsl.condition import Condition
 
@@ -34,4 +35,18 @@ def run(rule_configs, action_impl, data):
     """
     """
 
+    rules = []
+    for c in rule_configs:
+        conditions = [validate_condition(cond_str) for cond_str in c['when']]
+        actions = [validate_action(action_str) for action_str in c['actions']]
+        rules.append((conditions, actions))
+
+    for item in self.__data:
+        for conditions, actions in rules:
+            for cond in conditions:
+                res, scope = cond.evaluate_condition_at(item, {})
+                if res:
+                    for action in actions:
+                        action.run(item, scope)
+                    break
 
