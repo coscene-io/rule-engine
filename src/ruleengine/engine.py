@@ -1,4 +1,3 @@
-from .dsl.validation.config_validator import validate_config
 from .dsl.action import Action
 from .dsl.condition import Condition
 
