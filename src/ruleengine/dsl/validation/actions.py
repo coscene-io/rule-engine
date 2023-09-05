@@ -1,5 +1,5 @@
 from ruleengine.dsl.condition import Condition
-from ruleengine.dsl.base_conditions import ts
+from ruleengine.dsl.base_conditions import ts, concat
 from ruleengine.dsl.base_actions import ForwardingAction
 
 
@@ -8,7 +8,12 @@ class AcionValidator:
         self.__impls = action_impls
 
     def create_upload_action(
-        self, title, description="", labels=[], extra_files=[], before=10
+        self,
+        title=concat("Device auto upload @ ", ts),
+        description="",
+        labels=[],
+        extra_files=[],
+        before=10,
     ):
         # TODO: Validate arg types
 
