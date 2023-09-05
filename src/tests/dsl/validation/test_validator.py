@@ -89,9 +89,9 @@ class ValidatorTest(unittest.TestCase):
             ).success
         )
 
-        # c = validate_action("create_moment('hello', description='', duration=1, 'something')", noop)
-        # self.assertFalse(c.success)
-        # self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
+        c = validate_action("create_moment('hello', description='', duration=1, 'something')", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
 
         c = validate_action("msg.field == 1", noop)
         self.assertFalse(c.success)
