@@ -20,3 +20,9 @@ class ValidationResult:
 
     # If success, fill in validated entity
     entity: Optional[Action | Condition] = None
+
+    def __post_init__(self):
+        if self.success:
+            assert self.entity is not None
+        else:
+            assert self.error_type

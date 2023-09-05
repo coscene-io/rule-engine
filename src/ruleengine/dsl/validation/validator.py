@@ -34,20 +34,19 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
     if not expr_str.strip():
         return ValidationResult(False, ValidationErrorType.EMPTY)
 
-    expr_res = validate_expression(expr_str, injected_values)
-    if not expr_res.success:
-        return expr_res
 
     try:
-        result = eval(expr_str, injected_values)
+        res = validate_expression(expr_str, injected_values)
+        if not res.success:
+            return res
     except TypeError as e:
         return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
     except Exception as e:
         return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e)})
 
-    if not isinstance(result, expected_class):
+    if not isinstance(res.entity, expected_class):
         return ValidationResult(
-            False, class_expectation_error, {"actual": type(result).__name__}
+            False, class_expectation_error, {"actual": type(res.entity).__name__}
         )
 
-    return ValidationResult(True)
+    return res
