@@ -38,7 +38,7 @@ class AcionValidator:
 
     def create_moment(self, *args, **kwargs):
         def validate_arg_types(args):
-            assign_to = args.get("assign_to", '')
+            assign_to = args.get("assign_to", "")
             if not isinstance(assign_to, str):
                 # TODO: Make this an actual error instead of a generic error
                 raise Exception("assign_to must be string")
