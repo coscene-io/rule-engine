@@ -65,7 +65,7 @@ class AcionValidator:
 
     def _validate_signature(self, sig, args, kwargs):
         if len(args) > len(sig.parameters):
-            raise Exception("too many arguments)
+            raise Exception("too many arguments")
 
         for key in kwargs:
             if key not in sig.parameters:
