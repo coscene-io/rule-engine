@@ -25,6 +25,10 @@ class AcionValidator:
             check_is_list_of_string("labels")
             check_is_list_of_string("extra_files")
 
+            if not isinstance(args.get('before', 0), int):
+                # TODO: Make this an actual error instead of a generic error
+                raise Exception("before must be an int")
+
         return self._validate_factory_func(
             upload_factory(self.__impls["upload"]),
             args,
