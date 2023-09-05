@@ -103,3 +103,14 @@ class ValidatorTest(unittest.TestCase):
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
         self.assertEqual("descrin", c.details["name"])
+
+        # Wrong positional arg, too few or too many
+        c = validate_action("create_moment()", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("Wrong number of parameters", c.details["message"])
+
+        c = validate_action("create_moment(1, 2, 3, 4, 5, 6, 7)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("Wrong number of parameters", c.details["message"])
