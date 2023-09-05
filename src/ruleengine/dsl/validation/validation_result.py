@@ -13,6 +13,10 @@ ValidationErrorType = StrEnum(
 @dataclass
 class ValidationResult:
     success: bool
-    entity: Optional[Action | Condition] = None
+
+    # If not success, fill in error type and details
     error_type: Optional[ValidationErrorType] = None
     details: dict = field(default_factory=dict)
+
+    # If success, fill in validated entity
+    entity: Optional[Action | Condition] = None
