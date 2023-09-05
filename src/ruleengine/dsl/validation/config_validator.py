@@ -109,7 +109,7 @@ def _convert_to_json_error(result):
         case ValidationErrorType.UNDEFINED:
             return {"nameUndefined": {"name": result.details["name"]}}
 
-        case ValidationErrorType.TYPE | ValidationErrorType.UNKNOWN:
+        case ValidationErrorType.UNKNOWN:
             return {"genericError": {"msg": result.details["message"]}}
         case _:
             raise Exception(f"Unknown error type: {result.error_type}")
