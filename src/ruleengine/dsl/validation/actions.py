@@ -1,10 +1,7 @@
 from inspect import signature, Parameter
 from dataclasses import dataclass
 from ruleengine.dsl.condition import Condition
-from ruleengine.dsl.base_actions import (
-    create_upload_action,
-    create_create_moment_action,
-)
+from ruleengine.dsl.base_actions import ( upload_factory, create_moment_factory,)
 
 
 @dataclass
@@ -22,7 +19,7 @@ class AcionValidator:
             pass
 
         return self._validate_factory_func(
-            create_upload_action(self.__impls["upload"]),
+            upload_factory(self.__impls["upload"]),
             args,
             kwargs,
             validate_arg_types,
@@ -34,7 +31,7 @@ class AcionValidator:
             pass
 
         return self._validate_factory_func(
-            create_create_moment_action(self.__impls["create_moment"]),
+            create_moment_factory(self.__impls["create_moment"]),
             args,
             kwargs,
             validate_arg_types,

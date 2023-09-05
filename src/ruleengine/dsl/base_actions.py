@@ -40,7 +40,7 @@ class ForwardingAction(Action):
         self.__thunk(**actual_args)
 
 
-def create_upload_action(impl):
+def upload_factory(impl):
     def res(
         title=concat("Device auto upload @ ", ts),
         description="",
@@ -61,7 +61,7 @@ def create_upload_action(impl):
     return res
 
 
-def create_create_moment_action(impl):
+def create_moment_factory(impl):
     def res(
         title,
         description="",
