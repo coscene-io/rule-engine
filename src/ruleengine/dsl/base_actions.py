@@ -27,12 +27,12 @@ def create_moment(
     return NullAction()
 
 
-action_dict = {
+noop = {
         "upload": upload,
         "create_moment" : create_moment
 }
 
 
 __all__ = [
-    "action_dict",
+    "noop",
 ]

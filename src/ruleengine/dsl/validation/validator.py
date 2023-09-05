@@ -2,9 +2,9 @@ import inspect
 from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
 from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
+from ruleengine.dsl.base_actions import noop
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression
-from .fake_actions import action_dict
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -18,7 +18,7 @@ def validate_condition(cond_str):
     )
 
 
-def validate_action(action_str, action_impls=action_dict):
+def validate_action(action_str, action_impls=noop):
     return _do_validate(
         action_str, { **action_impls, **base_dsl_values}, Action, ValidationErrorType.NOT_ACTION
     )
