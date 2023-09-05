@@ -64,8 +64,15 @@ class AcionValidator:
         return factory(*args, **kwargs)
 
     def _validate_signature(self, sig, args, kwargs):
-        # TODO: Provide better messaging for other cases, too few parameters,
-        # wrong parameters, etc.
         for key in kwargs:
             if key not in sig.parameters:
                 raise UnknownFunctionKeywordArgException(key)
+
+        for i, (name, param) in enumerate(sig.parameters.items()):
+            if i < len(args):
+                if name in kwargs:
+                    raise Exception(f"multiple values given for `{name}`")
+            else:
+                if name not in kwargs and param.default is Parameter.empty:
+                    raise Exception(f"value not specified for parameter `{name}`")
+
