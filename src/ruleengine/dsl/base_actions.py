@@ -40,40 +40,43 @@ class ForwardingAction(Action):
         self.__thunk(**actual_args)
 
 
-def create_upload_action(
-    impl,
-    title=concat("Device auto upload @ ", ts),
-    description="",
-    labels=[],
-    extra_files=[],
-    before=10,
-):
-    args = {
-        "before": before,
-        "title": Condition.wrap(title),
-        "description": Condition.wrap(description),
-        "labels": labels,
-        "extra_files": extra_files,
-    }
+def create_upload_action(impl):
 
-    return ForwardingAction(impl, args)
+    def res(
+        title=concat("Device auto upload @ ", ts),
+        description="",
+        labels=[],
+        extra_files=[],
+        before=10,
+    ):
+        args = {
+            "before": before,
+            "title": Condition.wrap(title),
+            "description": Condition.wrap(description),
+            "labels": labels,
+            "extra_files": extra_files,
+        }
+
+        return ForwardingAction(impl, args)
+    return res
 
 
-def create_create_moment_action(
-    impl,
-    title,
-    description="",
-    timestamp=ts,
-    duration=1,
-    create_task=False,
-    assign_to=None,
-):
-    args = {
-        "title": Condition.wrap(title),
-        "description": Condition.wrap(description),
-        "timestamp": Condition.wrap(timestamp),
-        "duration": Condition.wrap(duration),
-        "create_task": create_task,
-        "assign_to": assign_to,
-    }
-    return ForwardingAction(impl, args)
+def create_create_moment_action(impl):
+    def res(
+        title,
+        description="",
+        timestamp=ts,
+        duration=1,
+        create_task=False,
+        assign_to=None,
+    ):
+        args = {
+            "title": Condition.wrap(title),
+            "description": Condition.wrap(description),
+            "timestamp": Condition.wrap(timestamp),
+            "duration": Condition.wrap(duration),
+            "create_task": create_task,
+            "assign_to": assign_to,
+        }
+        return ForwardingAction(impl, args)
+    return res

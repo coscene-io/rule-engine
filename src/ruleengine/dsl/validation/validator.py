@@ -43,10 +43,13 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
         if not res.success:
             return res
     except UnknownFunctionKeywordArgException as e:
+        print(e)
         return ValidationResult(False, ValidationErrorType.UNDEFINED, {"name": e.name})
     except TypeError as e:
+        print(e)
         return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
     except Exception as e:
+        print(e)
         return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e)})
 
     if not isinstance(res.entity, expected_class):
