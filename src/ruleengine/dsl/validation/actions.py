@@ -1,6 +1,5 @@
 from inspect import signature, Parameter
 from dataclasses import dataclass
-from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.base_actions import upload_factory, create_moment_factory
 
 
