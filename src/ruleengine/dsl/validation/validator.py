@@ -22,8 +22,8 @@ def validate_condition(cond_str):
 def validate_action(action_str, action_impls):
     action_validator = AcionValidator(action_impls)
     action_dsl_values = {
-        "upload": action_validator.create_upload_action,
-        "create_moment": action_validator.create_create_moment_action,
+        "upload": action_validator.upload,
+        "create_moment": action_validator.create_moment,
         **base_dsl_values,
     }
     return _do_validate(
