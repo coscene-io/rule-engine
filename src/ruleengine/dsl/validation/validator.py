@@ -44,8 +44,6 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
             return res
     except UnknownFunctionKeywordArgException as e:
         return ValidationResult(False, ValidationErrorType.UNDEFINED, {"name": e.name})
-    except TypeError as e:
-        return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
     except Exception as e:
         return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e)})
 

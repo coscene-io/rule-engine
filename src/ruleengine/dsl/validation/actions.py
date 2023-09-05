@@ -67,14 +67,3 @@ class AcionValidator:
         for key in kwargs:
             if key not in sig.parameters:
                 raise UnknownFunctionKeywordArgException(key)
-
-        required_args = [
-            1
-            for name, param in sig.parameters.items()
-            if name not in kwargs and param.default is Parameter.empty
-        ]
-        if len(required_args) != len(args):
-            # TODO: Make this an actual error instead of a generic error
-            raise Exception(
-                f"Wrong number of parameters. Expected {len(required_args)} but got {len(args)}"
-            )

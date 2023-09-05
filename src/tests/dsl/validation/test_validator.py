@@ -108,12 +108,17 @@ class ValidatorTest(unittest.TestCase):
         c = validate_action("create_moment()", noop)
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
-        self.assertIn("Wrong number of parameters", c.details["message"])
+        self.assertIn("title", c.details["message"])
 
         c = validate_action("create_moment(1, 2, 3, 4, 5, 6, 7)", noop)
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
-        self.assertIn("Wrong number of parameters", c.details["message"])
+        self.assertIn("too many", c.details["message"])
+
+        c = validate_action("upload('', title='')", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("multiple values", c.details["message"])
 
         # Wrong arg type
         c = validate_action("create_moment('hello', assign_to=1)", noop)
