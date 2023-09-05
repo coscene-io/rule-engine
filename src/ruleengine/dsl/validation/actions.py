@@ -6,7 +6,7 @@ class AcionValidator:
     def __init__(self, action_impls):
         self.__impls = action_impls
 
-    def create_upload_action(self, before, title, description, labels=[], extra_files=[]):
+    def create_upload_action(self, title, description='', labels=[], extra_files=[], before=10):
         # TODO: Validate arg types
 
         args = {
