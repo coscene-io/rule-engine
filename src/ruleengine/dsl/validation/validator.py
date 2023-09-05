@@ -4,18 +4,13 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression
-from . import fake_actions
+from .actions import AcionValidator
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
     + inspect.getmembers(log_conditions)
     + inspect.getmembers(sequence_conditions)
 )
-
-actions_dsl_values = {
-    **dict(inspect.getmembers(fake_actions)),
-    **base_dsl_values,
-}
 
 
 def validate_condition(cond_str):
@@ -24,9 +19,18 @@ def validate_condition(cond_str):
     )
 
 
-def validate_action(action_str):
+def validate_action(action_str, action_impls):
+    action_validator = AcionValidator(action_impls)
+    action_dsl_values = {
+        "upload": action_validator.create_upload_action,
+        "create_moment": action_validator.create_create_moment_action,
+        **base_dsl_values,
+    }
     return _do_validate(
-        action_str, actions_dsl_values, Action, ValidationErrorType.NOT_ACTION
+        action_str,
+        action_dsl_values,
+        Action,
+        ValidationErrorType.NOT_ACTION,
     )
 
 
@@ -34,20 +38,18 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
     if not expr_str.strip():
         return ValidationResult(False, ValidationErrorType.EMPTY)
 
-    expr_res = validate_expression(expr_str, injected_values)
-    if not expr_res.success:
-        return expr_res
-
     try:
-        result = eval(expr_str, injected_values)
+        res = validate_expression(expr_str, injected_values)
+        if not res.success:
+            return res
     except TypeError as e:
         return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
     except Exception as e:
         return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e)})
 
-    if not isinstance(result, expected_class):
+    if not isinstance(res.entity, expected_class):
         return ValidationResult(
-            False, class_expectation_error, {"actual": type(result).__name__}
+            False, class_expectation_error, {"actual": type(res.entity).__name__}
         )
 
-    return ValidationResult(True)
+    return res

@@ -2,6 +2,7 @@ import unittest
 
 from ruleengine.dsl.validation.validator import validate_condition, validate_action
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
+from ruleengine.dsl.base_actions import noop
 
 
 class ValidatorTest(unittest.TestCase):
@@ -71,27 +72,29 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual(c.details["name"], "eval")
 
     def test_action_validation(self):
-        self.assertTrue(validate_action("create_moment('hello')").success)
+        self.assertTrue(validate_action("create_moment('hello')", noop).success)
         self.assertTrue(
             validate_action(
-                "create_moment('hello', description='', duration=100)"
+                "create_moment('hello', description='', duration=100)", noop
             ).success
         )
         self.assertTrue(
             validate_action(
-                "create_moment(msg.title, description='', duration=100)"
+                "create_moment(msg.title, description='', duration=100)", noop
             ).success
         )
         self.assertTrue(
-            validate_action("upload(title='hello', description='', before=1)").success
+            validate_action(
+                "upload(title='hello', description='', before=1)", noop
+            ).success
         )
 
-        c = validate_action("msg.field == 1")
+        c = validate_action("msg.field == 1", noop)
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.NOT_ACTION)
         self.assertIn("Condition", c.details["actual"])
 
         # Wrong keyword arg
-        c = validate_action("create_moment('hello', descrin='', durion=100)")
+        c = validate_action("create_moment('hello', descrin='', durion=100)", noop)
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.TYPE)
