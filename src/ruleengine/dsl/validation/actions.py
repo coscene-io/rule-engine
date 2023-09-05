@@ -14,8 +14,14 @@ class AcionValidator:
 
     def upload(self, *args, **kwargs):
         def validate_arg_types(args):
-            # TODO: Validate arg types
-            pass
+            def check_is_list_of_string(name):
+                value = args.get(name, [])
+                if not isinstance(value, list) or any(not isinstance(i, str) for i in value):
+                    # TODO: Make this an actual error instead of a generic error
+                    raise Exception(f'{name} must be list of strings')
+            check_is_list_of_string('labels')
+            check_is_list_of_string('extra_files')
+
 
         return self._validate_factory_func(
             upload_factory(self.__impls["upload"]),
@@ -26,8 +32,10 @@ class AcionValidator:
 
     def create_moment(self, *args, **kwargs):
         def validate_arg_types(args):
-            # TODO: Validate arg types
-            pass
+            assign_to = args.get('assign_to', None)
+            if assign_to is not None and not isinstance(assign_to, str):
+                # TODO: Make this an actual error instead of a generic error
+                raise Exception('assign_to must be string')
 
         return self._validate_factory_func(
             create_moment_factory(self.__impls["create_moment"]),

@@ -114,3 +114,29 @@ class ValidatorTest(unittest.TestCase):
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
         self.assertIn("Wrong number of parameters", c.details["message"])
+
+        # Wrong arg type
+        c = validate_action("create_moment('hello', assign_to=1)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("assign_to", c.details["message"])
+
+        c = validate_action("upload(extra_files=1)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("extra_files", c.details["message"])
+
+        c = validate_action("upload(extra_files=[1])", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("extra_files", c.details["message"])
+
+        c = validate_action("upload(labels=1)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("labels", c.details["message"])
+
+        c = validate_action("upload(labels=[1])", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("labels", c.details["message"])

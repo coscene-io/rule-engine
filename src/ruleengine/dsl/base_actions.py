@@ -75,7 +75,7 @@ def create_moment_factory(impl):
             "description": Condition.wrap(description).map_condition_value(str),
             "timestamp": Condition.wrap(timestamp).map_condition_value(int),
             "duration": Condition.wrap(duration).map_condition_value(int),
-            "create_task": create_task,
+            "create_task": Condition.wrap(create_task),
             "assign_to": assign_to,
         }
         return ForwardingAction(impl, args)
