@@ -7,6 +7,8 @@ class AcionValidator:
     def __init__(self, action_impls):
         self.__impls = action_impls
 
+    # TODO: It's weird that default values are specified in the validator
+    # instead of action implementation proper.
     def create_upload_action(
         self,
         title=concat("Device auto upload @ ", ts),
@@ -27,6 +29,8 @@ class AcionValidator:
 
         return ForwardingAction(self.__impls["upload"], args)
 
+    # TODO: It's weird that default values are specified in the validator
+    # instead of action implementation proper.
     def create_create_moment_action(
         self,
         title,
