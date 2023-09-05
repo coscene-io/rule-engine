@@ -50,8 +50,8 @@ def create_upload_action(impl):
     ):
         args = {
             "before": before,
-            "title": Condition.wrap(title),
-            "description": Condition.wrap(description),
+            "title": Condition.wrap(title).map_condition_value(str),
+            "description": Condition.wrap(description).map_condition_value(str),
             "labels": labels,
             "extra_files": extra_files,
         }
@@ -71,10 +71,10 @@ def create_create_moment_action(impl):
         assign_to=None,
     ):
         args = {
-            "title": Condition.wrap(title),
-            "description": Condition.wrap(description),
-            "timestamp": Condition.wrap(timestamp),
-            "duration": Condition.wrap(duration),
+            "title": Condition.wrap(title).map_condition_value(str),
+            "description": Condition.wrap(description).map_condition_value(str),
+            "timestamp": Condition.wrap(timestamp).map_condition_value(int),
+            "duration": Condition.wrap(duration).map_condition_value(int),
             "create_task": create_task,
             "assign_to": assign_to,
         }
