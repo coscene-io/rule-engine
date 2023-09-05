@@ -31,7 +31,7 @@ def validate_config(config, action_impls):
     errors = []
     rules = []
     for i, rule in enumerate(config["rules"]):
-        rule_errors, conditions, actions =  _validate_rule(rule, i, action_impls)
+        rule_errors, conditions, actions = _validate_rule(rule, i, action_impls)
         errors += rule_errors
         rules.append((conditions, actions))
 
@@ -115,5 +115,3 @@ def _convert_to_json_error(result):
             return {"genericError": {"msg": result.details["message"]}}
         case _:
             raise Exception(f"Unknown error type: {result.error_type}")
-
-

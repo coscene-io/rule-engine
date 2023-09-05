@@ -19,7 +19,9 @@ def noop_create_moment(
 ):
     pass
 
+
 noop = {"upload": noop_upload, "create_moment": noop_create_moment}
+
 
 class ForwardingAction(Action):
     def __init__(self, thunk, args):

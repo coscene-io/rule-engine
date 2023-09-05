@@ -75,16 +75,18 @@ class ValidatorTest(unittest.TestCase):
         self.assertTrue(validate_action("create_moment('hello')", noop).success)
         self.assertTrue(
             validate_action(
-                "create_moment('hello', description='', duration=100)"
-            , noop).success
+                "create_moment('hello', description='', duration=100)", noop
+            ).success
         )
         self.assertTrue(
             validate_action(
-                "create_moment(msg.title, description='', duration=100)"
-            , noop).success
+                "create_moment(msg.title, description='', duration=100)", noop
+            ).success
         )
         self.assertTrue(
-            validate_action("upload(title='hello', description='', before=1)", noop).success
+            validate_action(
+                "upload(title='hello', description='', before=1)", noop
+            ).success
         )
 
         c = validate_action("msg.field == 1", noop)
