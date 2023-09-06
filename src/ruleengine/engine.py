@@ -33,14 +33,12 @@ class Engine:
                     rule.run_action(item, scope)
 
 
-def run(rules, data):
-    """
-    Runs parsed rules on given data.
+class Engine2:
+    def __init__(self, rules):
+        self.__rules = rules
 
-    `rules` is the second return value of validate_config
-    """
-    for item in data:
-        for conditions, actions in rules:
+    def consume_next(self, item):
+        for conditions, actions in self.__rules:
             for cond in conditions:
                 res, scope = cond.evaluate_condition_at(item, {})
                 if res:
