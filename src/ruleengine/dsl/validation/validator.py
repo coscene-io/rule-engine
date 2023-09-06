@@ -4,7 +4,7 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression
-from .actions import AcionValidator
+from .actions import AcionValidator, UnknownFunctionKeywordArgException
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -22,8 +22,8 @@ def validate_condition(cond_str):
 def validate_action(action_str, action_impls):
     action_validator = AcionValidator(action_impls)
     action_dsl_values = {
-        "upload": action_validator.create_upload_action,
-        "create_moment": action_validator.create_create_moment_action,
+        "upload": action_validator.upload,
+        "create_moment": action_validator.create_moment,
         **base_dsl_values,
     }
     return _do_validate(
@@ -42,9 +42,10 @@ def _do_validate(expr_str, injected_values, expected_class, class_expectation_er
         res = validate_expression(expr_str, injected_values)
         if not res.success:
             return res
-    except TypeError as e:
-        return ValidationResult(False, ValidationErrorType.TYPE, {"message": str(e)})
+    except UnknownFunctionKeywordArgException as e:
+        return ValidationResult(False, ValidationErrorType.UNDEFINED, {"name": e.name})
     except Exception as e:
+        print(e)
         return ValidationResult(False, ValidationErrorType.UNKNOWN, {"message": str(e)})
 
     if not isinstance(res.entity, expected_class):

@@ -1,4 +1,5 @@
 from ruleengine.dsl.condition import Condition
+from ruleengine.dsl.base_conditions import ts, concat
 from ruleengine.dsl.action import Action
 from typing import Optional
 
@@ -37,3 +38,46 @@ class ForwardingAction(Action):
             else:
                 actual_args[name] = value
         self.__thunk(**actual_args)
+
+
+def upload_factory(impl):
+    def res(
+        title=concat("Device auto upload @ ", ts),
+        description="",
+        labels=[],
+        extra_files=[],
+        before=10,
+    ):
+        args = {
+            "before": before,
+            "title": Condition.wrap(title).map_condition_value(str),
+            "description": Condition.wrap(description).map_condition_value(str),
+            "labels": labels,
+            "extra_files": extra_files,
+        }
+
+        return ForwardingAction(impl, args)
+
+    return res
+
+
+def create_moment_factory(impl):
+    def res(
+        title,
+        description="",
+        timestamp=ts,
+        duration=1,
+        create_task=False,
+        assign_to=None,
+    ):
+        args = {
+            "title": Condition.wrap(title).map_condition_value(str),
+            "description": Condition.wrap(description).map_condition_value(str),
+            "timestamp": Condition.wrap(timestamp).map_condition_value(int),
+            "duration": Condition.wrap(duration).map_condition_value(int),
+            "create_task": Condition.wrap(create_task),
+            "assign_to": assign_to,
+        }
+        return ForwardingAction(impl, args)
+
+    return res

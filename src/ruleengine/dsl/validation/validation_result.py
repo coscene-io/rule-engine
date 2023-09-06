@@ -6,7 +6,7 @@ from ruleengine.dsl.action import Action
 
 ValidationErrorType = StrEnum(
     "ValidationErrorType",
-    ["SYNTAX", "EMPTY", "NOT_CONDITION", "NOT_ACTION", "UNDEFINED", "TYPE", "UNKNOWN"],
+    ["SYNTAX", "EMPTY", "NOT_CONDITION", "NOT_ACTION", "UNDEFINED", "UNKNOWN"],
 )
 
 

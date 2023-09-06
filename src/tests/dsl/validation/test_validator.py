@@ -89,12 +89,59 @@ class ValidatorTest(unittest.TestCase):
             ).success
         )
 
+        c = validate_action("create_moment('hello', duration='', 'something')", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.SYNTAX)
+
         c = validate_action("msg.field == 1", noop)
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.NOT_ACTION)
         self.assertIn("Condition", c.details["actual"])
 
         # Wrong keyword arg
-        c = validate_action("create_moment('hello', descrin='', durion=100)", noop)
+        c = validate_action("create_moment('hello', descrin='')", noop)
         self.assertFalse(c.success)
-        self.assertEqual(c.error_type, ValidationErrorType.TYPE)
+        self.assertEqual(c.error_type, ValidationErrorType.UNDEFINED)
+        self.assertEqual("descrin", c.details["name"])
+
+        # Wrong positional arg, too few or too many
+        c = validate_action("create_moment()", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("title", c.details["message"])
+
+        c = validate_action("create_moment(1, 2, 3, 4, 5, 6, 7)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("too many", c.details["message"])
+
+        c = validate_action("upload('', title='')", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("multiple values", c.details["message"])
+
+        # Wrong arg type
+        c = validate_action("create_moment('hello', assign_to=1)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("assign_to", c.details["message"])
+
+        c = validate_action("upload(extra_files=1)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("extra_files", c.details["message"])
+
+        c = validate_action("upload(extra_files=[1])", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("extra_files", c.details["message"])
+
+        c = validate_action("upload(labels=1)", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("labels", c.details["message"])
+
+        c = validate_action("upload(labels=[1])", noop)
+        self.assertFalse(c.success)
+        self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
+        self.assertIn("labels", c.details["message"])
