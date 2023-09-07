@@ -62,7 +62,7 @@ class BooleanTransformer(ast.NodeTransformer):
                     )
                 case ast.NotIn():
                     condition_list.append(
-                        ast.parse(f"not(has({right}, {left}))", mode="eval").body
+                        ast.parse(f"not_(has({right}, {left}))", mode="eval").body
                     )
                 case _:
                     condition_list.append(
