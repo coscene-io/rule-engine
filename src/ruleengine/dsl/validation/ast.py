@@ -5,7 +5,7 @@ from .normalizer import normalize_expression_tree
 
 def validate_expression(expr_str, injected_values):
     try:
-        parsed = normalize_expression_tree(ast.parse(expr_str, mode="eval"))
+        parsed = ast.parse(expr_str, mode="eval")
     except SyntaxError:
         return ValidationResult(False, ValidationErrorType.SYNTAX)
 
@@ -17,7 +17,7 @@ def validate_expression(expr_str, injected_values):
                         False, ValidationErrorType.UNDEFINED, {"name": name}
                     )
 
-    code = compile(parsed, "", mode="eval")
+    code = compile(normalize_expression_tree(parsed), "", mode="eval")
 
     return ValidationResult(True, entity=eval(code, injected_values))
 

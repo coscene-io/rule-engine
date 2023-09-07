@@ -14,8 +14,21 @@ class NormalizerTest(unittest.TestCase):
                 'or_(a, b, c)')
 
         self._assert_equivalent(
+                'a or b and c',
+                'or_(a, and_(b, c))')
+
+        self._assert_equivalent(
                 'not a',
                 'not_(a)')
+
+        self._assert_equivalent(
+                'not not a or b and c',
+                'or_(not_(not_(a)), and_(b, c))')
+
+        self._assert_equivalent(
+                'a in b',
+                '(lambda arg0, arg1: and_(has(arg1, arg0)))(a, b)'
+                )
 
         self._assert_equivalent(
                 'a > 1 in b',
@@ -23,8 +36,9 @@ class NormalizerTest(unittest.TestCase):
                 )
 
         self._assert_equivalent(
-                'a or b and c',
-                'or_(a, and_(b, c))')
+                'c or a > 1 in b and d',
+                'or_(c, and_((lambda arg0, arg1, arg2: and_(arg0 > arg1, has(arg2, arg1)))(a, 1, b), d))'
+                )
 
 
     def _assert_equivalent(self, original, normalized):
