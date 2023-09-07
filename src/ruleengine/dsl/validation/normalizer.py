@@ -15,7 +15,7 @@ class BooleanTransformer(ast.NodeTransformer):
             case ast.Or():
                 func_name = "or_"
             case _:
-                raise Exception(f"Should not get here? {node.op}")
+                return node
         return ast.Call(ast.Name(func_name, ast.Load()), node.values, [])
 
     def visit_UnaryOp(self, node):
