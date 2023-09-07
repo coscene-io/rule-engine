@@ -1,5 +1,5 @@
 from ruleengine.dsl.condition import Condition
-from ruleengine.dsl.base_conditions import ts, concat
+from ruleengine.dsl.base_conditions import topic, ts, concat
 from ruleengine.dsl.action import Action
 from typing import Optional
 
@@ -54,6 +54,7 @@ def upload_factory(impl):
             "description": Condition.wrap(description).map_condition_value(str),
             "labels": labels,
             "extra_files": extra_files,
+            "filename": topic,
         }
 
         return ForwardingAction(impl, args)
