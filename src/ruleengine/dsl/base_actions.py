@@ -5,7 +5,12 @@ from typing import Optional
 
 
 def noop_upload(
-    before: int, title: str, description: str, labels: list[str], extra_files: list[str]
+    topic: str,  # todo delete later
+    before: int,
+    title: str,
+    description: str,
+    labels: list[str],
+    extra_files: list[str],
 ):
     pass
 
@@ -54,7 +59,7 @@ def upload_factory(impl):
             "description": Condition.wrap(description).map_condition_value(str),
             "labels": labels,
             "extra_files": extra_files,
-            "filename": topic,
+            "topic": topic,
         }
 
         return ForwardingAction(impl, args)
