@@ -73,12 +73,7 @@ class BooleanTransformer(ast.NodeTransformer):
                         )
                     )
 
-        parsed_wrapper = ast.parse(
-            f"lambda {','.join(param_list)}: ...", mode="eval"
-        ).body
-        wrapper = ast.Lambda(
-            parsed_wrapper.args,
-            ast.Call(ast.Name("and_", ast.Load()), condition_list, []),
-        )
+        wrapper = ast.parse(f"lambda {','.join(param_list)}: ...", mode="eval").body
+        wrapper.body = ast.Call(ast.Name("and_", ast.Load()), condition_list, [])
 
         return ast.Call(wrapper, args, [])
