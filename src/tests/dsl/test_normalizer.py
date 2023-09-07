@@ -19,7 +19,7 @@ class NormalizerTest(unittest.TestCase):
 
         self._assert_equivalent(
                 'a > 1 in b',
-                'has(b, a)'
+                '(lambda arg0, arg1, arg2: and_(arg0 > arg1, has(arg2, arg1)))(a, 1, b)'
                 )
 
         self._assert_equivalent(

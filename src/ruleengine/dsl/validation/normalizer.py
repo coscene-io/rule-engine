@@ -34,23 +34,23 @@ class BooleanTransformer(ast.NodeTransformer):
         node = self.generic_visit(node)
 
         args = [node.left] + node.comparators
-        param_list = ','.join('arg' + str(i) for i in range(len(args)))
+        param_list = ['arg' + str(i) for i in range(len(args))]
         condition_list = []
-        for i, (left, right) in enumerate(zip(args, node.comparators)):
+        for i, (left, right) in enumerate(zip(param_list, param_list[1:])):
             match node.ops[i]:
                 case ast.In():
-                    condition_list.append(ast.parse(f'has({right}, {left})', mode='eval'))
+                    condition_list.append(ast.parse(f'has({right}, {left})', mode='eval').body)
                 case ast.NotIn():
-                    condition_list.append(ast.parse(f'not(has({right}, {left}))', mode='eval'))
+                    condition_list.append(ast.parse(f'not(has({right}, {left}))', mode='eval').body)
                 case _:
                     condition_list.append(ast.Compare(
-                        Name(left, ast.Load()),
+                        ast.Name(left, ast.Load()),
                         [node.ops[i]],
-                        [Name(right, ast.Load())]))
+                        [ast.Name(right, ast.Load())]))
 
 
-        wrapper = ast.parse(f"lambda {param_list}: ...", mode='eval')
-        wrapper.body = ast.Call(ast.Name('and_', ast.Load()), condition_list, [])
+        parsed_wrapper = ast.parse(f"lambda {','.join(param_list)}: ...", mode='eval').body
+        wrapper = ast.Lambda(parsed_wrapper.args, ast.Call(ast.Name('and_', ast.Load()), condition_list, []))
 
-        return ast.Call(func, args, [])
+        return ast.Call(wrapper, args, [])
 
