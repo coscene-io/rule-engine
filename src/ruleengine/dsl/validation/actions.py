@@ -17,7 +17,7 @@ class ActionValidator:
             def check_is_list_of_string(name):
                 value = args.get(name, [])
                 if not isinstance(value, list) or any(
-                        not isinstance(i, str) for i in value
+                    not isinstance(i, str) for i in value
                 ):
                     # TODO: Make this an actual error instead of a generic error
                     raise Exception(f"{name} must be list of strings")
