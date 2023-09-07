@@ -4,7 +4,7 @@ from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 from .validation_result import ValidationResult, ValidationErrorType
 from .ast import validate_expression
-from .actions import AcionValidator, UnknownFunctionKeywordArgException
+from .actions import ActionValidator, UnknownFunctionKeywordArgException
 
 base_dsl_values = dict(
     inspect.getmembers(base_conditions)
@@ -20,7 +20,7 @@ def validate_condition(cond_str):
 
 
 def validate_action(action_str, action_impls):
-    action_validator = AcionValidator(action_impls)
+    action_validator = ActionValidator(action_impls)
     action_dsl_values = {
         "upload": action_validator.upload,
         "create_moment": action_validator.create_moment,

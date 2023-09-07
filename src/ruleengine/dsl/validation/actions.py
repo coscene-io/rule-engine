@@ -8,7 +8,7 @@ class UnknownFunctionKeywordArgException(Exception):
     name: str
 
 
-class AcionValidator:
+class ActionValidator:
     def __init__(self, action_impls):
         self.__impls = action_impls
 
