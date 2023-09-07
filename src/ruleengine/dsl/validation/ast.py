@@ -20,4 +20,3 @@ def validate_expression(expr_str, injected_values):
     code = compile(normalize_expression_tree(parsed), "", mode="eval")
 
     return ValidationResult(True, entity=eval(code, injected_values))
-
