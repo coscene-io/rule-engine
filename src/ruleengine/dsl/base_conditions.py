@@ -90,7 +90,7 @@ def has(parent, child):
     )
 
 
-def regex_search(value, pattern):
+def regex(value, pattern):
     return (
         Condition.wrap(value)
         .map_condition_value(lambda v: re.search(pattern, v))
@@ -116,6 +116,6 @@ __all__ = [
     "get_value",
     "set_value",
     "has",
-    "regex_search",
+    "regex",
     "is_none",
 ]

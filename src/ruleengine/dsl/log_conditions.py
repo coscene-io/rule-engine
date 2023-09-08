@@ -10,7 +10,7 @@ _is_ros = msgtype == "rosgraph_msgs/Log"
 
 LogLevel = Enum("LogLevel", ["UNKNOWN", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"])
 
-log_text = or_(
+log = or_(
     and_(_is_ros, msg.msg),
     and_(_is_foxglove, msg.message),
     # Default case
@@ -58,7 +58,7 @@ def foxglove_log_level(num):
 
 
 __all__ = [
-    "log_text",
+    "log",
     "log_level",
     "LogLevel",
 ]

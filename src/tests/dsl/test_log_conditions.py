@@ -39,13 +39,13 @@ class CollectAction(Action):
 
 class LogConditionTest(unittest.TestCase):
     def test_log_test(self):
-        result = self.__run_test(log_text != "")
+        result = self.__run_test(log != "")
         self.assertEqual(len(result), 5, result)
 
-        result = self.__run_test(log_text == "ros log message 1")
+        result = self.__run_test(log == "ros log message 1")
         self.assertEqual(len(result), 2, result)
 
-        result = self.__run_test(has(log_text, "foxglove log message"))
+        result = self.__run_test(has(log, "foxglove log message"))
         self.assertEqual(len(result), 3, result)
 
     def test_log_level(self):
