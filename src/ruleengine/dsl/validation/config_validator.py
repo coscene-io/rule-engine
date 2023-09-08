@@ -20,7 +20,10 @@ def validate_config(config, action_impls):
     # TODO: Instead of putting together these objects by hand, we should connect
     # the protos generated in cosceneapis
 
-    if config["version"] not in ALLOWED_VERSIONS:
+    raw_version = config.get("version", "")
+    raw_rules = config.get("rules", [])
+
+    if raw_version not in ALLOWED_VERSIONS:
         return {
             "success": False,
             "errors": [{"unexpectedVersion": {"allowedVersions": ALLOWED_VERSIONS}}],
@@ -28,7 +31,7 @@ def validate_config(config, action_impls):
 
     errors = []
     rules = []
-    for i, rule in enumerate(config["rules"]):
+    for i, rule in enumerate(raw_rules):
         rule_errors, conditions, actions = _validate_rule(rule, i, action_impls)
         errors += rule_errors
         rules.append((conditions, actions))
@@ -39,7 +42,9 @@ def validate_config(config, action_impls):
 
 def _validate_rule(rule, rule_index, action_impls):
     errors = []
-    if not rule["when"]:
+    raw_conditions = rule.get("when", [])
+    raw_actions = rule.get("actions", [])
+    if not raw_conditions:
         errors.append(
             {
                 "location": {
@@ -49,7 +54,7 @@ def _validate_rule(rule, rule_index, action_impls):
                 "emptySection": {},
             }
         )
-    if not rule["actions"]:
+    if not raw_actions:
         errors.append(
             {
                 "location": {
@@ -61,7 +66,7 @@ def _validate_rule(rule, rule_index, action_impls):
         )
 
     conditions = []
-    for i, cond_str in enumerate(rule["when"]):
+    for i, cond_str in enumerate(raw_conditions):
         res = validate_condition(cond_str)
         if not res.success:
             errors.append(
@@ -78,7 +83,7 @@ def _validate_rule(rule, rule_index, action_impls):
             conditions.append(res.entity)
 
     actions = []
-    for i, action_str in enumerate(rule["actions"]):
+    for i, action_str in enumerate(raw_actions):
         res = validate_action(action_str, action_impls)
         if not res.success:
             errors.append(
