@@ -1,12 +1,12 @@
 from enum import Enum
 
-from .base_conditions import and_, msg, or_, type_is
+from .base_conditions import and_, msg, or_, msgtype
 
 # TODO: Add tests
 # TODO: Add other fields that are common for logs
 
-_is_foxglove = or_(type_is("foxglove_msgs/Log"), type_is("foxglove.Log"))
-_is_ros = type_is("rosgraph_msgs/Log")
+_is_foxglove = or_(msgtype == "foxglove_msgs/Log", msgtype == "foxglove.Log")
+_is_ros = msgtype == "rosgraph_msgs/Log"
 
 LogLevel = Enum("LogLevel", ["UNKNOWN", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"])
 
