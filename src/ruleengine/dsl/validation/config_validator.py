@@ -24,7 +24,7 @@ def validate_config(config, action_impls):
         return {
             "success": False,
             "errors": [{"unexpectedVersion": {"allowedVersions": ALLOWED_VERSIONS}}],
-        }
+        }, []
 
     errors = []
     rules = []
