@@ -66,6 +66,12 @@ class Condition(ABC):
     def __le__(self, other):
         return self.__wrap_binary_op(other, op.le, float)
 
+    def __neg__(self):
+        return self.map_condition_value(op.neg)
+
+    def __pos__(self):
+        return self.map_condition_value(op.pos)
+
     def __add__(self, other):
         return self.__wrap_binary_op(other, op.add, float)
 
