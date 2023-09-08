@@ -131,10 +131,10 @@ class SequenceConditionTest(unittest.TestCase):
         self.assertEqual(get_trigger_times(result), [0, 3, 6, 9])
 
     def test_any_order(self):
-        result = self.__run_test(any_order(topic == 't1', topic == 't2', topic == 't3'))
+        result = self.__run_test(any_order(topic == "t1", topic == "t2", topic == "t3"))
         self.assertEqual(get_trigger_times(result), [9])
 
-        result = self.__run_test(any_order(topic == 't3', topic == 't2', topic == 't1'))
+        result = self.__run_test(any_order(topic == "t3", topic == "t2", topic == "t1"))
         self.assertEqual(get_trigger_times(result), [9])
 
     @staticmethod
