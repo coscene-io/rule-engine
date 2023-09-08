@@ -21,7 +21,16 @@ def sequential(*conditions, duration=None):
     return SequenceMatchCondition(list(conditions), duration)
 
 
+def timeout(*conditions, duration):
+    return SequenceMatchCondition(list(conditions), duration, True)
+
+
+def any_order(*conditions):
+    return RisingEdgeCondition(AnyOrderCondition(list(conditions)))
+
+
 def repeated(condition, times, duration):
+    assert times > 1, "In repeated condition, times must be more than 1"
     return and_(
         condition,
         RisingEdgeCondition(SequenceMatchCondition([condition] * times, duration)),
@@ -97,7 +106,7 @@ class SustainedCondition(Condition):
 
 
 class SequenceMatchCondition(Condition):
-    def __init__(self, sequence, duration=None):
+    def __init__(self, sequence, duration=None, trigger_on_timeout=False):
         super().__init__()
 
         assert len(sequence) > 1, "Sequence must be longer than 1"
@@ -106,6 +115,7 @@ class SequenceMatchCondition(Condition):
 
         self.__seq = sequence
         self.__duration = duration
+        self.__trigger_on_timeout = trigger_on_timeout
 
         # List of (start time, current index, scope) tuple. Each item denotes
         # one ongoing matching sequence, with start time being the time of the
@@ -118,6 +128,8 @@ class SequenceMatchCondition(Condition):
         success = None
         for start, curr_index, curr_scope in self.__ongoings:
             if self.__duration is not None and item.ts - start > self.__duration:
+                if self.__trigger_on_timeout:
+                    success = start, curr_scope
                 continue
 
             matched, new_scope = self.__seq[curr_index].evaluate_condition_at(
@@ -125,7 +137,8 @@ class SequenceMatchCondition(Condition):
             )
             if matched:
                 if curr_index + 1 == len(self.__seq):
-                    success = start, new_scope
+                    if not self.__trigger_on_timeout:
+                        success = start, new_scope
                 else:
                     ongoings.append((start, curr_index + 1, new_scope))
 
@@ -163,10 +176,36 @@ class ThrottleCondition(Condition):
         return False, scope
 
 
+class AnyOrderCondition(Condition):
+    def __init__(self, conditions):
+        self.__unsatisfied = conditions
+        self.__curr_scope = None
+
+    def evaluate_condition_at(self, item, scope):
+        if self.__curr_scope is None:
+            self.__curr_scope = scope
+
+        new_conditions = []
+        for c in self.__unsatisfied:
+            value, new_scope = c.evaluate_condition_at(item, self.__curr_scope)
+            if value:
+                self.__curr_scope = new_scope
+            else:
+                new_conditions.append(c)
+
+        if not new_conditions:
+            return True, self.__curr_scope
+
+        self.__unsatisfied = new_conditions
+        return False, self.__curr_scope
+
+
 __all__ = [
-    "sustained",
-    "sequential",
-    "repeated",
+    "any_order",
     "debounce",
+    "repeated",
+    "sequential",
+    "sustained",
     "throttle",
+    "timeout",
 ]

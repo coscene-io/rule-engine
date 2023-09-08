@@ -97,6 +97,12 @@ class SequenceConditionTest(unittest.TestCase):
         )
         self.assertEqual(get_start_times(result), [0, 0])
 
+    def test_sequence_timeout(self):
+        result = self.__run_test(
+            timeout(msg.str_value == "hello", msg.str_value == "world", duration=3)
+        )
+        self.assertEqual(get_start_times(result), [0, 5])
+
     def test_repeated(self):
         result = self.__run_test(repeated(always, 2, 5))
         self.assertEqual(get_start_times(result), [0])
@@ -123,6 +129,13 @@ class SequenceConditionTest(unittest.TestCase):
     def test_throttle(self):
         result = self.__run_test(throttle(msg.str_value == "hello", 3))
         self.assertEqual(get_trigger_times(result), [0, 3, 6, 9])
+
+    def test_any_order(self):
+        result = self.__run_test(any_order(topic == "t1", topic == "t2", topic == "t3"))
+        self.assertEqual(get_trigger_times(result), [9])
+
+        result = self.__run_test(any_order(topic == "t3", topic == "t2", topic == "t1"))
+        self.assertEqual(get_trigger_times(result), [9])
 
     @staticmethod
     def __run_test(condition):
