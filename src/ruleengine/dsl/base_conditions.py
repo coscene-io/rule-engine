@@ -77,14 +77,6 @@ def set_value(key, value):
     )
 
 
-def topic_is(name):
-    return topic == name
-
-
-def type_is(name):
-    return msgtype == name
-
-
 def has(parent, child):
     return Condition.wrap(parent).map_condition_value(
         lambda p: Condition.wrap(child).map_condition_value(
@@ -123,8 +115,6 @@ __all__ = [
     "concat",
     "get_value",
     "set_value",
-    "topic_is",
-    "type_is",
     "has",
     "regex_search",
     "is_none",
