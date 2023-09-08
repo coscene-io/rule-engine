@@ -99,9 +99,9 @@ class SequenceConditionTest(unittest.TestCase):
 
     def test_sequence_timeout(self):
         result = self.__run_test(
-                timeout(msg.str_value == 'hello', msg.str_value == 'world', duration = 3))
+            timeout(msg.str_value == "hello", msg.str_value == "world", duration=3)
+        )
         self.assertEqual(get_start_times(result), [0, 5])
-
 
     def test_repeated(self):
         result = self.__run_test(repeated(always, 2, 5))
