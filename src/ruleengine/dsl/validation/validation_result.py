@@ -1,10 +1,10 @@
-from enum import StrEnum
+from enum import Enum
 from dataclasses import dataclass, field
 from typing import Optional
 from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.action import Action
 
-ValidationErrorType = StrEnum(
+ValidationErrorType = Enum(
     "ValidationErrorType",
     ["SYNTAX", "EMPTY", "NOT_CONDITION", "NOT_ACTION", "UNDEFINED", "UNKNOWN"],
 )
