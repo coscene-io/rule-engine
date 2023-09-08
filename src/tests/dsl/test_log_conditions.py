@@ -4,7 +4,7 @@ from collections import namedtuple
 from ruleengine.dsl.action import Action
 from ruleengine.dsl.base_conditions import *
 from ruleengine.dsl.log_conditions import *
-from ruleengine.engine import Engine, Rule
+from ruleengine.engine import Engine
 
 MockDataItem = namedtuple("MockDataItem", "topic msg ts msgtype")
 MockMessage = namedtuple("MockMessage", "int_value str_value")
@@ -64,5 +64,7 @@ class LogConditionTest(unittest.TestCase):
     @staticmethod
     def __run_test(condition):
         action = CollectAction()
-        Engine([Rule(condition, action)], simple_sequence).run()
+        engine = Engine([([condition], [action])])
+        for item in simple_sequence:
+            engine.consume_next(item)
         return action.collector
