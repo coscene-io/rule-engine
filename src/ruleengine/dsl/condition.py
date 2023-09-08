@@ -66,16 +66,40 @@ class Condition(ABC):
     def __le__(self, other):
         return self.__wrap_binary_op(other, op.le, float)
 
+    def __add__(self, other):
+        return self.__wrap_binary_op(other, op.add, float)
+
+    def __radd__(self, other):
+        return self.__wrap_binary_op(other, op.add, float, True)
+
+    def __sub__(self, other):
+        return self.__wrap_binary_op(other, op.sub, float)
+
+    def __rsub__(self, other):
+        return self.__wrap_binary_op(other, op.sub, float, True)
+
+    def __mul__(self, other):
+        return self.__wrap_binary_op(other, op.mul, float)
+
+    def __rmul__(self, other):
+        return self.__wrap_binary_op(other, op.mul, float, True)
+
+    def __truediv__(self, other):
+        return self.__wrap_binary_op(other, op.truediv, float)
+
+    def __rtruediv__(self, other):
+        return self.__wrap_binary_op(other, op.truediv, float, True)
+
     def __call__(self, *args, **kwargs):
         return self.map_condition_value(lambda f: f(*args, **kwargs))
 
     def __getattr__(self, name):
         return self.map_condition_value(lambda x: getattr(x, name, None))
 
-    def __wrap_binary_op(self, other, op, coerce=lambda x: x):
+    def __wrap_binary_op(self, other, op, coerce=lambda x: x, swap=False):
         return self.map_condition_value(
             lambda x: Condition.wrap(other).map_condition_value(
-                lambda y: op(coerce(x), coerce(y))
+                lambda y: op(coerce(y), coerce(x)) if swap else op(coerce(x), coerce(y))
             )
         )
 
