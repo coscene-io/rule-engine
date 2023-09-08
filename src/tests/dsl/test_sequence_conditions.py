@@ -53,22 +53,22 @@ class SequenceConditionTest(unittest.TestCase):
         result = self.__run_test(sustained(always, msg.str_value == "hello", 6))
         self.assertEqual(get_start_times(result), [])
 
-        result = self.__run_test(sustained(topic_is("t1"), msg.str_value == "hello", 2))
+        result = self.__run_test(sustained(topic == "t1", msg.str_value == "hello", 2))
         self.assertEqual(get_start_times(result), [0])
 
-        result = self.__run_test(sustained(topic_is("t1"), msg.str_value == "hello", 6))
+        result = self.__run_test(sustained(topic == "t1", msg.str_value == "hello", 6))
         self.assertEqual(get_start_times(result), [])
 
     def test_sequence_pattern(self):
         result = self.__run_test(
             sequential(
-                and_(topic_is("t1"), msg.int_value == 1),
+                and_(topic == "t1", msg.int_value == 1),
                 and_(
-                    topic_is("t2"),
+                    topic == "t2",
                     (msg.int_value == 4),
                     set_value("somekey", msg.int_value),
                 ),
-                and_(topic_is("t2"), msg.int_value == get_value("somekey")),
+                and_(topic == "t2", msg.int_value == get_value("somekey")),
                 duration=4,
             )
         )
@@ -76,13 +76,13 @@ class SequenceConditionTest(unittest.TestCase):
 
         result = self.__run_test(
             sequential(
-                and_(topic_is("t1"), msg.int_value == 1),
+                and_(topic == "t1", msg.int_value == 1),
                 and_(
-                    topic_is("t2"),
+                    topic == "t2",
                     (msg.int_value == 4),
                     set_value("somekey", msg.int_value),
                 ),
-                and_(topic_is("t2"), msg.int_value == get_value("somekey")),
+                and_(topic == "t2", msg.int_value == get_value("somekey")),
                 duration=2,
             )
         )
@@ -91,8 +91,8 @@ class SequenceConditionTest(unittest.TestCase):
         # Overlapping sequences, and without duration
         result = self.__run_test(
             sequential(
-                and_(topic_is("t1"), set_value("somekey", msg.int_value)),
-                and_(topic_is("t2"), msg.int_value == get_value("somekey")),
+                and_(topic == "t1", set_value("somekey", msg.int_value)),
+                and_(topic == "t2", msg.int_value == get_value("somekey")),
             )
         )
         self.assertEqual(get_start_times(result), [0, 0])
@@ -101,13 +101,13 @@ class SequenceConditionTest(unittest.TestCase):
         result = self.__run_test(repeated(always, 2, 5))
         self.assertEqual(get_start_times(result), [0])
 
-        result = self.__run_test(repeated(topic_is("t2"), 2, 5))
+        result = self.__run_test(repeated(topic == "t2", 2, 5))
         self.assertEqual(get_start_times(result), [1])
 
-        result = self.__run_test(repeated(topic_is("t2"), 5, 5))
+        result = self.__run_test(repeated(topic == "t2", 5, 5))
         self.assertEqual(get_start_times(result), [1])
 
-        result = self.__run_test(repeated(topic_is("t2"), 2, 0.5))
+        result = self.__run_test(repeated(topic == "t2", 2, 0.5))
         self.assertEqual(get_start_times(result), [1, 3, 4, 7])
 
     def test_debounce(self):

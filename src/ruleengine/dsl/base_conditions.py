@@ -115,8 +115,6 @@ __all__ = [
     "concat",
     "get_value",
     "set_value",
-    "topic_is",
-    "type_is",
     "has",
     "regex_search",
     "is_none",

@@ -9,9 +9,9 @@ class ValidatorTest(unittest.TestCase):
     def test_condition_validation(self):
         self.assertTrue(validate_condition("msg").success)
         self.assertTrue(validate_condition("msg.aaa").success)
-        self.assertTrue(validate_condition("topic_is('blah')").success)
+        self.assertTrue(validate_condition("topic == 'blah'").success)
         self.assertTrue(
-            validate_condition("and_(topic_is('blah'), msg.something == 123)").success
+            validate_condition("and_(topic == 'blah', msg.something == 123)").success
         )
 
         c = validate_condition("    ")

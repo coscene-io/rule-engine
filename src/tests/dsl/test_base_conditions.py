@@ -87,18 +87,18 @@ class BaseConditionTest(unittest.TestCase):
         self.assertEqual(len(result), 6, result)
 
     def test_topic_match(self):
-        result = self.__run_test(topic_is("t1"))
+        result = self.__run_test(topic == "t1")
         self.assertEqual(len(result), 2, result)
 
     def test_type_match(self):
-        result = self.__run_test(type_is("MockMessage"))
+        result = self.__run_test(msgtype == "MockMessage")
         self.assertEqual(len(result), 7, result)
 
-        result = self.__run_test(type_is("FalseMessage"))
+        result = self.__run_test(msgtype == "FalseMessage")
         self.assertEqual(len(result), 0, result)
 
     def test_complex_conditions(self):
-        result = self.__run_test(and_(topic_is("t2"), msg.int_value > 2))
+        result = self.__run_test(and_(topic == "t2", msg.int_value > 2))
         self.assertEqual(len(result), 2, result)
 
     def test_function_calls(self):
