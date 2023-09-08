@@ -1,5 +1,6 @@
 import ast
 from .validation_result import ValidationResult, ValidationErrorType
+from .normalizer import normalize_expression_tree
 
 
 def validate_expression(expr_str, injected_values):
@@ -16,6 +17,6 @@ def validate_expression(expr_str, injected_values):
                         False, ValidationErrorType.UNDEFINED, {"name": name}
                     )
 
-    code = compile(parsed, "", mode="eval")
+    code = compile(normalize_expression_tree(parsed), "", mode="eval")
 
     return ValidationResult(True, entity=eval(code, injected_values))
