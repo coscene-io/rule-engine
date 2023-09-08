@@ -1,7 +1,7 @@
 from ruleengine.dsl.validation.validator import validate_action, validate_condition
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
 
-ALLOWED_VERSIONS = ["1", "1.0.0", "v1"]
+ALLOWED_VERSIONS = ["v1"]
 
 
 def validate_config(config, action_impls):
