@@ -10,22 +10,30 @@ MockDataItem = namedtuple("MockDataItem", "topic msg ts")
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 
 simple_sequence = [
-    MockDataItem("t1", MockMessage(1, "hello"), 0),
-    MockDataItem("t1", MockMessage(2, "hello"), 0),
-    MockDataItem("t2", MockMessage(1, "hello"), 1),
-    MockDataItem("t2", MockMessage(2, "hello"), 1),
-    MockDataItem("t1", MockMessage(3, "hello"), 2),
-    MockDataItem("t1", MockMessage(3, "hello"), 3),
-    MockDataItem("t2", MockMessage(4, "hello"), 3),
-    MockDataItem("t2", MockMessage(4, "hello"), 3),
-    MockDataItem("t2", MockMessage(5, "world"), 4),
-    MockDataItem("t2", MockMessage(5, "world"), 4),
-    MockDataItem("t2", MockMessage(4, "hello"), 5),
-    MockDataItem("t2", MockMessage(4, "hello"), 6),
-    MockDataItem("t2", MockMessage(4, "hello"), 7),
-    MockDataItem("t2", MockMessage(4, "hello"), 7),
-    MockDataItem("t2", MockMessage(4, "hello"), 9),
-    MockDataItem("t3", MockMessage(4, "single"), 9),
+    MockDataItem("t1", MockMessage(1, "1111"), 0),
+    MockDataItem("t1", MockMessage(2, "aaaa"), 1),
+    MockDataItem("t2", MockMessage(1, "aaaa"), 2),
+    MockDataItem("t2", MockMessage(2, "aaaa"), 3),
+    MockDataItem("t1", MockMessage(3, "2222"), 4),
+    MockDataItem("t1", MockMessage(3, "1111"), 5),
+    MockDataItem("t2", MockMessage(4, "aaaa"), 6),
+    MockDataItem("t2", MockMessage(4, "aaaa"), 7),
+    MockDataItem("t1", MockMessage(1, "aaaa"), 8),
+    MockDataItem("t1", MockMessage(2, "4444"), 9),
+    MockDataItem("t2", MockMessage(1, "aaaa"), 10),
+    MockDataItem("t2", MockMessage(2, "3333"), 11),
+    MockDataItem("t1", MockMessage(3, "aaaa"), 12),
+    MockDataItem("t1", MockMessage(3, "aaaa"), 13),
+    MockDataItem("t2", MockMessage(4, "aaaa"), 14),
+    MockDataItem("t2", MockMessage(4, "3333"), 15),
+    MockDataItem("t1", MockMessage(1, "4444"), 16),
+    MockDataItem("t1", MockMessage(2, "2222"), 17),
+    MockDataItem("t2", MockMessage(1, "aaaa"), 18),
+    MockDataItem("t2", MockMessage(2, "aaaa"), 19),
+    MockDataItem("t1", MockMessage(3, "aaaa"), 20),
+    MockDataItem("t1", MockMessage(3, "aaaa"), 21),
+    MockDataItem("t2", MockMessage(4, "aaaa"), 22),
+    MockDataItem("t2", MockMessage(4, "5555"), 23),
 ]
 
 
@@ -99,7 +107,9 @@ class SequenceConditionTest(unittest.TestCase):
 
     def test_sequence_timeout(self):
         result = self.__run_test(
-            timeout(msg.str_value == "hello", msg.str_value == "world", duration=3)
+            timeout(has(msg.str_value, "1111"),
+                    any_order(has(msg.str_value, "2222"), has(msg.str_value, "3333"), has(msg.str_value, "4444")),
+                    duration=10)
         )
         self.assertEqual(get_start_times(result), [0, 5])
 
