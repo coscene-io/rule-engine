@@ -68,43 +68,47 @@ def concat(*pieces):
 
 @Condition.wrap_args
 def get_value(key):
-    return Condition.flatmap(key,
-        lambda k: ThunkCondition(lambda item, scope: (scope[k], scope))
+    return Condition.flatmap(
+        key, lambda k: ThunkCondition(lambda item, scope: (scope[k], scope))
     )
 
 
 @Condition.wrap_args
 def set_value(key, value):
-    return Condition.flatmap(key,
-        lambda actual_key: Condition.flatmap(value,
+    return Condition.flatmap(
+        key,
+        lambda actual_key: Condition.flatmap(
+            value,
             lambda actual_value: ThunkCondition(
                 lambda item, scope: (True, {**scope, actual_key: actual_value})
-            )
-        )
+            ),
+        ),
     )
 
 
 @Condition.wrap_args
 def has(parent, child):
-    return Condition.flatmap(parent,
-        lambda p: Condition.flatmap(child,
+    return Condition.flatmap(
+        parent,
+        lambda p: Condition.flatmap(
+            child,
             lambda c: ThunkCondition(
                 lambda item, scope: (
                     c in p,
                     {**scope, "cos/contains": c if c in p else None},
                 )
-            )
-        )
+            ),
+        ),
     )
 
 
 def regex(value, pattern):
-    return Condition.flatmap(Condition.map(Condition.wrap(value),
-        lambda v: re.search(pattern, v)),
-            lambda match_result: ThunkCondition(
-                lambda item, scope: (match_result, {**scope, "cos/regex": match_result})
-            )
-        )
+    return Condition.flatmap(
+        Condition.map(Condition.wrap(value), lambda v: re.search(pattern, v)),
+        lambda match_result: ThunkCondition(
+            lambda item, scope: (match_result, {**scope, "cos/regex": match_result})
+        ),
+    )
 
 
 __all__ = [

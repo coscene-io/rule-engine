@@ -37,6 +37,7 @@ class Condition(ABC):
     @staticmethod
     def wrap_args(func):
         """Decorator that calls wrap on all the args of a function."""
+
         @wraps(func)
         def result_func(*args, **kwargs):
             args = [Condition.wrap(value) for value in args]
@@ -116,10 +117,14 @@ class Condition(ABC):
 
     def __wrap_binary_op(self, other, op, coerce=lambda x: x, swap=False):
         other = Condition.wrap(other)
-        return Condition.flatmap(self,
-            lambda x: Condition.map(other,
-                lambda y: op(coerce(y), coerce(x)) if swap else op(coerce(x), coerce(y))
-            )
+        return Condition.flatmap(
+            self,
+            lambda x: Condition.map(
+                other,
+                lambda y: op(coerce(y), coerce(x))
+                if swap
+                else op(coerce(x), coerce(y)),
+            ),
         )
 
     def __bool__(self):
