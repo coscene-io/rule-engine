@@ -9,6 +9,7 @@ ts = identity.ts
 topic = identity.topic
 msgtype = identity.msgtype
 
+
 @Condition.wrap_args
 def and_(*conditions):
     assert len(conditions) > 0, "and_ must have at least 1 condition"
@@ -22,6 +23,7 @@ def and_(*conditions):
         return value, scope
 
     return ThunkCondition(new_thunk)
+
 
 @Condition.wrap_args
 def or_(*conditions):
@@ -37,9 +39,11 @@ def or_(*conditions):
 
     return ThunkCondition(new_thunk)
 
+
 @Condition.wrap_args
 def not_(condition):
     return condition.map_condition_value(lambda x: not x)
+
 
 @Condition.wrap_args
 def is_none(condition):
@@ -48,6 +52,7 @@ def is_none(condition):
         return value is None, scope
 
     return ThunkCondition(new_thunk)
+
 
 @Condition.wrap_args
 def concat(*pieces):
@@ -60,11 +65,13 @@ def concat(*pieces):
 
     return ThunkCondition(new_thunk)
 
+
 @Condition.wrap_args
 def get_value(key):
     return key.map_condition_value(
         lambda k: ThunkCondition(lambda item, scope: (scope[k], scope))
     )
+
 
 @Condition.wrap_args
 def set_value(key, value):
@@ -75,6 +82,7 @@ def set_value(key, value):
             )
         )
     )
+
 
 @Condition.wrap_args
 def has(parent, child):

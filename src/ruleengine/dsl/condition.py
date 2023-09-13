@@ -40,10 +40,10 @@ class Condition(ABC):
         @wraps(func)
         def result_func(*args, **kwargs):
             args = [Condition.wrap(value) for value in args]
-            kwargs = { key: Condition.wrap(value) for key, value in kwargs.items()}
+            kwargs = {key: Condition.wrap(value) for key, value in kwargs.items()}
             return func(*args, **kwargs)
-        return result_func
 
+        return result_func
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
