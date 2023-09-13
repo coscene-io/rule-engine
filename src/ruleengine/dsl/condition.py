@@ -93,10 +93,10 @@ class Condition(ABC):
         return self.__wrap_binary_op(other, op.le, float)
 
     def __neg__(self):
-        return self.map_condition_value(op.neg)
+        return Condition.map(self, op.neg)
 
     def __pos__(self):
-        return self.map_condition_value(op.pos)
+        return Condition.map(self, op.pos)
 
     def __add__(self, other):
         return self.__wrap_binary_op(other, op.add, float)
