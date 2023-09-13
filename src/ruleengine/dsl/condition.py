@@ -60,20 +60,6 @@ class Condition(ABC):
     def map(self, mapper):
         return Condition.flatmap(self, lambda x: Condition.wrap(mapper(x)))
 
-    def map_condition_value(self, mapper):
-        def new_thunk(item, scope):
-            value1, scope = self.evaluate_condition_at(item, scope)
-            if value1 is None:
-                return value1, scope
-
-            mapped = mapper(value1)
-            if not isinstance(mapped, Condition):
-                return mapped, scope
-
-            return mapped.evaluate_condition_at(item, scope)
-
-        return ThunkCondition(new_thunk)
-
     def __eq__(self, other):
         return self.__wrap_binary_op(other, op.eq)
 
