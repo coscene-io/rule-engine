@@ -42,7 +42,7 @@ def or_(*conditions):
 
 @Condition.wrap_args
 def not_(condition):
-    return condition.map_condition_value(lambda x: not x)
+    return Condition.map(condition, lambda x: not x)
 
 
 @Condition.wrap_args
@@ -68,15 +68,15 @@ def concat(*pieces):
 
 @Condition.wrap_args
 def get_value(key):
-    return key.map_condition_value(
+    return Condition.flatmap(key,
         lambda k: ThunkCondition(lambda item, scope: (scope[k], scope))
     )
 
 
 @Condition.wrap_args
 def set_value(key, value):
-    return key.map_condition_value(
-        lambda actual_key: value.map_condition_value(
+    return Condition.flatmap(key,
+        lambda actual_key: Condition.flatmap(value,
             lambda actual_value: ThunkCondition(
                 lambda item, scope: (True, {**scope, actual_key: actual_value})
             )
@@ -86,8 +86,8 @@ def set_value(key, value):
 
 @Condition.wrap_args
 def has(parent, child):
-    return parent.map_condition_value(
-        lambda p: child.map_condition_value(
+    return Condition.flatmap(parent,
+        lambda p: Condition.flatmap(child,
             lambda c: ThunkCondition(
                 lambda item, scope: (
                     c in p,
@@ -99,15 +99,12 @@ def has(parent, child):
 
 
 def regex(value, pattern):
-    return (
-        Condition.wrap(value)
-        .map_condition_value(lambda v: re.search(pattern, v))
-        .map_condition_value(
+    return Condition.flatmap(Condition.map(Condition.wrap(value),
+        lambda v: re.search(pattern, v)),
             lambda match_result: ThunkCondition(
                 lambda item, scope: (match_result, {**scope, "cos/regex": match_result})
             )
         )
-    )
 
 
 __all__ = [

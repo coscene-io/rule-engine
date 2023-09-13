@@ -17,8 +17,7 @@ class Condition(ABC):
 
     To make the DSL look nice at the end, this class ends up taking on a lot of
     the complexity. If you're familiar with monads, this class is a combination
-    of Future and State and Optional. `map_condition_value` is both map and
-    flatmap, and `wrap` is pure.
+    of Future and State and Optional.
 
     If you're not familiar with monads, this is going to be very confusing. I'm
     sorry.
@@ -37,6 +36,7 @@ class Condition(ABC):
 
     @staticmethod
     def wrap_args(func):
+        """Decorator that calls wrap on all the args of a function."""
         @wraps(func)
         def result_func(*args, **kwargs):
             args = [Condition.wrap(value) for value in args]
@@ -44,6 +44,21 @@ class Condition(ABC):
             return func(*args, **kwargs)
 
         return result_func
+
+    @staticmethod
+    def flatmap(self, mapper):
+        def new_thunk(item, scope):
+            value1, scope = self.evaluate_condition_at(item, scope)
+            if value1 is None:
+                return value1, scope
+
+            return mapper(value1).evaluate_condition_at(item, scope)
+
+        return ThunkCondition(new_thunk)
+
+    @staticmethod
+    def map(self, mapper):
+        return Condition.flatmap(self, lambda x: Condition.wrap(mapper(x)))
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
@@ -114,8 +129,9 @@ class Condition(ABC):
         return self.map_condition_value(lambda x: getattr(x, name, None))
 
     def __wrap_binary_op(self, other, op, coerce=lambda x: x, swap=False):
-        return self.map_condition_value(
-            lambda x: Condition.wrap(other).map_condition_value(
+        other = Condition.wrap(other)
+        return Condition.flatmap(self,
+            lambda x: Condition.map(other,
                 lambda y: op(coerce(y), coerce(x)) if swap else op(coerce(x), coerce(y))
             )
         )
