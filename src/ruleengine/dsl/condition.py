@@ -1,3 +1,4 @@
+from functools import wraps
 import operator as op
 from abc import ABC, abstractmethod
 
@@ -33,6 +34,16 @@ class Condition(ABC):
         if isinstance(value, Condition):
             return value
         return ThunkCondition(lambda item, scope: (value, scope))
+
+    @staticmethod
+    def wrap_args(func):
+        @wraps(func)
+        def result_func(*args, **kwargs):
+            args = [Condition.wrap(value) for value in args]
+            kwargs = { key: Condition.wrap(value) for key, value in kwargs.items()}
+            return func(*args, **kwargs)
+        return result_func
+
 
     def map_condition_value(self, mapper):
         def new_thunk(item, scope):
