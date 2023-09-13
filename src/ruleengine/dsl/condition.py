@@ -123,10 +123,10 @@ class Condition(ABC):
         return self.__wrap_binary_op(other, op.truediv, float, True)
 
     def __call__(self, *args, **kwargs):
-        return self.map_condition_value(lambda f: f(*args, **kwargs))
+        return Condition.map(self, lambda f: f(*args, **kwargs))
 
     def __getattr__(self, name):
-        return self.map_condition_value(lambda x: getattr(x, name, None))
+        return Condition.map(self, lambda x: getattr(x, name, None))
 
     def __wrap_binary_op(self, other, op, coerce=lambda x: x, swap=False):
         other = Condition.wrap(other)
