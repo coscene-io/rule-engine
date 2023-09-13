@@ -1,5 +1,6 @@
 from enum import Enum
 
+from .condition import Condition
 from .base_conditions import and_, msg, or_, msgtype
 
 # TODO: Add tests
@@ -18,8 +19,8 @@ log = or_(
 )
 
 log_level = or_(
-    and_(_is_ros, msg.map_condition_value(lambda m: ros_log_level(m.level))),
-    and_(_is_foxglove, msg.map_condition_value(lambda m: foxglove_log_level(m.level))),
+    and_(_is_ros, Condition.map(msg, lambda m: ros_log_level(m.level))),
+    and_(_is_foxglove, Condition.map(msg, lambda m: foxglove_log_level(m.level))),
     # Default case
     LogLevel.UNKNOWN,
 )
