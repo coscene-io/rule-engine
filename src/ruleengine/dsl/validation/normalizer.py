@@ -7,8 +7,6 @@ def normalize_expression_tree(tree):
 
 class BooleanTransformer(ast.NodeTransformer):
     def visit_JoinedStr(self, node):
-        node = self.generic_visit(node)
-
         new_values = []
         condition_args = []
         for v in node.values:
@@ -16,14 +14,24 @@ class BooleanTransformer(ast.NodeTransformer):
                 case ast.Constant(value):
                     new_values.append(v)
                 case ast.FormattedValue(value, conversion, format_spec):
-                    condition_args.append(value)
+                    if format_spec:
+                        # In theory, f-strings format spec can be another
+                        # f-string, but it makes our logic very clumsy, so we
+                        # just don't support it for now. Check here that it's
+                        # only a constant.
+                        if len(format_spec.values) != 1 or not isinstance(
+                            format_spec.values[0], ast.Constant
+                        ):
+                            raise Exception("Formatting does not support nested values")
+
                     new_values.append(
                         ast.FormattedValue(
-                            ast.Name(f"arg{len(args_map)}", ast.Load()),
+                            ast.Name(f"arg{len(condition_args)}", ast.Load()),
                             conversion,
                             format_spec,
                         )
                     )
+                    condition_args.append(self.generic_visit(value))
                 case _:
                     raise Exception(f"Shouldn't get here: {v}")
 
@@ -31,7 +39,9 @@ class BooleanTransformer(ast.NodeTransformer):
             f"lambda {','.join(f'arg{i}' for i in range(len(condition_args)))}: ..."
         )
         lambda_node.body = ast.JoinedStr(new_values)
-        return ast.Call(ast.Name("func_apply", ast.Load()), condition_args, [])
+        return ast.Call(
+            ast.Name("func_apply", ast.Load()), [lambda_node] + condition_args, []
+        )
 
     def visit_BoolOp(self, node):
         node = self.generic_visit(node)
