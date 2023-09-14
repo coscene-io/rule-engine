@@ -1,3 +1,4 @@
+from ruleengine.engine import Rule
 from ruleengine.dsl.validation.validator import validate_action, validate_condition
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
 
@@ -32,9 +33,9 @@ def validate_config(config, action_impls):
     errors = []
     rules = []
     for i, rule in enumerate(raw_rules):
-        rule_errors, conditions, actions = _validate_rule(rule, i, action_impls)
+        rule_errors, new_rules = _validate_rule(rule, i, action_impls)
         errors += rule_errors
-        rules.append((conditions, actions))
+        rules += new_rules
 
     success = not bool(errors)
     return {"success": success, "errors": errors}, rules if success else None
@@ -65,40 +66,55 @@ def _validate_rule(rule, rule_index, action_impls):
             }
         )
 
-    conditions = []
-    for i, cond_str in enumerate(raw_conditions):
-        res = validate_condition(cond_str)
-        if not res.success:
-            errors.append(
-                {
-                    "location": {
-                        "ruleIndex": rule_index,
-                        "section": 1,
-                        "itemIndex": i,
-                    },
-                    **_convert_to_json_error(res),
-                }
-            )
-        else:
-            conditions.append(res.entity)
+    def parse_rule():
+        conditions = []
+        for i, cond_str in enumerate(raw_conditions):
+            res = validate_condition(cond_str)
+            if not res.success:
+                errors.append(
+                    {
+                        "location": {
+                            "ruleIndex": rule_index,
+                            "section": 1,
+                            "itemIndex": i,
+                        },
+                        **_convert_to_json_error(res),
+                    }
+                )
+            else:
+                conditions.append(res.entity)
 
-    actions = []
-    for i, action_str in enumerate(raw_actions):
-        res = validate_action(action_str, action_impls)
-        if not res.success:
-            errors.append(
-                {
-                    "location": {
-                        "ruleIndex": rule_index,
-                        "section": 2,
-                        "itemIndex": i,
-                    },
-                    **_convert_to_json_error(res),
-                }
-            )
-        else:
-            actions.append(res.entity)
-    return errors, conditions, actions
+        actions = []
+        for i, action_str in enumerate(raw_actions):
+            res = validate_action(action_str, action_impls)
+            if not res.success:
+                errors.append(
+                    {
+                        "location": {
+                            "ruleIndex": rule_index,
+                            "section": 2,
+                            "itemIndex": i,
+                        },
+                        **_convert_to_json_error(res),
+                    }
+                )
+            else:
+                actions.append(res.entity)
+        return conditions, actions
+
+    conditions, actions = parse_rule()
+    if errors:
+        return errors, []
+
+    templating_args = rule.get('each', [])
+    if not templating_args:
+        return [], [Rule(conditions, actions, {})]
+
+    new_rules = []
+    for arg in templating_args:
+        conditions, actions = parse_rule()
+        new_rules.append(Rule(conditions, actions, arg))
+    return [], new_rules
 
 
 def _convert_to_json_error(result):
