@@ -54,6 +54,7 @@ class Condition(ABC):
                 return value1, scope
 
             return mapper(value1).evaluate_condition_at(item, scope)
+
         return ThunkCondition(new_thunk)
 
     @staticmethod
@@ -70,6 +71,7 @@ class Condition(ABC):
                     return None, scope
                 new_args.append(v)
             return func(scope, *new_args)
+
         return ThunkCondition(new_thunk)
 
     def __eq__(self, other):
