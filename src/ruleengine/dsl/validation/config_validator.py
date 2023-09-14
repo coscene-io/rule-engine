@@ -113,7 +113,7 @@ def _validate_rule(rule, rule_index, action_impls):
     if errors:
         return errors, []
 
-    templating_args = rule.get('each', [])
+    templating_args = rule.get("each", [])
     if not templating_args:
         return [], [Rule(conditions, actions, {})]
 
