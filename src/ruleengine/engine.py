@@ -1,3 +1,15 @@
+from dataclasses import dataclass
+from typing import Any
+
+
+@dataclass
+class DiagnosisItem:
+    topic: str
+    msg: Any
+    ts: float
+    msgtype: str
+
+
 class Engine:
     def __init__(self, rules):
         self.__rules = rules

@@ -55,8 +55,8 @@ def upload_factory(impl):
     ):
         args = {
             "before": before,
-            "title": Condition.wrap(title).map_condition_value(str),
-            "description": Condition.wrap(description).map_condition_value(str),
+            "title": Condition.map(Condition.wrap(title), str),
+            "description": Condition.map(Condition.wrap(description), str),
             "labels": labels,
             "extra_files": extra_files,
             "topic": topic,
@@ -77,10 +77,10 @@ def create_moment_factory(impl):
         assign_to=None,
     ):
         args = {
-            "title": Condition.wrap(title).map_condition_value(str),
-            "description": Condition.wrap(description).map_condition_value(str),
-            "timestamp": Condition.wrap(timestamp).map_condition_value(int),
-            "duration": Condition.wrap(duration).map_condition_value(int),
+            "title": Condition.map(Condition.wrap(title), str),
+            "description": Condition.map(Condition.wrap(description), str),
+            "timestamp": Condition.map(Condition.wrap(timestamp), int),
+            "duration": Condition.map(Condition.wrap(duration), int),
             "create_task": Condition.wrap(create_task),
             "assign_to": assign_to,
         }
