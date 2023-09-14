@@ -74,7 +74,15 @@ def get_value(key):
 
 @Condition.wrap_args
 def set_value(key, value):
-    return Condition.apply( lambda scope, actual_key, actual_value: (True, {**scope, actual_key: actual_value}), key, value)
+    return Condition.apply(
+        lambda scope, actual_key, actual_value: (
+            True,
+            {**scope, actual_key: actual_value},
+        ),
+        key,
+        value,
+    )
+
 
 @Condition.wrap_args
 def has(parent, child):
