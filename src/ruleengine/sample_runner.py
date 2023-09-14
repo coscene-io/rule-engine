@@ -41,5 +41,4 @@ if __name__ == "__main__":
         for item in lines:
             engine.consume_next(item)
 
-    # go()
     cProfile.run("go()")
