@@ -17,18 +17,21 @@ class BooleanTransformer(ast.NodeTransformer):
                     new_values.append(v)
                 case ast.FormattedValue(value, conversion, format_spec):
                     condition_args.append(value)
-                    new_values.append(ast.FormattedValue(ast.Name(f'arg{len(args_map)}', ast.Load()), conversion, format_spec))
+                    new_values.append(
+                        ast.FormattedValue(
+                            ast.Name(f"arg{len(args_map)}", ast.Load()),
+                            conversion,
+                            format_spec,
+                        )
+                    )
                 case _:
                     raise Exception(f"Shouldn't get here: {v}")
 
-        lambda_node = self._eval_expr(f"lambda {','.join(f'arg{i}' for i in range(len(condition_args)))}: ...")
+        lambda_node = self._eval_expr(
+            f"lambda {','.join(f'arg{i}' for i in range(len(condition_args)))}: ..."
+        )
         lambda_node.body = ast.JoinedStr(new_values)
-        return ast.Call(
-                ast.Name('func_apply', ast.Load()),
-                condition_args,
-                []
-                )
-
+        return ast.Call(ast.Name("func_apply", ast.Load()), condition_args, [])
 
     def visit_BoolOp(self, node):
         node = self.generic_visit(node)
@@ -81,9 +84,11 @@ class BooleanTransformer(ast.NodeTransformer):
         for i, (left, right) in enumerate(zip(param_list, param_list[1:])):
             match node.ops[i]:
                 case ast.In():
-                    condition_list.append( self._eval_expr(f"has({right}, {left})"))
+                    condition_list.append(self._eval_expr(f"has({right}, {left})"))
                 case ast.NotIn():
-                    condition_list.append( self._eval_expr(f"not_(has({right}, {left}))"))
+                    condition_list.append(
+                        self._eval_expr(f"not_(has({right}, {left}))")
+                    )
                 case _:
                     condition_list.append(
                         ast.Compare(
