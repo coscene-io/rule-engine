@@ -105,7 +105,6 @@ def regex(value, pattern):
 
 __all__ = [
     "always",
-    "identity",
     "msg",
     "ts",
     "topic",
