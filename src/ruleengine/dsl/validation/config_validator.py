@@ -102,6 +102,13 @@ def _validate_rule(rule, rule_index, action_impls):
                 actions.append(res.entity)
         return conditions, actions
 
+    # We parse the rules once to see if there are any errors. If so, bail. Also,
+    # if there are no `each` values, we use this set of parsed values for the
+    # actual execution.
+    #
+    # If there are `each` values, we parse a new set of rules for each of them,
+    # since rules are stateful, so we want separate instances.
+
     conditions, actions = parse_rule()
     if errors:
         return errors, []
