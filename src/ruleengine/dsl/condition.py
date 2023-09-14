@@ -72,12 +72,6 @@ class Condition(ABC):
             return func(scope, *new_args)
         return ThunkCondition(new_thunk)
 
-    @staticmethod
-    def map(self, mapper):
-        return Condition.flatmap(
-            self, lambda x: ThunkCondition(lambda item, scope: (mapper(x), scope))
-        )
-
     def __eq__(self, other):
         return self.__wrap_binary_op(other, op.eq)
 
