@@ -4,28 +4,27 @@ from collections import namedtuple
 from ruleengine.dsl.action import Action
 from ruleengine.dsl.base_conditions import *
 from ruleengine.dsl.sequence_conditions import *
-from ruleengine.engine import Engine
+from ruleengine.engine import Engine, DiagnosisItem
 
-MockDataItem = namedtuple("MockDataItem", "topic msg ts")
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 
 simple_sequence = [
-    MockDataItem("t1", MockMessage(1, "hello"), 0),
-    MockDataItem("t1", MockMessage(2, "hello"), 0),
-    MockDataItem("t2", MockMessage(1, "hello"), 1),
-    MockDataItem("t2", MockMessage(2, "hello"), 1),
-    MockDataItem("t1", MockMessage(3, "hello"), 2),
-    MockDataItem("t1", MockMessage(3, "hello"), 3),
-    MockDataItem("t2", MockMessage(4, "hello"), 3),
-    MockDataItem("t2", MockMessage(4, "hello"), 3),
-    MockDataItem("t2", MockMessage(5, "world"), 4),
-    MockDataItem("t2", MockMessage(5, "world"), 4),
-    MockDataItem("t2", MockMessage(4, "hello"), 5),
-    MockDataItem("t2", MockMessage(4, "hello"), 6),
-    MockDataItem("t2", MockMessage(4, "hello"), 7),
-    MockDataItem("t2", MockMessage(4, "hello"), 7),
-    MockDataItem("t2", MockMessage(4, "hello"), 9),
-    MockDataItem("t3", MockMessage(4, "single"), 9),
+    DiagnosisItem("t1", MockMessage(1, "hello"), 0, "MockMessage"),
+    DiagnosisItem("t1", MockMessage(2, "hello"), 0, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(1, "hello"), 1, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(2, "hello"), 1, "MockMessage"),
+    DiagnosisItem("t1", MockMessage(3, "hello"), 2, "MockMessage"),
+    DiagnosisItem("t1", MockMessage(3, "hello"), 3, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 3, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 3, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(5, "world"), 4, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(5, "world"), 4, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 5, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 6, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 7, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 7, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 9, "MockMessage"),
+    DiagnosisItem("t3", MockMessage(4, "single"), 9, "MockMessage"),
 ]
 
 

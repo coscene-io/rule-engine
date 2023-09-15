@@ -102,6 +102,10 @@ def regex(value, pattern):
     )
 
 
+def func_apply(func, *args):
+    return Condition.apply(func, *[Condition.wrap(arg) for arg in args])
+
+
 __all__ = [
     "always",
     "msg",
@@ -117,4 +121,5 @@ __all__ = [
     "has",
     "regex",
     "is_none",
+    "func_apply",
 ]
