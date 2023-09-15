@@ -10,15 +10,22 @@ class DiagnosisItem:
     msgtype: str
 
 
+@dataclass
+class Rule:
+    conditions: list
+    actions: list
+    initial_scope: dict
+
+
 class Engine:
     def __init__(self, rules):
         self.__rules = rules
 
     def consume_next(self, item):
-        for conditions, actions in self.__rules:
-            for cond in conditions:
-                res, scope = cond.evaluate_condition_at(item, {})
+        for rule in self.__rules:
+            for cond in rule.conditions:
+                res, scope = cond.evaluate_condition_at(item, rule.initial_scope)
                 if res:
-                    for action in actions:
+                    for action in rule.actions:
                         action.run(item, scope)
                     break

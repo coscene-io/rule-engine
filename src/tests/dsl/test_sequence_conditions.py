@@ -4,7 +4,7 @@ from collections import namedtuple
 from ruleengine.dsl.action import Action
 from ruleengine.dsl.base_conditions import *
 from ruleengine.dsl.sequence_conditions import *
-from ruleengine.engine import Engine, DiagnosisItem
+from ruleengine.engine import Engine, Rule, DiagnosisItem
 
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 
@@ -139,7 +139,7 @@ class SequenceConditionTest(unittest.TestCase):
     @staticmethod
     def __run_test(condition):
         action = CollectAction()
-        engine = Engine([([condition], [action])])
+        engine = Engine([Rule([condition], [action], {})])
         for item in simple_sequence:
             engine.consume_next(item)
         return action.collector
