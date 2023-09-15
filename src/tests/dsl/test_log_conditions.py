@@ -4,26 +4,25 @@ from collections import namedtuple
 from ruleengine.dsl.action import Action
 from ruleengine.dsl.base_conditions import *
 from ruleengine.dsl.log_conditions import *
-from ruleengine.engine import Engine, Rule
+from ruleengine.engine import Engine, Rule, DiagnosisItem
 
-MockDataItem = namedtuple("MockDataItem", "topic msg ts msgtype")
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 RosMockMessage = namedtuple("RosMockMessage", "msg level")
 FoxgloveMockMessage = namedtuple("FoxgloveMockMessage", "message level")
 
 simple_sequence = [
-    MockDataItem("t1", MockMessage(1, "hello"), 0, "MockMessage"),
-    MockDataItem("t2", MockMessage(2, "hello"), 1, "MockMessage"),
-    MockDataItem("t1", RosMockMessage("ros log message 1", 3), 2, "rosgraph_msgs/Log"),
-    MockDataItem("t1", RosMockMessage("ros log message 1", 4), 3, "rosgraph_msgs/Log"),
-    MockDataItem("t1", RosMockMessage("ros log message 1", 7), 4, "MockMessage"),
-    MockDataItem(
+    DiagnosisItem("t1", MockMessage(1, "hello"), 0, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(2, "hello"), 1, "MockMessage"),
+    DiagnosisItem("t1", RosMockMessage("ros log message 1", 3), 2, "rosgraph_msgs/Log"),
+    DiagnosisItem("t1", RosMockMessage("ros log message 1", 4), 3, "rosgraph_msgs/Log"),
+    DiagnosisItem("t1", RosMockMessage("ros log message 1", 7), 4, "MockMessage"),
+    DiagnosisItem(
         "t2", FoxgloveMockMessage("foxglove log message 1", 2), 5, "foxglove_msgs/Log"
     ),
-    MockDataItem(
+    DiagnosisItem(
         "t2", FoxgloveMockMessage("foxglove log message 2", 3), 6, "foxglove.Log"
     ),
-    MockDataItem(
+    DiagnosisItem(
         "t2", FoxgloveMockMessage("foxglove log message 2", 7), 7, "foxglove.Log"
     ),
 ]

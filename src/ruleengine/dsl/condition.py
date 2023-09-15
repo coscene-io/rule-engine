@@ -59,9 +59,20 @@ class Condition(ABC):
 
     @staticmethod
     def map(self, mapper):
-        return Condition.flatmap(
-            self, lambda x: ThunkCondition(lambda item, scope: (mapper(x), scope))
-        )
+        return MappedCondition(self, mapper)
+
+    @staticmethod
+    def apply(func, *args):
+        def new_thunk(item, scope):
+            new_args = []
+            for arg in args:
+                v, scope = arg.evaluate_condition_at(item, scope)
+                if v is None:
+                    return None, scope
+                new_args.append(v)
+            return func(scope, *new_args)
+
+        return ThunkCondition(new_thunk)
 
     def __eq__(self, other):
         return self.__wrap_binary_op(other, op.eq)
@@ -130,7 +141,6 @@ class Condition(ABC):
         )
 
     def __bool__(self):
-        pass
         raise NotImplementedError(
             """
             It is intentional that Condition objects should not be used as boolean values.
@@ -153,6 +163,20 @@ class ThunkCondition(Condition):
 
     def evaluate_condition_at(self, item, scope):
         return self.__thunk(item, scope)
+
+
+class MappedCondition(Condition):
+    def __init__(self, inner, mapper):
+        super().__init__()
+        self.__inner = inner
+        self.__mapper = mapper
+
+    def evaluate_condition_at(self, item, scope):
+        value, scope = self.__inner.evaluate_condition_at(item, scope)
+        if value is not None:
+            value = self.__mapper(value)
+
+        return value, scope
 
 
 __all__ = [

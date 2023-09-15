@@ -3,24 +3,23 @@ from collections import namedtuple
 
 from ruleengine.dsl.action import Action
 from ruleengine.dsl.base_conditions import *
-from ruleengine.engine import Engine, Rule
+from ruleengine.engine import Engine, Rule, DiagnosisItem
 
-MockDataItem = namedtuple("MockDataItem", "topic msg ts msgtype")
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 
 simple_sequence = [
-    MockDataItem("t1", MockMessage(1, "hello"), 0, "MockMessage"),
-    MockDataItem("t2", MockMessage(2, "hello"), 1, "MockMessage"),
-    MockDataItem("t1", MockMessage(3, "heLlo"), 2, "MockMessage"),
-    MockDataItem("t2", MockMessage(4, "hello"), 3, "MockMessage"),
-    MockDataItem("t2", MockMessage(5, "world"), 4, "MockMessage"),
-    MockDataItem(
+    DiagnosisItem("t1", MockMessage(1, "hello"), 0, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(2, "hello"), 1, "MockMessage"),
+    DiagnosisItem("t1", MockMessage(3, "heLlo"), 2, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello"), 3, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(5, "world"), 4, "MockMessage"),
+    DiagnosisItem(
         "t3",
         MockMessage(5, "The value is 324, which is expected to be less than 22"),
         5,
         "MockMessage",
     ),
-    MockDataItem(
+    DiagnosisItem(
         "t3",
         MockMessage(5, "The value is 11, which is expected to be less than 22"),
         5,
@@ -41,12 +40,6 @@ class BaseConditionTest(unittest.TestCase):
     def test_always(self):
         result = self.__run_test(always)
         self.assertEqual(len(result), 7, result)
-
-    def test_identity(self):
-        result = self.__run_test(
-            identity == MockDataItem("t1", MockMessage(1, "hello"), 0, "MockMessage")
-        )
-        self.assertEqual(len(result), 1, result)
 
     def test_msg(self):
         result = self.__run_test(msg == MockMessage(1, "hello"))

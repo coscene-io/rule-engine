@@ -6,6 +6,43 @@ def normalize_expression_tree(tree):
 
 
 class BooleanTransformer(ast.NodeTransformer):
+    def visit_JoinedStr(self, node):
+        new_values = []
+        condition_args = []
+        for v in node.values:
+            match v:
+                case ast.Constant(value):
+                    new_values.append(v)
+                case ast.FormattedValue(value, conversion, format_spec):
+                    if format_spec:
+                        # In theory, f-strings format spec can be another
+                        # f-string, but it makes our logic very clumsy, so we
+                        # just don't support it for now. Check here that it's
+                        # only a constant.
+                        if len(format_spec.values) != 1 or not isinstance(
+                            format_spec.values[0], ast.Constant
+                        ):
+                            raise Exception("Formatting does not support nested values")
+
+                    new_values.append(
+                        ast.FormattedValue(
+                            ast.Name(f"arg{len(condition_args)}", ast.Load()),
+                            conversion,
+                            format_spec,
+                        )
+                    )
+                    condition_args.append(self.generic_visit(value))
+                case _:
+                    raise Exception(f"Shouldn't get here: {v}")
+
+        lambda_node = self._eval_expr(
+            f"lambda {','.join(f'arg{i}' for i in range(len(condition_args)))}: ..."
+        )
+        lambda_node.body = ast.JoinedStr(new_values)
+        return ast.Call(
+            ast.Name("func_apply", ast.Load()), [lambda_node] + condition_args, []
+        )
+
     def visit_BoolOp(self, node):
         node = self.generic_visit(node)
 
@@ -57,12 +94,10 @@ class BooleanTransformer(ast.NodeTransformer):
         for i, (left, right) in enumerate(zip(param_list, param_list[1:])):
             match node.ops[i]:
                 case ast.In():
-                    condition_list.append(
-                        ast.parse(f"has({right}, {left})", mode="eval").body
-                    )
+                    condition_list.append(self._eval_expr(f"has({right}, {left})"))
                 case ast.NotIn():
                     condition_list.append(
-                        ast.parse(f"not_(has({right}, {left}))", mode="eval").body
+                        self._eval_expr(f"not_(has({right}, {left}))")
                     )
                 case _:
                     condition_list.append(
@@ -73,7 +108,10 @@ class BooleanTransformer(ast.NodeTransformer):
                         )
                     )
 
-        wrapper = ast.parse(f"lambda {','.join(param_list)}: ...", mode="eval").body
+        wrapper = self._eval_expr(f"lambda {','.join(param_list)}: ...")
         wrapper.body = ast.Call(ast.Name("and_", ast.Load()), condition_list, [])
 
         return ast.Call(wrapper, args, [])
+
+    def _eval_expr(self, str_value):
+        return ast.parse(str_value, mode="eval").body
