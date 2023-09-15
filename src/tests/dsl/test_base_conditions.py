@@ -42,12 +42,6 @@ class BaseConditionTest(unittest.TestCase):
         result = self.__run_test(always)
         self.assertEqual(len(result), 7, result)
 
-    def test_identity(self):
-        result = self.__run_test(
-            identity == MockDataItem("t1", MockMessage(1, "hello"), 0, "MockMessage")
-        )
-        self.assertEqual(len(result), 1, result)
-
     def test_msg(self):
         result = self.__run_test(msg == MockMessage(1, "hello"))
         self.assertEqual(len(result), 1, result)

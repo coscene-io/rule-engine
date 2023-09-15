@@ -3,11 +3,10 @@ import re
 from .condition import Condition, ThunkCondition
 
 always = Condition.wrap(True)
-identity = ThunkCondition(lambda item, scope: (item, scope))
-msg = identity.msg
-ts = identity.ts
-topic = identity.topic
-msgtype = identity.msgtype
+msg = ThunkCondition(lambda item, scope: (item.msg, scope))
+ts = ThunkCondition(lambda item, scope: (item.ts, scope))
+topic = ThunkCondition(lambda item, scope: (item.topic, scope))
+msgtype = ThunkCondition(lambda item, scope: (item.msgtype, scope))
 
 
 @Condition.wrap_args
@@ -75,30 +74,22 @@ def get_value(key):
 
 @Condition.wrap_args
 def set_value(key, value):
-    return Condition.flatmap(
-        key,
-        lambda actual_key: Condition.flatmap(
-            value,
-            lambda actual_value: ThunkCondition(
-                lambda item, scope: (True, {**scope, actual_key: actual_value})
-            ),
+    return Condition.apply(
+        lambda scope, actual_key, actual_value: (
+            True,
+            {**scope, actual_key: actual_value},
         ),
+        key,
+        value,
     )
 
 
 @Condition.wrap_args
 def has(parent, child):
-    return Condition.flatmap(
+    return Condition.apply(
+        lambda scope, p, c: (c in p, {**scope, "cos/contains": c if c in p else None}),
         parent,
-        lambda p: Condition.flatmap(
-            child,
-            lambda c: ThunkCondition(
-                lambda item, scope: (
-                    c in p,
-                    {**scope, "cos/contains": c if c in p else None},
-                )
-            ),
-        ),
+        child,
     )
 
 
@@ -113,7 +104,6 @@ def regex(value, pattern):
 
 __all__ = [
     "always",
-    "identity",
     "msg",
     "ts",
     "topic",
