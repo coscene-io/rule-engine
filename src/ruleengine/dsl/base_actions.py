@@ -5,7 +5,7 @@ from typing import Optional
 
 
 def noop_upload(
-    topic: str,  # todo delete later
+    trigger_ts: int,  # todo delete later
     before: int,
     title: str,
     description: str,
@@ -59,7 +59,7 @@ def upload_factory(impl):
             "description": Condition.map(Condition.wrap(description), str),
             "labels": labels,
             "extra_files": extra_files,
-            "topic": topic,
+            "trigger_ts": ts,
         }
 
         return ForwardingAction(impl, args)
