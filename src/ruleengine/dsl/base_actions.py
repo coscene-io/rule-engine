@@ -5,23 +5,23 @@ from typing import Optional
 
 
 def noop_upload(
-        trigger_ts: int,  # todo delete later
-        before: int,
-        title: str,
-        description: str,
-        labels: list[str],
-        extra_files: list[str],
+    trigger_ts: int,  # todo delete later
+    before: int,
+    title: str,
+    description: str,
+    labels: list[str],
+    extra_files: list[str],
 ):
     pass
 
 
 def noop_create_moment(
-        title: str,
-        description: str,
-        timestamp: int,
-        duration: int,
-        create_task: bool,
-        assign_to: Optional[str],
+    title: str,
+    description: str,
+    timestamp: int,
+    duration: int,
+    create_task: bool,
+    assign_to: Optional[str],
 ):
     pass
 
@@ -47,11 +47,11 @@ class ForwardingAction(Action):
 
 def upload_factory(impl):
     def res(
-            title=concat("Device auto upload @ ", ts),
-            description="",
-            labels=[],
-            extra_files=[],
-            before=10,
+        title=concat("Device auto upload @ ", ts),
+        description="",
+        labels=[],
+        extra_files=[],
+        before=10,
     ):
         args = {
             "before": before,
@@ -69,12 +69,12 @@ def upload_factory(impl):
 
 def create_moment_factory(impl):
     def res(
-            title,
-            description="",
-            timestamp=ts,
-            duration=1,
-            create_task=False,
-            assign_to=None,
+        title,
+        description="",
+        timestamp=ts,
+        duration=1,
+        create_task=False,
+        assign_to=None,
     ):
         args = {
             "title": Condition.map(Condition.wrap(title), str),
