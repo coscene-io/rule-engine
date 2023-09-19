@@ -5,7 +5,7 @@ from typing import Optional
 
 
 def noop_upload(
-    trigger_ts: int,  # todo delete later
+    trigger_ts: int,
     before: int,
     title: str,
     description: str,
