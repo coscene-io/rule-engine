@@ -1,11 +1,11 @@
 from ruleengine.dsl.condition import Condition
-from ruleengine.dsl.base_conditions import topic, ts, concat
+from ruleengine.dsl.base_conditions import ts, concat
 from ruleengine.dsl.action import Action
 from typing import Optional
 
 
 def noop_upload(
-    topic: str,  # todo delete later
+    trigger_ts: int,
     before: int,
     title: str,
     description: str,
@@ -59,7 +59,7 @@ def upload_factory(impl):
             "description": Condition.map(Condition.wrap(description), str),
             "labels": labels,
             "extra_files": extra_files,
-            "topic": topic,
+            "trigger_ts": ts,
         }
 
         return ForwardingAction(impl, args)
