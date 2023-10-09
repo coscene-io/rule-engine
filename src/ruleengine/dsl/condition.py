@@ -154,6 +154,7 @@ class Condition(ABC):
               a in b -> has(b, a)
             """
         )
+        pass
 
 
 class ThunkCondition(Condition):

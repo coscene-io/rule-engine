@@ -17,23 +17,25 @@ def sustained(context_condition, variable_condition, duration):
     )
 
 
-def sequential(*conditions, duration=None):
-    return SequenceMatchCondition(list(conditions), duration)
+def sequential(*condition_factories, duration=None):
+    return SequenceMatchCondition(list(condition_factories), duration)
 
 
-def timeout(*conditions, duration):
-    return SequenceMatchCondition(list(conditions), duration, True)
+def timeout(*condition_factories, duration):
+    return SequenceMatchCondition(list(condition_factories), duration, True)
 
 
 def any_order(*conditions):
     return RisingEdgeCondition(AnyOrderCondition(list(conditions)))
 
 
-def repeated(condition, times, duration):
+def repeated(condition_factory, /, times, duration):
     assert times > 1, "In repeated condition, times must be more than 1"
     return and_(
-        condition,
-        RisingEdgeCondition(SequenceMatchCondition([condition] * times, duration)),
+        condition_factory(),
+        RisingEdgeCondition(
+            SequenceMatchCondition([condition_factory] * times, duration)
+        ),
     )
 
 
@@ -82,6 +84,12 @@ class RisingEdgeCondition(Condition):
 
 
 class SustainedCondition(Condition):
+    """
+    This condition triggers when the child condition is true for the given
+    duration.
+    The state is reset once the child condition becomes false.
+    """
+
     def __init__(self, condition, duration=-1):
         super().__init__()
 
@@ -106,50 +114,62 @@ class SustainedCondition(Condition):
 
 
 class SequenceMatchCondition(Condition):
-    def __init__(self, sequence, duration=None, trigger_on_timeout=False):
+    """
+    This condition triggers when the child conditions are true in the given
+    order, and within the given duration if set.
+
+    If trigger_on_timeout is set, the condition will only trigger when the
+    sequence is not matched within the given duration.
+
+    Note that the sequence input is a list of condition factories, not conditions.
+    """
+
+    def __init__(self, factory_sequence, duration=None, trigger_on_timeout=False):
         super().__init__()
 
-        assert len(sequence) > 1, "Sequence must be longer than 1"
-        for c in sequence:
-            assert isinstance(c, Condition)
+        assert len(factory_sequence) > 1, "Sequence must be longer than 1"
+        for factory in factory_sequence:
+            assert isinstance(factory(), Condition)
 
-        self.__seq = sequence
+        self.__factory_seq = factory_sequence
         self.__duration = duration
         self.__trigger_on_timeout = trigger_on_timeout
 
-        # List of (start time, current index, scope) tuple. Each item denotes
+        # List of (start time, current index, scope, seq) tuple. Each item denotes
         # one ongoing matching sequence, with start time being the time of the
         # first matched condition, and current index is the next condition to be
         # matched
         self.__ongoings = []
 
+    def generate_sequence(self):
+        return [factory() for factory in self.__factory_seq]
+
     def evaluate_condition_at(self, item, scope):
         ongoings = []
         success = None
-        for start, curr_index, curr_scope in self.__ongoings:
+        for start, curr_index, curr_scope, seq in self.__ongoings:
             if self.__duration is not None and item.ts - start > self.__duration:
                 if self.__trigger_on_timeout:
                     success = start, curr_scope
                 continue
 
-            matched, new_scope = self.__seq[curr_index].evaluate_condition_at(
-                item, curr_scope
-            )
+            matched, new_scope = seq[curr_index].evaluate_condition_at(item, curr_scope)
             if matched:
-                if curr_index + 1 == len(self.__seq):
+                if curr_index + 1 == len(seq):
                     if not self.__trigger_on_timeout:
                         success = start, new_scope
                 else:
-                    ongoings.append((start, curr_index + 1, new_scope))
+                    ongoings.append((start, curr_index + 1, new_scope, seq))
 
             else:
-                ongoings.append((start, curr_index, curr_scope))
+                ongoings.append((start, curr_index, curr_scope, seq))
 
         self.__ongoings = ongoings
 
-        matched, new_scope = self.__seq[0].evaluate_condition_at(item, scope)
+        seq = self.generate_sequence()
+        matched, new_scope = seq[0].evaluate_condition_at(item, scope)
         if matched:
-            self.__ongoings.append((item.ts, 1, new_scope))
+            self.__ongoings.append((item.ts, 1, new_scope, seq))
 
         if success:
             return True, {**success[1], "start_time": success[0]}
@@ -158,6 +178,11 @@ class SequenceMatchCondition(Condition):
 
 
 class ThrottleCondition(Condition):
+    """
+    This condition triggers when the child condition is true, but only if the
+    last trigger is more than the given duration ago.
+    """
+
     def __init__(self, condition, duration):
         assert isinstance(condition, Condition)
         self.__condition = condition
@@ -177,6 +202,12 @@ class ThrottleCondition(Condition):
 
 
 class AnyOrderCondition(Condition):
+    """
+    This condition triggers when all the child conditions are true, but the
+    order of the conditions does not matter.
+    The condition will remain true once triggered.
+    """
+
     def __init__(self, conditions):
         self.__unsatisfied = conditions
         self.__curr_scope = None

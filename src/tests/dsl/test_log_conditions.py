@@ -2,9 +2,8 @@ import unittest
 from collections import namedtuple
 
 from ruleengine.dsl.action import Action
-from ruleengine.dsl.base_conditions import *
-from ruleengine.dsl.log_conditions import *
 from ruleengine.engine import Engine, Rule, DiagnosisItem
+from tests.dsl.utils import str_to_condition
 
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 RosMockMessage = namedtuple("RosMockMessage", "msg level")
@@ -38,32 +37,32 @@ class CollectAction(Action):
 
 class LogConditionTest(unittest.TestCase):
     def test_log_test(self):
-        result = self.__run_test(log != "")
+        result = self.__run_test('log != ""')
         self.assertEqual(len(result), 5, result)
 
-        result = self.__run_test(log == "ros log message 1")
+        result = self.__run_test('log == "ros log message 1"')
         self.assertEqual(len(result), 2, result)
 
-        result = self.__run_test(has(log, "foxglove log message"))
+        result = self.__run_test('"foxglove log message" in log')
         self.assertEqual(len(result), 3, result)
 
     def test_log_level(self):
-        result = self.__run_test(log_level == LogLevel.DEBUG)
+        result = self.__run_test("log_level == LogLevel.DEBUG")
         self.assertEqual(len(result), 0, result)
 
-        result = self.__run_test(log_level == LogLevel.INFO)
+        result = self.__run_test("log_level == LogLevel.INFO")
         self.assertEqual(len(result), 1, result)
 
-        result = self.__run_test(log_level == LogLevel.WARN)
+        result = self.__run_test("log_level == LogLevel.WARN")
         self.assertEqual(len(result), 2, result)
 
-        result = self.__run_test(log_level == LogLevel.UNKNOWN)
+        result = self.__run_test("log_level == LogLevel.UNKNOWN")
         self.assertEqual(len(result), 5, result)
 
     @staticmethod
-    def __run_test(condition):
+    def __run_test(expr_str):
         action = CollectAction()
-        engine = Engine([Rule([condition], [action], {})])
+        engine = Engine([Rule([str_to_condition(expr_str)], [action], {})])
         for item in simple_sequence:
             engine.consume_next(item)
         return action.collector
