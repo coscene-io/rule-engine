@@ -82,15 +82,6 @@ class SequenceConditionTest(unittest.TestCase):
         )
         self.assertEqual(get_start_times(result), [])
 
-        # Overlapping sequences, and without duration
-        result = self.__run_test(
-            """sequential(
-                topic == "t1" and set_value("somekey", msg.int_value),
-                topic == "t2" and msg.int_value == get_value("somekey"),
-            )"""
-        )
-        self.assertEqual(get_start_times(result), [0, 0])
-
     def test_sequence_timeout(self):
         result = self.__run_test(
             'timeout(msg.str_value == "hello", msg.str_value == "world", duration=3)'

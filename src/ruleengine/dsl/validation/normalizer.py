@@ -74,7 +74,7 @@ class BooleanTransformer(ast.NodeTransformer):
         node = self.generic_visit(node)
 
         match node.func:
-            case ast.Name("repeated", ast.Load()):
+            case ast.Name("repeated" | "debounce", ast.Load()):
                 factory = self._eval_expr("lambda: ...")
                 factory.body = node.args[0]
                 node.args[0] = factory
