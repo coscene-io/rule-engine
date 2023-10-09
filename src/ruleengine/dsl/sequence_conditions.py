@@ -120,6 +120,8 @@ class SequenceMatchCondition(Condition):
     sequence is not matched within the given duration.
 
     Note that the sequence input is a list of condition factories, not conditions.
+
+    Also note that we do not support overlapping sequences.
     """
 
     def __init__(self, factory_sequence, duration=None, trigger_on_timeout=False):

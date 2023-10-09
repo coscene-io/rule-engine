@@ -1,13 +1,6 @@
-import inspect
 import ast
-from ruleengine.dsl import base_conditions, log_conditions, sequence_conditions
 from ruleengine.dsl.validation.normalizer import normalize_expression_tree
-
-base_dsl_values = dict(
-    inspect.getmembers(base_conditions)
-    + inspect.getmembers(log_conditions)
-    + inspect.getmembers(sequence_conditions)
-)
+from ruleengine.dsl.validation.validator import base_dsl_values
 
 
 def str_to_condition(expr_str, additional_injected_values=None):
