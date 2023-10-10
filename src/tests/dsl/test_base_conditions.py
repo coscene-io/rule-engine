@@ -2,8 +2,8 @@ import unittest
 from collections import namedtuple
 
 from ruleengine.dsl.action import Action
-from ruleengine.dsl.base_conditions import *
 from ruleengine.engine import Engine, Rule, DiagnosisItem
+from tests.dsl.utils import str_to_condition
 
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 
@@ -38,112 +38,119 @@ class CollectAction(Action):
 
 class BaseConditionTest(unittest.TestCase):
     def test_always(self):
-        result = self.__run_test(always)
+        result = self.__run_test("always")
         self.assertEqual(len(result), 7, result)
 
     def test_msg(self):
-        result = self.__run_test(msg == MockMessage(1, "hello"))
+        result = self.__run_test('msg == MockMessage(1, "hello")')
         self.assertEqual(len(result), 1, result)
 
     def test_ts(self):
-        result = self.__run_test(ts == 0)
+        result = self.__run_test("ts == 0")
         self.assertEqual(len(result), 1, result)
 
     def test_topic(self):
-        result = self.__run_test(topic == "t1")
+        result = self.__run_test('topic == "t1"')
         self.assertEqual(len(result), 2, result)
 
     def test_msgtype(self):
-        result = self.__run_test(msgtype == "MockMessage")
+        result = self.__run_test('msgtype == "MockMessage"')
         self.assertEqual(len(result), 7, result)
 
-        result = self.__run_test(msgtype == "FalseMessage")
+        result = self.__run_test('msgtype == "FalseMessage"')
         self.assertEqual(len(result), 0, result)
 
     def test_none_values(self):
-        result = self.__run_test(msg.this.doesnt.exist == "MockMessage")
+        result = self.__run_test('msg.this.doesnt.exist == "MockMessage"')
         self.assertEqual(len(result), 0, result)
 
-        result = self.__run_test(is_none(msg.this.doesnt.exist))
+        result = self.__run_test("is_none(msg.this.doesnt.exist)")
         self.assertEqual(len(result), 7, result)
 
     def test_and(self):
-        result = self.__run_test(and_(msgtype == "MockMessage", topic == "t1"))
+        result = self.__run_test('msgtype == "MockMessage" and topic == "t1"')
         self.assertEqual(len(result), 2, result)
 
     def test_or(self):
-        result = self.__run_test(or_(ts == 1, topic == "t1"))
+        result = self.__run_test('ts == 1 or topic == "t1"')
         self.assertEqual(len(result), 3, result)
 
     def test_not(self):
-        result = self.__run_test(not_(ts == 1))
+        result = self.__run_test("not ts == 1")
         self.assertEqual(len(result), 6, result)
 
     def test_topic_match(self):
-        result = self.__run_test(topic == "t1")
+        result = self.__run_test('topic == "t1"')
         self.assertEqual(len(result), 2, result)
 
     def test_type_match(self):
-        result = self.__run_test(msgtype == "MockMessage")
+        result = self.__run_test('msgtype == "MockMessage"')
         self.assertEqual(len(result), 7, result)
 
-        result = self.__run_test(msgtype == "FalseMessage")
+        result = self.__run_test('msgtype == "FalseMessage"')
         self.assertEqual(len(result), 0, result)
 
     def test_complex_conditions(self):
-        result = self.__run_test(and_(topic == "t2", msg.int_value > 2))
+        result = self.__run_test('topic == "t2" and msg.int_value > 2')
         self.assertEqual(len(result), 2, result)
 
     def test_function_calls(self):
-        result = self.__run_test(msg.str_value.upper() == "HELLO")
+        result = self.__run_test('msg.str_value.upper() == "HELLO"')
         self.assertEqual(len(result), 4, result)
 
     def test_get_set_values(self):
         result = self.__run_test(
-            and_(set_value("somekey", msg.str_value), get_value("somekey") == "hello")
+            'set_value("somekey", msg.str_value) and get_value("somekey") == "hello"'
         )
         self.assertEqual(len(result), 3, result)
 
     def test_has(self):
         result = self.__run_test(
-            and_(has(msg.str_value, "el"), get_value("cos/contains") == "el")
+            '"el" in msg.str_value and get_value("cos/contains") == "el"'
         )
         self.assertEqual(len(result), 3, result)
         result = self.__run_test(
-            and_(has(msg.str_value, "el"), get_value("cos/contains") == "ee")
+            '"el" in msg.str_value and get_value("cos/contains") == "ee"'
         )
         self.assertEqual(len(result), 0, result)
 
     def test_regex(self):
         result = self.__run_test(
-            regex(msg.str_value, r"e[lL]lo").group(0) == "ello",
+            'regex(msg.str_value, r"e[lL]lo").group(0) == "ello"',
         )
         self.assertEqual(len(result), 3, result)
         result = self.__run_test(
-            regex(msg.str_value, r"e[lL]lo").group(0) == "eLlo",
+            'regex(msg.str_value, r"e[lL]lo").group(0) == "eLlo"',
         )
         self.assertEqual(len(result), 1, result)
 
     def test_concat(self):
         result = self.__run_test(
-            concat(msg.str_value, "---", msg.int_value) == "hello---1"
+            'concat(msg.str_value, "---", msg.int_value) == "hello---1"',
         )
         self.assertEqual(len(result), 1, result)
 
     def test_coerce(self):
         result = self.__run_test(
-            regex(
+            """regex(
                 msg.str_value,
-                r"The value is (\d+), which is expected to be less than",
-            ).group(1)
-            > 111,
+                r"The value is (\\d+), which is expected to be less than",
+            ).group(1) > 111""",
         )
         self.assertEqual(len(result), 1, result)
 
     @staticmethod
-    def __run_test(condition):
+    def __run_test(expr_str):
         action = CollectAction()
-        engine = Engine([Rule([condition], [action], {})])
+        engine = Engine(
+            [
+                Rule(
+                    [str_to_condition(expr_str, {"MockMessage": MockMessage})],
+                    [action],
+                    {},
+                )
+            ]
+        )
         for item in simple_sequence:
             engine.consume_next(item)
         return action.collector

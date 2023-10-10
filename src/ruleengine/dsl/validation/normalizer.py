@@ -64,6 +64,30 @@ class BooleanTransformer(ast.NodeTransformer):
             case _:
                 return node
 
+    def visit_Call(self, node):
+        # A hack since 1. conditions have states, and 2. within SequenceMatchCondition,
+        # we need to create clean copies of the condition objects to avoid state
+        # sharing. As a result, we need to transform the condition arguments
+        # of the SequenceMatchCondition related functions to condition factories,
+        # with which we can lazy create copies of the condition objects
+        # within the SequenceMatchCondition.
+        node = self.generic_visit(node)
+
+        match node.func:
+            case ast.Name("repeated" | "debounce", ast.Load()):
+                factory = self._eval_expr("lambda: ...")
+                factory.body = node.args[0]
+                node.args[0] = factory
+            case ast.Name("sequential" | "timeout", ast.Load()):
+                new_args = []
+                for arg in node.args:
+                    factory = self._eval_expr("lambda: ...")
+                    factory.body = arg
+                    new_args.append(factory)
+                node.args = new_args
+
+        return node
+
     def visit_Compare(self, node):
         node = self.generic_visit(node)
 

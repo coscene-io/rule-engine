@@ -141,7 +141,7 @@ class Condition(ABC):
         )
 
     def __bool__(self):
-        raise NotImplementedError(
+        raise Exception(
             """
             It is intentional that Condition objects should not be used as boolean values.
 

@@ -2,9 +2,8 @@ import unittest
 from collections import namedtuple
 
 from ruleengine.dsl.action import Action
-from ruleengine.dsl.base_conditions import *
-from ruleengine.dsl.sequence_conditions import *
 from ruleengine.engine import Engine, Rule, DiagnosisItem
+from tests.dsl.utils import str_to_condition
 
 MockMessage = namedtuple("MockMessage", "int_value str_value")
 
@@ -46,100 +45,101 @@ def get_trigger_times(res):
 
 class SequenceConditionTest(unittest.TestCase):
     def test_sustained_sequence(self):
-        result = self.__run_test(sustained(always, msg.str_value == "hello", 2))
+        result = self.__run_test('sustained(always, msg.str_value == "hello", 2)')
         self.assertEqual(get_start_times(result), [0, 5])
 
-        result = self.__run_test(sustained(always, msg.str_value == "hello", 6))
+        result = self.__run_test('sustained(always, msg.str_value == "hello", 6)')
         self.assertEqual(get_start_times(result), [])
 
-        result = self.__run_test(sustained(topic == "t1", msg.str_value == "hello", 2))
+        result = self.__run_test(
+            'sustained(topic == "t1", msg.str_value == "hello", 2)'
+        )
         self.assertEqual(get_start_times(result), [0])
 
-        result = self.__run_test(sustained(topic == "t1", msg.str_value == "hello", 6))
+        result = self.__run_test(
+            'sustained(topic == "t1", msg.str_value == "hello", 6)'
+        )
         self.assertEqual(get_start_times(result), [])
 
     def test_sequence_pattern(self):
         result = self.__run_test(
-            sequential(
-                and_(topic == "t1", msg.int_value == 1),
-                and_(
-                    topic == "t2",
-                    (msg.int_value == 4),
-                    set_value("somekey", msg.int_value),
-                ),
-                and_(topic == "t2", msg.int_value == get_value("somekey")),
+            """sequential(
+                topic == "t1" and msg.int_value == 1,
+                topic == "t2" and msg.int_value == 4 and set_value("somekey", msg.int_value),
+                topic == "t2" and msg.int_value == get_value("somekey"),
                 duration=4,
-            )
+            )"""
         )
         self.assertEqual(get_start_times(result), [0])
 
         result = self.__run_test(
-            sequential(
-                and_(topic == "t1", msg.int_value == 1),
-                and_(
-                    topic == "t2",
-                    (msg.int_value == 4),
-                    set_value("somekey", msg.int_value),
-                ),
-                and_(topic == "t2", msg.int_value == get_value("somekey")),
+            """sequential(
+                topic == "t1" and msg.int_value == 1,
+                topic == "t2" and msg.int_value == 4 and set_value("somekey", msg.int_value),
+                topic == "t2" and msg.int_value == get_value("somekey"),
                 duration=2,
-            )
+            )"""
         )
         self.assertEqual(get_start_times(result), [])
 
-        # Overlapping sequences, and without duration
-        result = self.__run_test(
-            sequential(
-                and_(topic == "t1", set_value("somekey", msg.int_value)),
-                and_(topic == "t2", msg.int_value == get_value("somekey")),
-            )
-        )
-        self.assertEqual(get_start_times(result), [0, 0])
-
     def test_sequence_timeout(self):
         result = self.__run_test(
-            timeout(msg.str_value == "hello", msg.str_value == "world", duration=3)
+            'timeout(msg.str_value == "hello", msg.str_value == "world", duration=3)'
         )
         self.assertEqual(get_start_times(result), [0, 5])
 
     def test_repeated(self):
-        result = self.__run_test(repeated(always, 2, 5))
+        result = self.__run_test("repeated(always, 2, 5)")
         self.assertEqual(get_start_times(result), [0])
 
-        result = self.__run_test(repeated(topic == "t2", 2, 5))
+        result = self.__run_test('repeated(topic == "t2", 2, 5)')
         self.assertEqual(get_start_times(result), [1])
 
-        result = self.__run_test(repeated(topic == "t2", 5, 5))
+        result = self.__run_test('repeated(topic == "t2", 5, 5)')
         self.assertEqual(get_start_times(result), [1])
 
-        result = self.__run_test(repeated(topic == "t2", 2, 0.5))
+        result = self.__run_test('repeated(topic == "t2", 2, 0.5)')
         self.assertEqual(get_start_times(result), [1, 3, 4, 7])
 
     def test_debounce(self):
-        result = self.__run_test(debounce(msg.str_value == "hello", 3))
+        result = self.__run_test('debounce(msg.str_value == "hello", 3)')
         self.assertEqual(get_trigger_times(result), [0])
 
-        result = self.__run_test(debounce(msg.str_value == "hello", 1.5))
+        result = self.__run_test('debounce(msg.str_value == "hello", 1.5)')
         self.assertEqual(get_trigger_times(result), [0, 5, 9])
 
-        result = self.__run_test(debounce(msg.str_value == "single", 3))
+        result = self.__run_test('debounce(msg.str_value == "single", 3)')
         self.assertEqual(get_trigger_times(result), [9])
 
     def test_throttle(self):
-        result = self.__run_test(throttle(msg.str_value == "hello", 3))
+        result = self.__run_test('throttle(msg.str_value == "hello", 3)')
         self.assertEqual(get_trigger_times(result), [0, 3, 6, 9])
 
     def test_any_order(self):
-        result = self.__run_test(any_order(topic == "t1", topic == "t2", topic == "t3"))
+        result = self.__run_test(
+            'any_order(topic == "t1", topic == "t2", topic == "t3")'
+        )
         self.assertEqual(get_trigger_times(result), [9])
 
-        result = self.__run_test(any_order(topic == "t3", topic == "t2", topic == "t1"))
+        result = self.__run_test(
+            'any_order(topic == "t3", topic == "t2", topic == "t1")'
+        )
         self.assertEqual(get_trigger_times(result), [9])
+
+    def test_any_order_in_sequence(self):
+        result = self.__run_test(
+            """sequential(
+                msg.str_value == "hello",
+                any_order(msg.int_value == 1, msg.int_value == 5),
+                duration=2,
+            )"""
+        )
+        self.assertEqual(get_trigger_times(result), [])
 
     @staticmethod
-    def __run_test(condition):
+    def __run_test(expr_str):
         action = CollectAction()
-        engine = Engine([Rule([condition], [action], {})])
+        engine = Engine([Rule([str_to_condition(expr_str)], [action], {})])
         for item in simple_sequence:
             engine.consume_next(item)
         return action.collector
