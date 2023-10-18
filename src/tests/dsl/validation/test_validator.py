@@ -110,7 +110,7 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
         self.assertIn("title", c.details["message"])
 
-        c = validate_action("create_moment(1, 2, 3, 4, 5, 6, 7)", noop)
+        c = validate_action("create_moment(1, 2, 3, 4, 5, 6, 7, 8)", noop)
         self.assertFalse(c.success)
         self.assertEqual(c.error_type, ValidationErrorType.UNKNOWN)
         self.assertIn("too many", c.details["message"])
