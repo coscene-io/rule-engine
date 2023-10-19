@@ -15,6 +15,8 @@ class Rule:
     conditions: list
     actions: list
     initial_scope: dict
+    upload_limit: dict
+    spec: dict
 
 
 class Engine:

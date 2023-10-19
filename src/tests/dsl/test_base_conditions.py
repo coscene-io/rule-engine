@@ -148,6 +148,8 @@ class BaseConditionTest(unittest.TestCase):
                     [str_to_condition(expr_str, {"MockMessage": MockMessage})],
                     [action],
                     {},
+                    {},
+                    {},
                 )
             ]
         )
