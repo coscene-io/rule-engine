@@ -1,3 +1,5 @@
+import copy
+
 from ruleengine.engine import Rule
 from ruleengine.dsl.validation.validator import validate_action, validate_condition
 from ruleengine.dsl.validation.validation_result import ValidationErrorType
@@ -5,7 +7,7 @@ from ruleengine.dsl.validation.validation_result import ValidationErrorType
 ALLOWED_VERSIONS = ["v1"]
 
 
-def validate_config(config, action_impls):
+def validate_config(config, action_impls, project_name=""):
     """
     Validate a rule specification.
 
@@ -33,7 +35,7 @@ def validate_config(config, action_impls):
     errors = []
     rules = []
     for i, rule in enumerate(raw_rules):
-        rule_errors, new_rules = _validate_rule(rule, i, action_impls)
+        rule_errors, new_rules = _validate_rule(rule, i, action_impls, project_name)
         errors += rule_errors
         rules += new_rules
 
@@ -41,7 +43,7 @@ def validate_config(config, action_impls):
     return {"success": success, "errors": errors}, rules if success else None
 
 
-def _validate_rule(rule, rule_index, action_impls):
+def _validate_rule(rule, rule_index, action_impls, project_name):
     errors = []
     raw_conditions = rule.get("when", [])
     raw_actions = rule.get("actions", [])
@@ -110,17 +112,31 @@ def _validate_rule(rule, rule_index, action_impls):
     # since rules are stateful, so we want separate instances.
 
     conditions, actions = parse_rule()
+    upload_limit = rule.get("upload_limit", {})
     if errors:
         return errors, []
 
     templating_args = rule.get("each", [])
     if not templating_args:
-        return [], [Rule(conditions, actions, {})]
+        return [], [
+            Rule(
+                conditions, actions, {}, upload_limit, copy.deepcopy(rule), project_name
+            )
+        ]
 
     new_rules = []
     for arg in templating_args:
         conditions, actions = parse_rule()
-        new_rules.append(Rule(conditions, actions, arg))
+        new_rules.append(
+            Rule(
+                conditions,
+                actions,
+                arg,
+                upload_limit,
+                {**copy.deepcopy(rule), "each": [arg]},
+                project_name,
+            )
+        )
     return [], new_rules
 
 
