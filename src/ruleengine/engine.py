@@ -17,6 +17,7 @@ class Rule:
     initial_scope: dict
     upload_limit: dict
     spec: dict
+    project_name: str
 
 
 class Engine:

@@ -150,6 +150,7 @@ class BaseConditionTest(unittest.TestCase):
                     {},
                     {},
                     {},
+                    "",
                 )
             ]
         )

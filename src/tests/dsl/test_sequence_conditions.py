@@ -139,7 +139,7 @@ class SequenceConditionTest(unittest.TestCase):
     @staticmethod
     def __run_test(expr_str):
         action = CollectAction()
-        engine = Engine([Rule([str_to_condition(expr_str)], [action], {}, {}, {})])
+        engine = Engine([Rule([str_to_condition(expr_str)], [action], {}, {}, {}, "")])
         for item in simple_sequence:
             engine.consume_next(item)
         return action.collector

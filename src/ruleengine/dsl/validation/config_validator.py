@@ -7,7 +7,7 @@ from ruleengine.dsl.validation.validation_result import ValidationErrorType
 ALLOWED_VERSIONS = ["v1"]
 
 
-def validate_config(config, action_impls):
+def validate_config(config, action_impls, project_name=""):
     """
     Validate a rule specification.
 
@@ -35,7 +35,7 @@ def validate_config(config, action_impls):
     errors = []
     rules = []
     for i, rule in enumerate(raw_rules):
-        rule_errors, new_rules = _validate_rule(rule, i, action_impls)
+        rule_errors, new_rules = _validate_rule(rule, i, action_impls, project_name)
         errors += rule_errors
         rules += new_rules
 
@@ -43,7 +43,7 @@ def validate_config(config, action_impls):
     return {"success": success, "errors": errors}, rules if success else None
 
 
-def _validate_rule(rule, rule_index, action_impls):
+def _validate_rule(rule, rule_index, action_impls, project_name):
     errors = []
     raw_conditions = rule.get("when", [])
     raw_actions = rule.get("actions", [])
@@ -118,7 +118,11 @@ def _validate_rule(rule, rule_index, action_impls):
 
     templating_args = rule.get("each", [])
     if not templating_args:
-        return [], [Rule(conditions, actions, {}, upload_limit, copy.deepcopy(rule))]
+        return [], [
+            Rule(
+                conditions, actions, {}, upload_limit, copy.deepcopy(rule), project_name
+            )
+        ]
 
     new_rules = []
     for arg in templating_args:
@@ -130,6 +134,7 @@ def _validate_rule(rule, rule_index, action_impls):
                 arg,
                 upload_limit,
                 {**copy.deepcopy(rule), "each": [arg]},
+                project_name,
             )
         )
     return [], new_rules
