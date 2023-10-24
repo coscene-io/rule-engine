@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 
@@ -15,13 +15,13 @@ class Rule:
     conditions: list
     actions: list
     initial_scope: dict
-    upload_limit: dict
-    spec: dict
-    project_name: str
+    upload_limit: dict = field(default_factory=dict)
+    spec: dict = field(default_factory=dict)
+    project_name: str = ""
 
 
 class Engine:
-    def __init__(self, rules, should_trigger_action=lambda *x: True, trigger_cb=None):
+    def __init__(self, rules, should_trigger_action=None, trigger_cb=None):
         self.__rules = rules
         self.__should_trigger_action = should_trigger_action
         self.__trigger_cb = trigger_cb
@@ -52,7 +52,9 @@ class Engine:
             )
 
             action_triggered = False
-            if self.__should_trigger_action(rule.project_name, rule.spec, hit):
+            if not self.__should_trigger_action or self.__should_trigger_action(
+                rule.project_name, rule.spec, hit
+            ):
                 action_triggered = True
                 for action in rule.actions:
                     action.run(item, triggered_scope)
