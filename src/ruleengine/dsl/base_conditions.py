@@ -104,7 +104,9 @@ def regex(value, pattern):
 
 def func_apply(func, *args):
     return Condition.apply(
-        lambda scope, f, *a: (f(*a), scope), func, *[Condition.wrap(arg) for arg in args]
+        lambda scope, f, *a: (f(*a), scope),
+        func,
+        *[Condition.wrap(arg) for arg in args]
     )
 
 
