@@ -5,23 +5,23 @@ from ruleengine.dsl.action import Action
 from ruleengine.engine import Engine, Rule, DiagnosisItem
 from tests.dsl.utils import str_to_condition
 
-MockMessage = namedtuple("MockMessage", "int_value str_value")
+MockMessage = namedtuple("MockMessage", "int_value str_value list_value")
 
 simple_sequence = [
-    DiagnosisItem("t1", MockMessage(1, "hello"), 0, "MockMessage"),
-    DiagnosisItem("t2", MockMessage(2, "hello"), 1, "MockMessage"),
-    DiagnosisItem("t1", MockMessage(3, "heLlo"), 2, "MockMessage"),
-    DiagnosisItem("t2", MockMessage(4, "hello"), 3, "MockMessage"),
-    DiagnosisItem("t2", MockMessage(5, "world"), 4, "MockMessage"),
+    DiagnosisItem("t1", MockMessage(1, "hello", [0, 1]), 0, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(2, "hello", [0, 1, 2]), 1, "MockMessage"),
+    DiagnosisItem("t1", MockMessage(3, "heLlo", [0, 1, 2, 3]), 2, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(4, "hello", [0, 1, 2, 3, 4]), 3, "MockMessage"),
+    DiagnosisItem("t2", MockMessage(5, "world", [0, 1, 2, 3, 4, 5]), 4, "MockMessage"),
     DiagnosisItem(
         "t3",
-        MockMessage(5, "The value is 324, which is expected to be less than 22"),
+        MockMessage(5, "The value is 324, which is expected to be less than 22", []),
         5,
         "MockMessage",
     ),
     DiagnosisItem(
         "t3",
-        MockMessage(5, "The value is 11, which is expected to be less than 22"),
+        MockMessage(5, "The value is 11, which is expected to be less than 22", []),
         5,
         "MockMessage",
     ),
@@ -42,7 +42,7 @@ class BaseConditionTest(unittest.TestCase):
         self.assertEqual(len(result), 7, result)
 
     def test_msg(self):
-        result = self.__run_test('msg == MockMessage(1, "hello")')
+        result = self.__run_test('msg == MockMessage(1, "hello", [0, 1])')
         self.assertEqual(len(result), 1, result)
 
     def test_ts(self):
@@ -66,6 +66,10 @@ class BaseConditionTest(unittest.TestCase):
 
         result = self.__run_test("is_none(msg.this.doesnt.exist)")
         self.assertEqual(len(result), 7, result)
+
+    def test_list_values(self):
+        result = self.__run_test("msg.list_value[2] == 2")
+        self.assertEqual(len(result), 4, result)
 
     def test_and(self):
         result = self.__run_test('msgtype == "MockMessage" and topic == "t1"')

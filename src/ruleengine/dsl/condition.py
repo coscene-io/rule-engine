@@ -128,6 +128,16 @@ class Condition(ABC):
     def __getattr__(self, name):
         return Condition.map(self, lambda x: getattr(x, name, None))
 
+    def __getitem__(self, item):
+        def getitem(x):
+            getitem_fn = getattr(x, "__getitem__", lambda _: None)
+            try:
+                return getitem_fn(item)
+            except (KeyError, IndexError):
+                return None
+
+        return Condition.map(self, getitem)
+
     def __wrap_binary_op(self, other, op, coerce=lambda x: x, swap=False):
         other = Condition.wrap(other)
         return Condition.flatmap(
