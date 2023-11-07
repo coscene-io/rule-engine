@@ -1,5 +1,8 @@
+import logging
 from dataclasses import dataclass, field
 from typing import Any
+
+_log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -40,6 +43,8 @@ class Engine:
 
             if not triggered_condition_indices:
                 continue
+
+            _log.info("==> Rule triggered")
 
             # For testing, rule.spec is not specified
             hit = (
