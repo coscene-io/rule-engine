@@ -40,7 +40,7 @@ def validate_config(config, action_impls, project_name=""):
         rules += new_rules
 
     success = not bool(errors)
-    return {"success": success, "errors": errors}, rules if success else None
+    return {"success": success, "errors": errors}, rules
 
 
 def _validate_rule(rule, rule_index, action_impls, project_name):
