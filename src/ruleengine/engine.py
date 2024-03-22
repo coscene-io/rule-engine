@@ -60,4 +60,6 @@ class Engine:
                     action.run(item, triggered_scope)
 
             if self.__trigger_cb:
-                self.__trigger_cb(rule.project_name, rule.spec, hit, action_triggered, item)
+                self.__trigger_cb(
+                    rule.project_name, rule.spec, hit, action_triggered, item
+                )
