@@ -88,6 +88,11 @@ class ValidatorTest(unittest.TestCase):
                 "upload(title='hello', description='', before=1)", noop
             ).success
         )
+        self.assertTrue(
+            validate_action(
+                "upload(title='hello', description='', after=1)", noop
+            ).success
+        )
 
         c = validate_action("create_moment('hello', duration='', 'something')", noop)
         self.assertFalse(c.success)

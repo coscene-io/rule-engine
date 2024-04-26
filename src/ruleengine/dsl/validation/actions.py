@@ -29,6 +29,10 @@ class ActionValidator:
                 # TODO: Make this an actual error instead of a generic error
                 raise Exception("before must be an int")
 
+            if not isinstance(args.get("after", 0), int):
+                # TODO: Make this an actual error instead of a generic error
+                raise Exception("after must be an int")
+
         return self._validate_factory_func(
             upload_factory(self.__impls["upload"]),
             args,

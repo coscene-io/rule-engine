@@ -7,6 +7,7 @@ from typing import Optional
 def noop_upload(
     trigger_ts: int,
     before: int,
+    after: int,
     title: str,
     description: str,
     labels: list[str],
@@ -53,9 +54,11 @@ def upload_factory(impl):
         labels=[],
         extra_files=[],
         before=10,
+        after=0,
     ):
         args = {
             "before": before,
+            "after": after,
             "title": Condition.map(Condition.wrap(title), str),
             "description": Condition.map(Condition.wrap(description), str),
             "labels": labels,
