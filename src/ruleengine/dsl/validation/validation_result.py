@@ -19,7 +19,7 @@ class ValidationResult:
     details: dict = field(default_factory=dict)
 
     # If success, fill in validated entity
-    entity: Optional[Action | Condition] = None
+    entity: Optional[Action or Condition] = None
 
     def __post_init__(self):
         if self.success:

@@ -27,35 +27,33 @@ log_level = or_(
 
 
 def ros_log_level(num):
-    match num:
-        case 1:
-            return LogLevel.DEBUG
-        case 2:
-            return LogLevel.INFO
-        case 4:
-            return LogLevel.WARN
-        case 8:
-            return LogLevel.ERROR
-        case 16:
-            return LogLevel.FATAL
-        case _:
-            return LogLevel.UNKNOWN
+    if num == 1:
+        return LogLevel.DEBUG
+    elif num == 2:
+        return LogLevel.INFO
+    elif num == 4:
+        return LogLevel.WARN
+    elif num == 8:
+        return LogLevel.ERR
+    elif num == 16:
+        return LogLevel.FATAL
+    else:
+        return LogLevel.UNKNOWN
 
 
 def foxglove_log_level(num):
-    match num:
-        case 1:
-            return LogLevel.DEBUG
-        case 2:
-            return LogLevel.INFO
-        case 3:
-            return LogLevel.WARN
-        case 4:
-            return LogLevel.ERROR
-        case 5:
-            return LogLevel.FATAL
-        case _:
-            return LogLevel.UNKNOWN
+    if num == 1:
+        return LogLevel.DEBUG
+    elif num == 2:
+        return LogLevel.INFO
+    elif num == 3:
+        return LogLevel.WARN
+    elif num == 4:
+        return LogLevel.ERROR
+    elif num == 5:
+        return LogLevel.FATAL
+    else:
+        return LogLevel.UNKNOWN
 
 
 __all__ = [
