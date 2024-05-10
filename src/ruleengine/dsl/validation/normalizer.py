@@ -71,7 +71,10 @@ class BooleanTransformer(ast.NodeTransformer):
             factory = self._eval_expr("lambda: ...")
             factory.body = node.args[0]
             node.args[0] = factory
-        elif isinstance(node.func, ast.Name) and node.func.id in ("sequential", "timeout"):
+        elif isinstance(node.func, ast.Name) and node.func.id in (
+            "sequential",
+            "timeout",
+        ):
             new_args = []
             for arg in node.args:
                 factory = self._eval_expr("lambda: ...")
