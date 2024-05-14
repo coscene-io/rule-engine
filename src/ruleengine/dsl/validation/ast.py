@@ -10,12 +10,12 @@ def validate_expression(expr_str, injected_values):
         return ValidationResult(False, ValidationErrorType.SYNTAX)
 
     for node in ast.walk(parsed):
-        match node:
-            case ast.Name(name, _):
-                if name not in injected_values:
-                    return ValidationResult(
-                        False, ValidationErrorType.UNDEFINED, {"name": name}
-                    )
+        if isinstance(node, ast.Name):
+            name = node.id
+            if name not in injected_values:
+                return ValidationResult(
+                    False, ValidationErrorType.UNDEFINED, {"name": name}
+                )
 
     code = compile(normalize_expression_tree(parsed), "", mode="eval")
 

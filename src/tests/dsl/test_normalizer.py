@@ -1,4 +1,5 @@
 import ast
+import astor
 import unittest
 
 from ruleengine.dsl.validation.normalizer import normalize_expression_tree
@@ -59,4 +60,7 @@ class NormalizerTest(unittest.TestCase):
     def _assert_equivalent(self, original, normalized):
         left = normalize_expression_tree(ast.parse(original, mode="eval"))
         right = ast.parse(normalized, mode="eval")
-        self.assertEqual(ast.unparse(left), ast.unparse(right))
+
+        right_code = astor.to_source(right)
+        left_code = astor.to_source(left)
+        self.assertEqual(right_code, left_code)

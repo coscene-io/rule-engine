@@ -141,19 +141,15 @@ def _validate_rule(rule, rule_index, action_impls, project_name):
 
 
 def _convert_to_json_error(result):
-    match result.error_type:
-        case ValidationErrorType.SYNTAX | ValidationErrorType.EMPTY:
-            return {"syntax_error": {}}
-
-        case ValidationErrorType.NOT_CONDITION:
-            return {"notCondition": {"actualType": result.details["actual"]}}
-        case ValidationErrorType.NOT_ACTION:
-            return {"notAction": {"actualType": result.details["actual"]}}
-
-        case ValidationErrorType.UNDEFINED:
-            return {"nameUndefined": {"name": result.details["name"]}}
-
-        case ValidationErrorType.UNKNOWN:
-            return {"genericError": {"msg": result.details["message"]}}
-        case _:
-            raise Exception(f"Unknown error type: {result.error_type}")
+    if result.error_type == ValidationErrorType.SYNTAX or ValidationErrorType.EMPTY:
+        return {"syntax_error": {}}
+    elif result.error_type == ValidationErrorType.NOT_CONDITION:
+        return {"notCondition": {"actualType": result.details["actual"]}}
+    elif result.error_type == ValidationErrorType.NOT_ACTION:
+        return {"notAction": {"actualType": result.details["actual"]}}
+    elif result.error_type == ValidationErrorType.UNDEFINED:
+        return {"nameUndefined": {"name": result.details["name"]}}
+    elif result.error_type == ValidationErrorType.UNKNOWN:
+        return {"genericError": {"msg": result.details["message"]}}
+    else:
+        raise Exception(f"Unknown error type: {result.error_type}")

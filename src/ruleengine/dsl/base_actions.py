@@ -1,7 +1,7 @@
 from ruleengine.dsl.condition import Condition
 from ruleengine.dsl.base_conditions import ts, concat
 from ruleengine.dsl.action import Action
-from typing import Optional
+from typing import Optional, List
 
 
 def noop_upload(
@@ -10,8 +10,8 @@ def noop_upload(
     after: int,
     title: str,
     description: str,
-    labels: list[str],
-    extra_files: list[str],
+    labels: List[str],
+    extra_files: List[str],
 ):
     pass
 
