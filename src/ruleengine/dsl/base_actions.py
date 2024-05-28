@@ -84,8 +84,8 @@ def create_moment_factory(impl):
         args = {
             "title": Condition.map(Condition.wrap(title), str),
             "description": Condition.map(Condition.wrap(description), str),
-            "timestamp": Condition.map(Condition.wrap(timestamp), int),
-            "duration": Condition.map(Condition.wrap(duration), int),
+            "timestamp": Condition.map(Condition.wrap(timestamp), float),
+            "duration": Condition.map(Condition.wrap(duration), float),
             "create_task": Condition.wrap(create_task),
             "sync_task": Condition.wrap(sync_task),
             "assign_to": assign_to,
