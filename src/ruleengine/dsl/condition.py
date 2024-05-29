@@ -144,9 +144,9 @@ class Condition(ABC):
             self,
             lambda x: Condition.map(
                 other,
-                lambda y: op(coerce(y), coerce(x))
-                if swap
-                else op(coerce(x), coerce(y)),
+                lambda y: (
+                    op(coerce(y), coerce(x)) if swap else op(coerce(x), coerce(y))
+                ),
             ),
         )
 
