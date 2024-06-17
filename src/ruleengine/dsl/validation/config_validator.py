@@ -79,6 +79,7 @@ def _validate_rule(rule, rule_index, action_impls, project_name):
                             "ruleIndex": rule_index,
                             "section": 1,
                             "itemIndex": i,
+                            "details": res.details,
                         },
                         **_convert_to_json_error(res),
                     }
@@ -96,6 +97,7 @@ def _validate_rule(rule, rule_index, action_impls, project_name):
                             "ruleIndex": rule_index,
                             "section": 2,
                             "itemIndex": i,
+                            "details": res.details,
                         },
                         **_convert_to_json_error(res),
                     }

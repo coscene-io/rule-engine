@@ -9,6 +9,16 @@ topic = ThunkCondition(lambda item, scope: (item.topic, scope))
 msgtype = ThunkCondition(lambda item, scope: (item.msgtype, scope))
 
 
+def get_start_time(item, scope):
+    value = item.ts
+    if "start_time" in scope:
+        value = scope["start_time"]
+    return value, scope
+
+
+condition_start_time = ThunkCondition(get_start_time)
+
+
 @Condition.wrap_args
 def and_(*conditions):
     assert len(conditions) > 0, "and_ must have at least 1 condition"
@@ -116,6 +126,7 @@ __all__ = [
     "ts",
     "topic",
     "msgtype",
+    "condition_start_time",
     "and_",
     "or_",
     "not_",

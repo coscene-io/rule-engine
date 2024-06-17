@@ -1,5 +1,5 @@
 from ruleengine.dsl.condition import Condition
-from ruleengine.dsl.base_conditions import ts, concat
+from ruleengine.dsl.base_conditions import ts, condition_start_time, concat
 from ruleengine.dsl.action import Action
 from typing import Optional, List
 
@@ -20,7 +20,7 @@ def noop_create_moment(
     title: str,
     description: str,
     timestamp: int,
-    duration: int,
+    start_time: int,
     create_task: bool,
     sync_task: bool,
     assign_to: Optional[str],
@@ -76,7 +76,7 @@ def create_moment_factory(impl):
         title,
         description="",
         timestamp=ts,
-        duration=1,
+        start_time=condition_start_time,
         create_task=False,
         sync_task=False,
         assign_to=None,
@@ -85,7 +85,7 @@ def create_moment_factory(impl):
             "title": Condition.map(Condition.wrap(title), str),
             "description": Condition.map(Condition.wrap(description), str),
             "timestamp": Condition.map(Condition.wrap(timestamp), float),
-            "duration": Condition.map(Condition.wrap(duration), float),
+            "start_time": Condition.map(Condition.wrap(start_time), float),
             "create_task": Condition.wrap(create_task),
             "sync_task": Condition.wrap(sync_task),
             "assign_to": assign_to,
