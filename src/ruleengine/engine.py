@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any
-from utils.logger import logger as log
+from ruleengine.utils.logger import logger as log
 
 
 @dataclass
