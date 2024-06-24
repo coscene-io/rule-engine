@@ -74,14 +74,10 @@ class ValidatorTest(unittest.TestCase):
     def test_action_validation(self):
         self.assertTrue(validate_action("create_moment('hello')", noop).success)
         self.assertTrue(
-            validate_action(
-                "create_moment('hello', description='', duration=100)", noop
-            ).success
+            validate_action("create_moment('hello', description='')", noop).success
         )
         self.assertTrue(
-            validate_action(
-                "create_moment(msg.title, description='', duration=100)", noop
-            ).success
+            validate_action("create_moment(msg.title, description='')", noop).success
         )
         self.assertTrue(
             validate_action(
