@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any
-from ruleengine.utils.logger import logger as log
+import logging
+
+_log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -34,7 +36,7 @@ class Engine:
 
             for i, cond in enumerate(rule.conditions):
                 res, scope = cond.evaluate_condition_at(item, rule.initial_scope)
-                log.debug(f"evaluate condition, result: {res}, scope: {scope}")
+                _log.debug(f"evaluate condition, result: {res}, scope: {scope}")
                 if res:
                     triggered_condition_indices.append(i)
                 if not triggered_scope:
