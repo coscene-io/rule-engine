@@ -34,7 +34,7 @@ class Engine:
 
             for i, cond in enumerate(rule.conditions):
                 res, scope = cond.evaluate_condition_at(item, rule.initial_scope)
-                log.info(f"evaluate condition, result: {res}, scope: {scope}")
+                log.debug(f"evaluate condition, result: {res}, scope: {scope}")
                 if res:
                     triggered_condition_indices.append(i)
                 if not triggered_scope:
