@@ -108,6 +108,9 @@ class BaseConditionTest(unittest.TestCase):
         )
         self.assertEqual(len(result), 3, result)
 
+        result = self.__run_test('get_value("non-exist-key") == 1')
+        self.assertEqual(len(result), 0, result)
+
     def test_has(self):
         result = self.__run_test(
             '"el" in msg.str_value and get_value("cos/contains") == "el"'

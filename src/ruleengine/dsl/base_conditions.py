@@ -78,7 +78,10 @@ def concat(*pieces):
 @Condition.wrap_args
 def get_value(key):
     return Condition.flatmap(
-        key, lambda k: ThunkCondition(lambda item, scope: (scope[k], scope))
+        key,
+        lambda k: ThunkCondition(
+            lambda item, scope: (scope[k], scope) if k in scope else (None, scope)
+        ),
     )
 
 
