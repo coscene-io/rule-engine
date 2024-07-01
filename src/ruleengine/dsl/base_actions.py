@@ -24,6 +24,7 @@ def noop_create_moment(
     create_task: bool,
     sync_task: bool,
     assign_to: Optional[str],
+    custom_fields: Optional[str],
 ):
     pass
 
@@ -80,6 +81,7 @@ def create_moment_factory(impl):
         create_task=False,
         sync_task=False,
         assign_to=None,
+        custom_fields="",
     ):
         args = {
             "title": Condition.map(Condition.wrap(title), str),
@@ -89,6 +91,7 @@ def create_moment_factory(impl):
             "create_task": Condition.wrap(create_task),
             "sync_task": Condition.wrap(sync_task),
             "assign_to": assign_to,
+            "custom_fields": custom_fields,
         }
         return ForwardingAction(impl, args)
 
