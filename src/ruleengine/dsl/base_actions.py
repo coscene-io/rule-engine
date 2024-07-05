@@ -91,7 +91,7 @@ def create_moment_factory(impl):
             "create_task": Condition.wrap(create_task),
             "sync_task": Condition.wrap(sync_task),
             "assign_to": assign_to,
-            "custom_fields": custom_fields,
+            "custom_fields": Condition.map(Condition.wrap(custom_fields), str),
         }
         return ForwardingAction(impl, args)
 
