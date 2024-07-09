@@ -38,4 +38,4 @@ format: venv
 
 .PHONY: test ## Run pytest
 test: venv
-	$(VENV)/bin/pytest . -p no:logging -p no:warnings
+	$(VENV)/bin/python3 -m unittest discover -s src
