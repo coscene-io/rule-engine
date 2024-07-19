@@ -22,7 +22,7 @@ venv: $(VENV)/bin/activate
 
 .PHONY: install ## sets up environment and installs requirements
 install: venv
-	$(VENV)/bin/pip install -U pip setuptools wheel
+	$(VENV)/bin/pip install -U pip setuptools wheel twine semver
 	$(VENV)/bin/pip install -e .[dev]
 
 .PHONY: lint ## Runs flake8 on src, exit if critical rules are broken
