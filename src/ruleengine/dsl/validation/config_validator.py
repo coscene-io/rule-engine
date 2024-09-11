@@ -22,13 +22,8 @@ ALLOWED_VERSIONS = ["v1"]
 
 
 def validate_config(config, action_impls, project_name=""):
-    action_impls_wrapped = {k: lambda _: v for k, v in action_impls.items()}
-    return validate_config(config, action_impls_wrapped, project_name)
-
-
-def validate_config_wrapped(config, action_impls_wrapped, project_name=""):
     """
-    Validate a rule specification.
+    Validate a rule specification. Use validate_config_wrapped instead if action_impls depends on the rule.
 
     It is assumed that the input config is a DiagnosisRule specified in
 
@@ -39,9 +34,16 @@ def validate_config_wrapped(config, action_impls_wrapped, project_name=""):
     https://github.com/coscene-io/cosceneapis/blob/main/coscene/dataplatform/v1alpha2/common/diagnosis_rule_validation_result.proto
 
     :param config: The rule specification.
-    :param action_impls_wrapped: A dictionary of action implementations, where the keys are the names of the actions and
-    the values is a function that takes a rule and returns an action function.
+    :param action_impls: A dictionary of action implementations.
     :param project_name: The name of the project that the rule is associated with.
+    """
+    action_impls_wrapped = {k: lambda _: v for k, v in action_impls.items()}
+    return validate_config(config, action_impls_wrapped, project_name)
+
+
+def validate_config_wrapped(config, action_impls_wrapped, project_name=""):
+    """
+    Validate a rule specification where the action implementations depend on the rule.
     """
 
     # TODO: Instead of putting together these objects by hand, we should connect
