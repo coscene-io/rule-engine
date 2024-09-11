@@ -22,6 +22,11 @@ ALLOWED_VERSIONS = ["v1"]
 
 
 def validate_config(config, action_impls, project_name=""):
+    action_impls_wrapped = {k: lambda _: v for k, v in action_impls.items()}
+    return validate_config(config, action_impls_wrapped, project_name)
+
+
+def validate_config_wrapped(config, action_impls_wrapped, project_name=""):
     """
     Validate a rule specification.
 
@@ -32,6 +37,11 @@ def validate_config(config, action_impls, project_name=""):
     and this function will return a DiagnosisRuleValidationResult specified in
 
     https://github.com/coscene-io/cosceneapis/blob/main/coscene/dataplatform/v1alpha2/common/diagnosis_rule_validation_result.proto
+
+    :param config: The rule specification.
+    :param action_impls_wrapped: A dictionary of action implementations, where the keys are the names of the actions and
+    the values is a function that takes a rule and returns an action function.
+    :param project_name: The name of the project that the rule is associated with.
     """
 
     # TODO: Instead of putting together these objects by hand, we should connect
@@ -49,6 +59,7 @@ def validate_config(config, action_impls, project_name=""):
     errors = []
     rules = []
     for i, rule in enumerate(raw_rules):
+        action_impls = {k: v(rule) for k, v in action_impls_wrapped.items()}
         rule_errors, new_rules = _validate_rule(rule, i, action_impls, project_name)
         errors += rule_errors
         rules += new_rules
