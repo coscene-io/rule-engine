@@ -27,7 +27,7 @@ def noop_upload(
     description: str,
     labels: List[str],
     extra_files: List[str],
-    white_list: List[str]
+    white_list: List[str],
 ):
     pass
 
