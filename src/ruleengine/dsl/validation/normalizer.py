@@ -88,6 +88,7 @@ class BooleanTransformer(ast.NodeTransformer):
         elif isinstance(node.func, ast.Name) and node.func.id in (
             "sequential",
             "timeout",
+            "any_order",
         ):
             new_args = []
             for arg in node.args:
