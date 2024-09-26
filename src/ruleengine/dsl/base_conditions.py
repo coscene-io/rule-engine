@@ -14,7 +14,7 @@
 
 import re
 
-from .condition import Condition, ThunkCondition
+from .condition import Condition, ThunkCondition, get_attr_or_item
 
 always = Condition.wrap(True)
 msg = ThunkCondition(lambda item, scope: (item.msg, scope))
@@ -129,6 +129,18 @@ def regex(value, pattern):
     )
 
 
+def map_attr(value, attr):
+    def mapper(x):
+        try:
+            iter(x)
+        except TypeError:
+            return None
+        result = [get_attr_or_item(attr)(v) for v in x]
+        return result
+
+    return Condition.map(Condition.wrap(value), mapper)
+
+
 def func_apply(func, *args):
     return Condition.apply(
         lambda scope, f, *a: (f(*a), scope),
@@ -154,4 +166,5 @@ __all__ = [
     "regex",
     "is_none",
     "func_apply",
+    "map_attr",
 ]
