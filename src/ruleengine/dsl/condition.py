@@ -140,17 +140,12 @@ class Condition(ABC):
         return Condition.map(self, lambda f: f(*args, **kwargs))
 
     def __getattr__(self, name):
-        return Condition.map(self, lambda x: getattr(x, name, None))
+        """Priority: __getattr__ > __getitem__"""
+        return Condition.map(self, get_attr_or_item(name))
 
     def __getitem__(self, item):
-        def getitem(x):
-            getitem_fn = getattr(x, "__getitem__", lambda _: None)
-            try:
-                return getitem_fn(item)
-            except (KeyError, IndexError):
-                return None
-
-        return Condition.map(self, getitem)
+        """Priority: __getitem__ > __getattr__"""
+        return Condition.map(self, get_item_or_attr(item))
 
     def __wrap_binary_op(self, other, op, coerce=lambda x: x, swap=False):
         other = Condition.wrap(other)
@@ -178,6 +173,34 @@ class Condition(ABC):
               a in b -> has(b, a)
             """
         )
+
+
+def get_attr_or_item(name):
+    def __get_attr_or_item(x):
+        try:
+            if hasattr(x, name):
+                return getattr(x, name)
+            if hasattr(x, "__getitem__"):
+                return x[name]
+        except (KeyError, IndexError, TypeError):
+            return None
+        return None
+
+    return __get_attr_or_item
+
+
+def get_item_or_attr(item):
+    def __get_item_or_attr(x):
+        try:
+            if hasattr(x, "__getitem__"):
+                return x[item]
+            if hasattr(x, item):
+                return getattr(x, item)
+        except (KeyError, IndexError, TypeError):
+            return None
+        return None
+
+    return __get_item_or_attr
 
 
 class ThunkCondition(Condition):

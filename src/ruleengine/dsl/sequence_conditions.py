@@ -39,8 +39,8 @@ def timeout(*condition_factories, duration):
     return SequenceMatchCondition(list(condition_factories), duration, True)
 
 
-def any_order(*conditions):
-    return RisingEdgeCondition(AnyOrderCondition(list(conditions)))
+def any_order(*condition_factories, reset_time=None):
+    return RisingEdgeCondition(AnyOrderCondition(list(condition_factories), reset_time))
 
 
 def repeated(condition_factory, /, times, duration):
@@ -249,14 +249,24 @@ class AnyOrderCondition(Condition):
     """
     This condition triggers when all the child conditions are true, but the
     order of the conditions does not matter.
-    The condition will remain true once triggered.
+    The condition will reset once triggered or when the reset_time has passed after the first condition is met.
     """
 
-    def __init__(self, conditions):
-        self.__unsatisfied = conditions
+    def __init__(self, condition_factories, reset_time=None):
+        self.__factories = condition_factories
+        self.__reset_time = reset_time
+        self.__unsatisfied = [factory() for factory in condition_factories]
         self.__curr_scope = None
+        self.__start_time = None
 
     def evaluate_condition_at(self, item, scope):
+        if (
+            self.__reset_time is not None
+            and self.__start_time is not None
+            and item.ts - self.__start_time > self.__reset_time
+        ):
+            self.reset()
+
         if self.__curr_scope is None:
             self.__curr_scope = scope
 
@@ -265,14 +275,21 @@ class AnyOrderCondition(Condition):
             value, new_scope = c.evaluate_condition_at(item, self.__curr_scope)
             if value:
                 self.__curr_scope = new_scope
+                if self.__start_time is None:
+                    self.__start_time = item.ts
             else:
                 new_conditions.append(c)
 
         if not new_conditions:
+            self.reset()
             return True, self.__curr_scope
 
         self.__unsatisfied = new_conditions
         return False, self.__curr_scope
+
+    def reset(self):
+        self.__unsatisfied = [factory() for factory in self.__factories]
+        self.__start_time = None
 
 
 __all__ = [

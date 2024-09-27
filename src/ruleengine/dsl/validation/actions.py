@@ -39,6 +39,7 @@ class ActionValidator:
 
             check_is_list_of_string("labels")
             check_is_list_of_string("extra_files")
+            check_is_list_of_string("white_list")
 
             if not isinstance(args.get("before", 0), int):
                 # TODO: Make this an actual error instead of a generic error

@@ -27,6 +27,7 @@ def noop_upload(
     description: str,
     labels: List[str],
     extra_files: List[str],
+    white_list: List[str],
 ):
     pass
 
@@ -69,6 +70,7 @@ def upload_factory(impl):
         description="",
         labels=[],
         extra_files=[],
+        white_list=[],
         before=10,
         after=0,
     ):
@@ -79,6 +81,7 @@ def upload_factory(impl):
             "description": Condition.map(Condition.wrap(description), str),
             "labels": labels,
             "extra_files": extra_files,
+            "white_list": white_list,
             "trigger_ts": ts,
         }
 
