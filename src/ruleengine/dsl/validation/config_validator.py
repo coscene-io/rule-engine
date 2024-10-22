@@ -38,7 +38,7 @@ def validate_config(config, action_impls, project_name=""):
     :param project_name: The name of the project that the rule is associated with.
     """
     # action_impls_wrapped = {k: lambda _: v for k, v in action_impls.items()}
-    action_impls = {}
+    action_impls_wrapped = {}
     for k, v in action_impls.items():
         action_impls[k] = lambda _: v
     return validate_config_wrapped(config, action_impls_wrapped, project_name)
