@@ -27,7 +27,11 @@ class Engine:
         self.cur_activation = None
 
     def example_consume_next(self, msg: dict[str, any], topic: str, ts: float):
-        """ An example method to consume a message """
+        """
+        An example of how to consume a message and trigger rules
+        In a real-world scenario, there might be more complex logic before condition evaluation
+        before action running, or after action running. Use this as a reference.
+        """
         self.load_message(msg, topic, ts)
         for rule_idx, _ in enumerate(self.rules):
             if self.evaluate_rule_condition(rule_idx):
