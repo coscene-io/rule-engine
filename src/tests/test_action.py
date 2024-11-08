@@ -26,17 +26,30 @@ class TestAction(unittest.TestCase):
         }
         action_result[0] = str(result)
 
+    @staticmethod
+    def get_action(raw, action_result):
+        return Action(
+            raw=raw,
+            impls={
+                "serialize": partial(
+                    TestAction.serialize_impl, action_result=action_result
+                ),
+            },
+        )
+
     def test_simple(self):
         action_result = [""]
-        action = Action(
-            name="serialize",
-            impl=partial(TestAction.serialize_impl, action_result=action_result),
-            kwargs={
-                "str_arg": "hello",
-                "int_arg": 123,
-                "bool_arg": True,
-                "other_str_arg": "world",
+        action = self.get_action(
+            {
+                "name": "serialize",
+                "kwargs": {
+                    "str_arg": "hello",
+                    "int_arg": 123,
+                    "bool_arg": True,
+                    "other_str_arg": "world",
+                },
             },
+            action_result,
         )
 
         self.assertEqual("", action_result[0])
@@ -48,15 +61,17 @@ class TestAction(unittest.TestCase):
 
     def test_single(self):
         action_result = [""]
-        action = Action(
-            name="serialize",
-            impl=partial(TestAction.serialize_impl, action_result=action_result),
-            kwargs={
-                "str_arg": "aaa{ msg.message.code } bbb",
-                "int_arg": 123,
-                "bool_arg": True,
-                "other_str_arg": "worl{ scope.invalid_attr }d",
+        action = self.get_action(
+            {
+                "name": "serialize",
+                "kwargs": {
+                    "str_arg": "aaa{ msg.message.code } bbb",
+                    "int_arg": 123,
+                    "bool_arg": True,
+                    "other_str_arg": "worl{ scope.invalid_attr }d",
+                },
             },
+            action_result,
         )
 
         self.assertEqual("", action_result[0])
@@ -67,27 +82,31 @@ class TestAction(unittest.TestCase):
         )
 
     def test_validation(self):
-        action = Action(
-            name="serialize",
-            impl=partial(TestAction.serialize_impl, action_result=[]),
-            kwargs={
-                "str_arg": "hello",
-                "int_arg": 123,
-                "bool_arg": True,
-                "other_str_arg": "world",
+        action = self.get_action(
+            {
+                "name": "serialize",
+                "kwargs": {
+                    "str_arg": "hello",
+                    "int_arg": 123,
+                    "bool_arg": True,
+                    "other_str_arg": "world",
+                },
             },
+            [""],
         )
         self.assertTrue(action.validation_result)
 
-        action = Action(
-            name="serialize",
-            impl=partial(TestAction.serialize_impl, action_result=[]),
-            kwargs={
-                "str_arg": "hello",
-                "int_arg": 123,
-                "bool_arg": True,
-                "other_str_arg": "wor{ 1+ }ld",
+        action = self.get_action(
+            {
+                "name": "serialize",
+                "kwargs": {
+                    "str_arg": "hello",
+                    "int_arg": 123,
+                    "bool_arg": True,
+                    "other_str_arg": "wor{ 1+ }ld",
+                },
             },
+            [""],
         )
         self.assertFalse(action.validation_result)
 

@@ -44,12 +44,10 @@ class TestEngine(unittest.TestCase):
         spec = {
             "rules": [
                 {
-                    "condition_specs": [
-                        {
-                            "raw": "msg.code > 20",
-                        }
+                    "conditions": [
+                        "msg.code > 20",
                     ],
-                    "action_specs": [
+                    "actions": [
                         {
                             "name": "serialize",
                             "kwargs": {
@@ -58,20 +56,20 @@ class TestEngine(unittest.TestCase):
                             },
                         },
                     ],
-                    "scope": {},
-                    "active_topics": ["test_topic"],
+                    "scopes": [],
+                    "topics": ["test_topic"],
                 }
             ]
         }
         result_buffer = [{}]
         engine = self.build_serialize_engine_from_spec(spec, result_buffer)
 
-        engine.consume_next({"code": 20}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 20}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {},
         )
-        engine.consume_next({"code": 21}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 21}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {
@@ -79,7 +77,7 @@ class TestEngine(unittest.TestCase):
                 "int_arg": 1,
             },
         )
-        engine.consume_next({"code": 22}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 22}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {
@@ -87,7 +85,7 @@ class TestEngine(unittest.TestCase):
                 "int_arg": 1,
             },
         )
-        engine.consume_next({"code": 20}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 20}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {
@@ -100,20 +98,8 @@ class TestEngine(unittest.TestCase):
         spec = {
             "rules": [
                 {
-                    "condition_specs": [
-                        {
-                            "raw": "msg.code > 20",
-                        },
-                        {
-                            "structured": {
-                                "path": "msg.level",
-                                "op": "<=",
-                                "value": 3,
-                                "type": "int",
-                            },
-                        },
-                    ],
-                    "action_specs": [
+                    "conditions": ["msg.code > 20", "int(msg.level) <= int(3)"],
+                    "actions": [
                         {
                             "name": "serialize",
                             "kwargs": {
@@ -122,30 +108,30 @@ class TestEngine(unittest.TestCase):
                             },
                         },
                     ],
-                    "scope": {},
-                    "active_topics": ["test_topic"],
+                    "scopes": [{}],
+                    "topics": ["test_topic"],
                 }
             ]
         }
         result_buffer = [{}]
         engine = self.build_serialize_engine_from_spec(spec, result_buffer)
 
-        engine.consume_next({"code": 21, "level": 4}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 21, "level": 4}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {},
         )
-        engine.consume_next({"code": 19, "level": 2}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 19, "level": 2}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {},
         )
-        engine.consume_next({"code": 19, "level": 4}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 19, "level": 4}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {},
         )
-        engine.consume_next({"code": 21, "level": 2}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 21, "level": 2}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {
@@ -153,7 +139,7 @@ class TestEngine(unittest.TestCase):
                 "int_arg": 1,
             },
         )
-        engine.consume_next({"code": 23, "level": 1}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 23, "level": 1}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {
@@ -161,7 +147,7 @@ class TestEngine(unittest.TestCase):
                 "int_arg": 1,
             },
         )
-        engine.consume_next({"code": 21, "level": 4}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 21, "level": 4}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {
@@ -169,7 +155,7 @@ class TestEngine(unittest.TestCase):
                 "int_arg": 1,
             },
         )
-        engine.consume_next({"code": 19, "level": 2}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 19, "level": 2}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {
@@ -177,7 +163,7 @@ class TestEngine(unittest.TestCase):
                 "int_arg": 1,
             },
         )
-        engine.consume_next({"code": 19, "level": 4}, "test_topic", 0.0)
+        engine.example_consume_next({"code": 19, "level": 4}, "test_topic", 0.0)
         self.assertDictEqual(
             result_buffer[0],
             {

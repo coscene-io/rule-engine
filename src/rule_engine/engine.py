@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import celpy
+
 from rule_engine.rule import Rule
 
 
@@ -22,7 +24,38 @@ class Engine:
 
     def __init__(self, rules: list[Rule]):
         self.rules = rules
+        self.cur_activation = None
 
-    def consume_next(self, msg: dict[str, any], topic: str, ts: float):
-        for rule in self.rules:
-            rule.evaluate_and_run(msg, topic, ts)
+    def example_consume_next(self, msg: dict[str, any], topic: str, ts: float):
+        """ An example method to consume a message """
+        self.load_message(msg, topic, ts)
+        for rule_idx, _ in enumerate(self.rules):
+            if self.evaluate_rule_condition(rule_idx):
+                self.run_rule_actions(rule_idx)
+
+    def load_message(self, msg: dict[str, any], topic: str, ts: float):
+        """ Load the message into the engine and prepared for rule evaluation """
+        self.cur_activation = {
+            "msg": celpy.adapter.json_to_cel(msg),
+            "topic": celpy.celtypes.StringType(topic),
+            "ts": celpy.celtypes.DoubleType(ts),
+        }
+
+    def evaluate_rule_condition(self, rule_idx):
+        """ Evaluate the condition of a rule against the current activation """
+        rule = self.rules[rule_idx]
+        activation = {
+            **self.cur_activation,
+            "scope": rule.scope,
+        }
+        return all(cond.evaluate(activation) for cond in rule.conditions)
+
+    def run_rule_actions(self, rule_idx):
+        """ Run the actions of a rule against the current activation """
+        rule = self.rules[rule_idx]
+        activation = {
+            **self.cur_activation,
+            "scope": rule.scope,
+        }
+        for action in rule.actions:
+            action.run(activation)

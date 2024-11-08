@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import inspect
 import re
 from functools import partial
-from typing import Callable, List, Optional
+from typing import Callable
 
 import celpy
 
@@ -28,13 +27,12 @@ class Action:
 
     def __init__(
         self,
-        name: str,
-        impl: Callable,
-        kwargs: dict[str, any],
+        raw: dict[str, any],
+        impls: dict[str, Callable],
     ):
-        self.name = name
-        self.raw = kwargs
-        self._impl = impl
+        self.name = raw.get("name", "")
+        self.raw_kwargs = raw.get("kwargs", {})
+        self._impl = impls.get(self.name, lambda _: None)
         self._kwargs = {}
         self.validation_result = self.compile_and_validate()
 
@@ -48,20 +46,14 @@ class Action:
         """
         Compile and validate the action
         """
-        # First check if all the keys in raw are valid args for the impl
-        impl_sig = inspect.signature(self._impl).parameters.keys()
-        if not all(k in impl_sig for k in self.raw.keys()):
-            return False
-
-        # Check if all the values in raw can be compiled
         try:
-            self._kwargs = {k: compile_value(v) for k, v in self.raw.items()}
+            self._kwargs = {k: compile_value(v) for k, v in self.raw_kwargs.items()}
             return True
         except Exception:
             return False
 
     def __repr__(self):
-        return f"Action({self.name}){self.raw}"
+        return f"Action({self.name}){self.raw_kwargs}"
 
 
 def compile_value(value: any) -> Callable[[celpy.Context], any]:
@@ -110,35 +102,3 @@ def compile_embedded_expr(expr: str) -> Callable[[celpy.Context], str]:
         return re.sub(pattern, replace, expression)
 
     return partial(evaluate, expression=expr, programs=compiled_programs)
-
-
-def noop_upload(
-    trigger_ts: int,
-    before: int,
-    after: int,
-    title: str,
-    description: str,
-    labels: List[str],
-    extra_files: List[str],
-    white_list: List[str],
-):
-    pass
-
-
-def noop_create_moment(
-    title: str,
-    description: str,
-    timestamp: int,
-    start_time: int,
-    create_task: bool,
-    sync_task: bool,
-    assign_to: Optional[str],
-    custom_fields: Optional[str],
-):
-    pass
-
-
-noop_action_impls = {
-    "upload": noop_upload,
-    "create_moment": noop_create_moment,
-}

@@ -44,10 +44,17 @@ class ValidationErrorLocation(BaseModel):
     itemIndex: Optional[int] = None
 
 
+class ValidationErrorUnexpectedVersion(BaseModel):
+    """Define the structure of the validation error unexpected version"""
+
+    allowedVersions: list[str]
+
+
 class ValidationError(BaseModel):
     """Define the structure of the validation error"""
 
     location: Optional[ValidationErrorLocation] = None
+    unexpectedVersion: Optional[ValidationErrorUnexpectedVersion] = None
     syntaxError: Optional[dict] = None
     emptySection: Optional[dict] = None
 

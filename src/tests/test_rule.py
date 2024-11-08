@@ -13,44 +13,49 @@
 # limitations under the License.
 import unittest
 
-from rule_engine.action import Action
 from rule_engine.condition import Condition
 from rule_engine.rule import Rule, validate_rules
 from rule_engine.utils import ErrorSectionEnum
+from tests.test_action import TestAction
 
 
 def _serialize_impl(str_arg, int_arg):
     pass
 
 
-class TestEngine(unittest.TestCase):
+class TestRule(unittest.TestCase):
     def test_compile_and_validate_success(self):
         rules = [
             Rule(
+                "raw_rule",
                 [
                     Condition("msg['temperature'] > 20"),
                     Condition("msg['humidity'] > 20"),
                 ],
                 [
-                    Action(
-                        "serialize",
-                        _serialize_impl,
+                    TestAction.get_action(
                         {
-                            "str_arg": "{msg['item']}",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg['item']}",
+                                "int_arg": 1,
+                            },
                         },
+                        [""],
                     ),
-                    Action(
-                        "serialize",
-                        _serialize_impl,
+                    TestAction.get_action(
                         {
-                            "str_arg": "msg['item']",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg['item']}",
+                                "int_arg": 1,
+                            },
                         },
+                        [""],
                     ),
                 ],
                 {},
-                "test",
+                ["test"],
             )
         ]
         self.assertDictEqual(
@@ -64,19 +69,22 @@ class TestEngine(unittest.TestCase):
     def test_compile_and_validate_empty_condition(self):
         rules = [
             Rule(
+                "raw_rule",
                 [],
                 [
-                    Action(
-                        "serialize",
-                        _serialize_impl,
+                    TestAction.get_action(
                         {
-                            "str_arg": "{msg['item']}",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg['item']}",
+                                "int_arg": 1,
+                            },
                         },
+                        [""],
                     ),
                 ],
                 {},
-                "test",
+                ["test"],
             )
         ]
         self.assertDictEqual(
@@ -98,12 +106,13 @@ class TestEngine(unittest.TestCase):
     def test_compile_and_validate_empty_action(self):
         rules = [
             Rule(
+                "raw_rule",
                 [
                     Condition("msg['temperature'] > 20"),
                 ],
                 [],
                 {},
-                "test",
+                ["test"],
             )
         ]
         self.assertDictEqual(
@@ -125,38 +134,45 @@ class TestEngine(unittest.TestCase):
     def test_compile_and_validate_multiple_errors(self):
         rules = [
             Rule(
+                "raw_rule",
                 [
                     Condition("msg['temperature'] > 20"),
                     Condition("msg['humidity'] > "),
                 ],
                 [
-                    Action(
-                        "serialize",
-                        _serialize_impl,
+                    TestAction.get_action(
                         {
-                            "str_arg": "{msg['item']}",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg['item']}",
+                                "int_arg": 1,
+                            },
                         },
+                        [""],
                     ),
-                    Action(
-                        "serialize",
-                        _serialize_impl,
+                    TestAction.get_action(
                         {
-                            "str_arg": "{msg[}",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg[}",
+                                "int_arg": 1,
+                            },
                         },
+                        [""],
                     ),
-                    Action(
-                        "serialize",
-                        _serialize_impl,
+                    TestAction.get_action(
                         {
-                            "str_arg2": "msg['item']",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg['item']}",
+                                "int_arg": 1,
+                            },
                         },
+                        [""],
                     ),
                 ],
                 {},
-                "test",
+                ["test"],
             )
         ]
         self.assertDictEqual(
@@ -177,14 +193,6 @@ class TestEngine(unittest.TestCase):
                             "ruleIndex": 0,
                             "section": ErrorSectionEnum.ACTION,
                             "itemIndex": 1,
-                        },
-                        "syntaxError": {},
-                    },
-                    {
-                        "location": {
-                            "ruleIndex": 0,
-                            "section": ErrorSectionEnum.ACTION,
-                            "itemIndex": 2,
                         },
                         "syntaxError": {},
                     },

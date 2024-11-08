@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import celpy
+import celpy.adapter
 
 from rule_engine.action import Action
 from rule_engine.condition import Condition
@@ -23,27 +22,77 @@ from rule_engine.utils import (
     ValidationResult,
 )
 
+ALLOWED_VERSIONS = ["v2"]
+
 
 class Rule:
     """
     Defining a rule with a condition and corresponding actions
+
+    RuleSpec should be of the following structure:
+    {
+        "version": "v2",
+        "rules": [
+            {
+                "conditions": [
+                    "msg['temperature'] > 20",
+                    "int(msg['humidity']) < int(30)"
+                ],
+                "actions: [
+                    {
+                        "name": "action_1",
+                        "kwargs": {
+                            "arg1_1": "{msg['item']}",
+                            "arg1_2": 1
+                        }
+                    },
+                    {
+                        "name": "action_2",
+                        "kwargs": {
+                            "arg2_1": "{msg.code}",
+                            "arg2_2": 1
+                        }
+                    }
+                ],
+                "scopes": [
+                    {
+                        "scope_key_a": "scope_value_a_1"
+                        "scope_key_b": "scope_value_b_1"
+                    },
+                    {
+                        "scope_key_a": "scope_value_a_2"
+                        "scope_key_b": "scope_value_b_2"
+                    }
+                ],
+                "topics": ["topic_1", "topic_2"]
+            }
+        ]
+    }
+    Note that for each scope item will be used to construct a separate rule,
+    In the above example, two rules will be created with the same conditions and actions and topics,
+    but with one scope being {"scope_key_a": "scope_value_a_1", "scope_key_b": "scope_value_b_1"}
+    and the other being {"scope_key_a": "scope_value_a_2", "scope_key_b": "scope_value_b_2"}
     """
 
     def __init__(
         self,
+        raw: any,
         conditions: list[Condition],
         actions: list[Action],
         scope: dict[str, str],
-        topic: str,
+        topics: list[str],
     ):
+        self.raw = raw
         self.conditions = conditions
         self.actions = actions
-        self.scope = scope
-        self.topic = topic
+        self.scope = celpy.adapter.json_to_cel(scope)
+        self.topics = topics
 
-    def compile_and_validate(self, rule_idx: int) -> list[ValidationError]:
+    def get_validation_errors(self, rule_idx: int) -> list[ValidationError]:
         """
         Compile and validate the rule, returning a list of errors
+
+        rule_idx: the index of the rule in the rule set
         """
         errors = []
         if not self.conditions:
@@ -91,24 +140,6 @@ class Rule:
                 )
         return errors
 
-    def evaluate_and_run(self, msg: dict[str, any], topic: str, ts: float):
-        """Evaluate the rule conditions(connected by AND) and run the actions if all conditions are met"""
-        if self.topic != topic:
-            return
-
-        activation = {
-            "scope": celpy.adapter.json_to_cel(self.scope),
-            "msg": celpy.adapter.json_to_cel(msg),
-            "topic": celpy.celtypes.StringType(topic),
-            "ts": celpy.celtypes.DoubleType(ts),
-        }
-        for condition in self.conditions:
-            if not condition.evaluate(activation):
-                return
-
-        for action in self.actions:
-            action.run(activation)
-
 
 def validate_rules(rules: list[Rule]) -> ValidationResult:
     """
@@ -116,7 +147,7 @@ def validate_rules(rules: list[Rule]) -> ValidationResult:
     """
     errors = []
     for idx, rule in enumerate(rules):
-        errors += rule.compile_and_validate(idx)
+        errors += rule.get_validation_errors(idx)
     return ValidationResult(success=not errors, errors=errors)
 
 
@@ -126,42 +157,18 @@ def spec_to_rules(spec: dict[str, any], action_impls: dict[str, any]) -> list[Ru
     """
     rules = []
     for rule_spec in spec.get("rules", []):
-        conditions = []
-        for condition_obj in rule_spec.get("condition_specs", []):
-            conditions.append(_parse_condition(condition_obj))
-        actions = []
-        for action_obj in rule_spec.get("action_specs", []):
-            actions.append(_parse_action(action_obj, action_impls))
-        scopes = rule_spec.get("each", [])
-        topic = rule_spec.get("active_topics", [""])[0]
+        conditions = [
+            Condition(condition_spec)
+            for condition_spec in rule_spec.get("conditions", [])
+        ]
+        actions = [
+            Action(action_obj, action_impls)
+            for action_obj in rule_spec.get("actions", [])
+        ]
+        scopes = rule_spec.get("scopes", [])
+        topics = rule_spec.get("topics", [])
         if not scopes:
             scopes = [{}]
         for scope in scopes:
-            rules.append(Rule(conditions, actions, scope, topic))
+            rules.append(Rule(rule_spec, conditions, actions, scope, topics))
     return rules
-
-
-def _parse_condition(condition_obj: dict[str, any]) -> Condition:
-    """
-    Parse the condition object
-    """
-    raw_condition = condition_obj.get("raw", "")
-    if raw_condition:
-        return Condition(raw_condition)
-
-    structured_condition = condition_obj.get("structured", {})
-    path = structured_condition.get("path", "")
-    op = structured_condition.get("op", "")
-    value = structured_condition.get("value", "")
-    type_ = structured_condition.get("type", "")
-    return Condition(f"{type_}({path}) {op} {type_}({value})")
-
-
-def _parse_action(action_obj: dict[str, any], action_impls: dict[str, any]) -> Action:
-    """
-    Parse the action object
-    """
-    name = action_obj.get("name", "")
-    kwargs = action_obj.get("kwargs", {})
-    impl = action_impls.get(name, lambda: None)
-    return Action(name, impl, kwargs)
