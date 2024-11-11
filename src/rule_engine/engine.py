@@ -38,7 +38,7 @@ class Engine:
                 self.run_rule_actions(rule_idx)
 
     def load_message(self, msg: dict[str, any], topic: str, ts: float):
-        """ Load the message into the engine and prepared for rule evaluation """
+        """Load the message into the engine and prepared for rule evaluation"""
         self.cur_activation = {
             "msg": celpy.adapter.json_to_cel(msg),
             "topic": celpy.celtypes.StringType(topic),
@@ -46,7 +46,7 @@ class Engine:
         }
 
     def evaluate_rule_condition(self, rule_idx):
-        """ Evaluate the condition of a rule against the current activation """
+        """Evaluate the condition of a rule against the current activation"""
         rule = self.rules[rule_idx]
         activation = {
             **self.cur_activation,
@@ -55,7 +55,7 @@ class Engine:
         return all(cond.evaluate(activation) for cond in rule.conditions)
 
     def run_rule_actions(self, rule_idx):
-        """ Run the actions of a rule against the current activation """
+        """Run the actions of a rule against the current activation"""
         rule = self.rules[rule_idx]
         activation = {
             **self.cur_activation,
