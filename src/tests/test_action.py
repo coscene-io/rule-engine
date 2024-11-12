@@ -27,27 +27,21 @@ class TestAction(unittest.TestCase):
         action_result[0] = str(result)
 
     @staticmethod
-    def get_action(raw, action_result):
+    def get_action(raw_kwargs, action_result):
         return Action(
-            raw=raw,
-            impls={
-                "serialize": partial(
-                    TestAction.serialize_impl, action_result=action_result
-                ),
-            },
+            name="serialize",
+            raw_kwargs=raw_kwargs,
+            impl=partial(TestAction.serialize_impl, action_result=action_result),
         )
 
     def test_simple(self):
         action_result = [""]
         action = self.get_action(
             {
-                "name": "serialize",
-                "kwargs": {
-                    "str_arg": "hello",
-                    "int_arg": 123,
-                    "bool_arg": True,
-                    "other_str_arg": "world",
-                },
+                "str_arg": "hello",
+                "int_arg": 123,
+                "bool_arg": True,
+                "other_str_arg": "world",
             },
             action_result,
         )
@@ -63,13 +57,10 @@ class TestAction(unittest.TestCase):
         action_result = [""]
         action = self.get_action(
             {
-                "name": "serialize",
-                "kwargs": {
-                    "str_arg": "aaa{ msg.message.code } bbb",
-                    "int_arg": 123,
-                    "bool_arg": True,
-                    "other_str_arg": "worl{ scope.invalid_attr }d",
-                },
+                "str_arg": "aaa{ msg.message.code } bbb",
+                "int_arg": 123,
+                "bool_arg": True,
+                "other_str_arg": "worl{ scope.invalid_attr }d",
             },
             action_result,
         )
@@ -84,13 +75,10 @@ class TestAction(unittest.TestCase):
     def test_validation(self):
         action = self.get_action(
             {
-                "name": "serialize",
-                "kwargs": {
-                    "str_arg": "hello",
-                    "int_arg": 123,
-                    "bool_arg": True,
-                    "other_str_arg": "world",
-                },
+                "str_arg": "hello",
+                "int_arg": 123,
+                "bool_arg": True,
+                "other_str_arg": "world",
             },
             [""],
         )
@@ -98,13 +86,10 @@ class TestAction(unittest.TestCase):
 
         action = self.get_action(
             {
-                "name": "serialize",
-                "kwargs": {
-                    "str_arg": "hello",
-                    "int_arg": 123,
-                    "bool_arg": True,
-                    "other_str_arg": "wor{ 1+ }ld",
-                },
+                "str_arg": "hello",
+                "int_arg": 123,
+                "bool_arg": True,
+                "other_str_arg": "wor{ 1+ }ld",
             },
             [""],
         )

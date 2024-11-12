@@ -27,12 +27,13 @@ class Action:
 
     def __init__(
         self,
-        raw: dict[str, any],
-        impls: dict[str, Callable],
+        name: str,
+        raw_kwargs: dict[str, any],
+        impl: Callable,
     ):
-        self.name = raw.get("name", "")
-        self.raw_kwargs = raw.get("kwargs", {})
-        self._impl = impls.get(self.name, lambda _: None)
+        self.name = name
+        self.raw_kwargs = raw_kwargs
+        self._impl = impl
         self._kwargs = {}
         self.validation_result = self.compile_and_validate()
 

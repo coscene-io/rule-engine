@@ -142,31 +142,22 @@ class TestRule(unittest.TestCase):
                 [
                     TestAction.get_action(
                         {
-                            "name": "serialize",
-                            "kwargs": {
-                                "str_arg": "{msg['item']}",
-                                "int_arg": 1,
-                            },
+                            "str_arg": "{msg['item']}",
+                            "int_arg": 1,
                         },
                         [""],
                     ),
                     TestAction.get_action(
                         {
-                            "name": "serialize",
-                            "kwargs": {
-                                "str_arg": "{msg[}",
-                                "int_arg": 1,
-                            },
+                            "str_arg": "{msg[}",
+                            "int_arg": 1,
                         },
                         [""],
                     ),
                     TestAction.get_action(
                         {
-                            "name": "serialize",
-                            "kwargs": {
-                                "str_arg": "{msg['item']}",
-                                "int_arg": 1,
-                            },
+                            "str_arg": "{msg['item']}",
+                            "int_arg": 1,
                         },
                         [""],
                     ),

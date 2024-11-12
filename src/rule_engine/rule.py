@@ -153,7 +153,7 @@ def validate_rules(rules: list[Rule]) -> ValidationResult:
 
 def spec_to_rules(spec: dict[str, any], action_impls: dict[str, any]) -> list[Rule]:
     """
-    Convert the spec to an engine
+    Convert the spec to an engine, mainly used to validate a json-formed rule set.
     """
     rules = []
     for rule_spec in spec.get("rules", []):
@@ -161,10 +161,14 @@ def spec_to_rules(spec: dict[str, any], action_impls: dict[str, any]) -> list[Ru
             Condition(condition_spec)
             for condition_spec in rule_spec.get("conditions", [])
         ]
-        actions = [
-            Action(action_obj, action_impls)
-            for action_obj in rule_spec.get("actions", [])
-        ]
+
+        actions = []
+        for action_obj in rule_spec.get("actions", []):
+            action_name = action_obj.get("name", "")
+            action_kwargs = action_obj.get("kwargs", {})
+            action_impl = action_impls.get(action_name)
+            actions.append(Action(action_name, action_kwargs, action_impl))
+
         scopes = rule_spec.get("scopes", [])
         topics = rule_spec.get("topics", [])
         if not scopes:
