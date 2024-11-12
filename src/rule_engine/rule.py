@@ -72,6 +72,7 @@ class Rule:
     In the above example, two rules will be created with the same conditions and actions and topics,
     but with one scope being {"scope_key_a": "scope_value_a_1", "scope_key_b": "scope_value_b_1"}
     and the other being {"scope_key_a": "scope_value_a_2", "scope_key_b": "scope_value_b_2"}
+    Also be aware that the rule_idx of scope created rules will be the same as the original rule
     """
 
     def __init__(
@@ -81,14 +82,17 @@ class Rule:
         actions: list[Action],
         scope: dict[str, str],
         topics: list[str],
+        # rule_idx is the index of the rule in the rule set, used for validation error reporting
+        rule_idx: int,
     ):
         self.raw = raw
         self.conditions = conditions
         self.actions = actions
         self.scope = celpy.adapter.json_to_cel(scope)
         self.topics = topics
+        self.rule_idx = rule_idx
 
-    def get_validation_errors(self, rule_idx: int) -> list[ValidationError]:
+    def get_validation_errors(self) -> list[ValidationError]:
         """
         Compile and validate the rule, returning a list of errors
 
@@ -99,7 +103,7 @@ class Rule:
             errors.append(
                 ValidationError(
                     location=ValidationErrorLocation(
-                        ruleIndex=rule_idx, section=ErrorSectionEnum.CONDITION
+                        ruleIndex=self.rule_idx, section=ErrorSectionEnum.CONDITION
                     ),
                     emptySection={},
                 ),
@@ -108,7 +112,7 @@ class Rule:
             errors.append(
                 ValidationError(
                     location=ValidationErrorLocation(
-                        ruleIndex=rule_idx, section=ErrorSectionEnum.ACTION
+                        ruleIndex=self.rule_idx, section=ErrorSectionEnum.ACTION
                     ),
                     emptySection={},
                 ),
@@ -119,7 +123,7 @@ class Rule:
                 errors.append(
                     ValidationError(
                         location=ValidationErrorLocation(
-                            ruleIndex=rule_idx,
+                            ruleIndex=self.rule_idx,
                             section=ErrorSectionEnum.CONDITION,
                             itemIndex=idx,
                         ),
@@ -131,7 +135,7 @@ class Rule:
                 errors.append(
                     ValidationError(
                         location=ValidationErrorLocation(
-                            ruleIndex=rule_idx,
+                            ruleIndex=self.rule_idx,
                             section=ErrorSectionEnum.ACTION,
                             itemIndex=idx,
                         ),
@@ -147,7 +151,7 @@ def validate_rules(rules: list[Rule]) -> ValidationResult:
     """
     errors = []
     for idx, rule in enumerate(rules):
-        errors += rule.get_validation_errors(idx)
+        errors += rule.get_validation_errors()
     return ValidationResult(success=not errors, errors=errors)
 
 
@@ -156,7 +160,7 @@ def spec_to_rules(spec: dict[str, any], action_impls: dict[str, any]) -> list[Ru
     Convert the spec to an engine, mainly used to validate a json-formed rule set.
     """
     rules = []
-    for rule_spec in spec.get("rules", []):
+    for rule_idx, rule_spec in enumerate(spec.get("rules", [])):
         conditions = [
             Condition(condition_spec)
             for condition_spec in rule_spec.get("conditions", [])
@@ -174,5 +178,5 @@ def spec_to_rules(spec: dict[str, any], action_impls: dict[str, any]) -> list[Ru
         if not scopes:
             scopes = [{}]
         for scope in scopes:
-            rules.append(Rule(rule_spec, conditions, actions, scope, topics))
+            rules.append(Rule(rule_spec, conditions, actions, scope, topics, rule_idx))
     return rules

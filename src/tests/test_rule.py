@@ -56,6 +56,7 @@ class TestRule(unittest.TestCase):
                 ],
                 {},
                 ["test"],
+                0,
             )
         ]
         self.assertDictEqual(
@@ -85,6 +86,7 @@ class TestRule(unittest.TestCase):
                 ],
                 {},
                 ["test"],
+                0,
             )
         ]
         self.assertDictEqual(
@@ -113,6 +115,7 @@ class TestRule(unittest.TestCase):
                 [],
                 {},
                 ["test"],
+                0,
             )
         ]
         self.assertDictEqual(
@@ -164,6 +167,7 @@ class TestRule(unittest.TestCase):
                 ],
                 {},
                 ["test"],
+                0,
             )
         ]
         self.assertDictEqual(
