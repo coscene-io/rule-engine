@@ -83,7 +83,7 @@ class Rule:
         scope: dict[str, str],
         topics: list[str],
         # rule_idx is the index of the rule in the rule set, used for validation error reporting
-        rule_idx: int,
+        rule_idx: int = 0,
     ):
         self.raw = raw
         self.conditions = conditions
