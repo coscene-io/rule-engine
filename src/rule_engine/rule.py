@@ -82,8 +82,8 @@ class Rule:
         actions: list[Action],
         scope: dict[str, str],
         topics: list[str],
-        # rule_idx is the index of the rule in the rule set, used for validation error reporting
-        rule_idx: int = 0,
+        rule_idx: int = 0,  # the index of the rule in the rule set, used for validation error reporting
+        metadata: dict[str, any] = None,  # user-defined metadata
     ):
         self.raw = raw
         self.conditions = conditions
@@ -91,6 +91,7 @@ class Rule:
         self.scope = celpy.adapter.json_to_cel(scope)
         self.topics = topics
         self.rule_idx = rule_idx
+        self.metadata = metadata or {}
 
     def get_validation_errors(self) -> list[ValidationError]:
         """
