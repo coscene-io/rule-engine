@@ -64,6 +64,18 @@ def compile_value(value: any) -> Callable[[celpy.Context], any]:
     """
     if isinstance(value, str):
         return compile_embedded_expr(value)
+    elif isinstance(value, dict):
+        compiled_value = {}
+        for k, v in value.items():
+            if isinstance(v, dict):
+                raise ValueError("Nested dict is not supported")
+            compiled_value[k] = compile_value(v)
+
+        def evaluate_dict(activation: celpy.Context, _value: dict):
+            return {_k: _v(activation) for _k, _v in _value.items()}
+
+        return partial(evaluate_dict, _value=compiled_value)
+
     else:
 
         def wrap(_value):
@@ -88,7 +100,9 @@ def compile_embedded_expr(expr: str) -> Callable[[celpy.Context], str]:
     matches = pattern.findall(expr)
     compiled_programs = [ENV.program(ENV.compile(match)) for match in matches]
 
-    def evaluate(activation: celpy.Context, expression, programs) -> str:
+    def evaluate(
+        activation: celpy.Context, expression: str, programs: list[celpy.Runner]
+    ) -> str:
         # Replace the matches in the expression with the evaluated value
         idx = -1
 

@@ -16,13 +16,14 @@ TestActivation = {
 class TestAction(unittest.TestCase):
     @staticmethod
     def serialize_impl(
-        str_arg, int_arg, bool_arg, other_str_arg, action_result: list[str]
+        str_arg, int_arg, bool_arg, other_str_arg, dict_arg, action_result: list[str]
     ):
         result = {
             "str_arg": str_arg,
             "int_arg": int_arg,
             "bool_arg": bool_arg,
             "other_str_arg": other_str_arg,
+            "dict_arg": dict_arg,
         }
         action_result[0] = str(result)
 
@@ -42,6 +43,7 @@ class TestAction(unittest.TestCase):
                 "int_arg": 123,
                 "bool_arg": True,
                 "other_str_arg": "world",
+                "dict_arg": {},
             },
             action_result,
         )
@@ -49,7 +51,7 @@ class TestAction(unittest.TestCase):
         self.assertEqual("", action_result[0])
         action.run(TestActivation)
         self.assertEqual(
-            "{'str_arg': 'hello', 'int_arg': 123, 'bool_arg': True, 'other_str_arg': 'world'}",
+            "{'str_arg': 'hello', 'int_arg': 123, 'bool_arg': True, 'other_str_arg': 'world', 'dict_arg': {}}",
             action_result[0],
         )
 
@@ -61,6 +63,7 @@ class TestAction(unittest.TestCase):
                 "int_arg": 123,
                 "bool_arg": True,
                 "other_str_arg": "worl{ scope.invalid_attr }d",
+                "dict_arg": {},
             },
             action_result,
         )
@@ -68,7 +71,27 @@ class TestAction(unittest.TestCase):
         self.assertEqual("", action_result[0])
         action.run(TestActivation)
         self.assertEqual(
-            "{'str_arg': 'aaa200 bbb', 'int_arg': 123, 'bool_arg': True, 'other_str_arg': 'worl{ ERROR }d'}",
+            "{'str_arg': 'aaa200 bbb', 'int_arg': 123, 'bool_arg': True, 'other_str_arg': 'worl{ ERROR }d', 'dict_arg': {}}",
+            action_result[0],
+        )
+
+    def test_dict(self):
+        action_result = [""]
+        action = self.get_action(
+            {
+                "str_arg": "ccc",
+                "int_arg": 123,
+                "bool_arg": True,
+                "other_str_arg": "worl{ scope.invalid_attr }d",
+                "dict_arg": {"aaa": "aaa{ msg.message.code } bbb", "mmm": 1},
+            },
+            action_result,
+        )
+
+        self.assertEqual("", action_result[0])
+        action.run(TestActivation)
+        self.assertEqual(
+            "{'str_arg': 'ccc', 'int_arg': 123, 'bool_arg': True, 'other_str_arg': 'worl{ ERROR }d', 'dict_arg': {'aaa': 'aaa200 bbb', 'mmm': 1}}",
             action_result[0],
         )
 
@@ -90,6 +113,18 @@ class TestAction(unittest.TestCase):
                 "int_arg": 123,
                 "bool_arg": True,
                 "other_str_arg": "wor{ 1+ }ld",
+            },
+            [""],
+        )
+        self.assertFalse(action.validation_result)
+
+        action = self.get_action(
+            {
+                "str_arg": "ccc",
+                "int_arg": 123,
+                "bool_arg": True,
+                "other_str_arg": "worl{ scope.invalid_attr }d",
+                "dict_arg": {"aaa": {"bbb": 1}},
             },
             [""],
         )
