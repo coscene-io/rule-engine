@@ -71,7 +71,8 @@ class TestAction(unittest.TestCase):
         self.assertEqual("", action_result[0])
         action.run(TestActivation)
         self.assertEqual(
-            "{'str_arg': 'aaa200 bbb', 'int_arg': 123, 'bool_arg': True, 'other_str_arg': 'worl{ ERROR }d', 'dict_arg': {}}",
+            "{'str_arg': 'aaa200 bbb', 'int_arg': 123, "
+            "'bool_arg': True, 'other_str_arg': 'worl{ ERROR }d', 'dict_arg': {}}",
             action_result[0],
         )
 
@@ -91,7 +92,8 @@ class TestAction(unittest.TestCase):
         self.assertEqual("", action_result[0])
         action.run(TestActivation)
         self.assertEqual(
-            "{'str_arg': 'ccc', 'int_arg': 123, 'bool_arg': True, 'other_str_arg': 'worl{ ERROR }d', 'dict_arg': {'aaa': 'aaa200 bbb', 'mmm': 1}}",
+            "{'str_arg': 'ccc', 'int_arg': 123, 'bool_arg': True, "
+            "'other_str_arg': 'worl{ ERROR }d', 'dict_arg': {'aaa': 'aaa200 bbb', 'mmm': 1}}",
             action_result[0],
         )
 
