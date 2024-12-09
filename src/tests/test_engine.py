@@ -15,7 +15,7 @@ import unittest
 from functools import partial
 
 from rule_engine.engine import Engine
-from rule_engine.rule import validate_spec
+from rule_engine.rule import validate_rules_spec
 
 
 class TestEngine(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestEngine(unittest.TestCase):
 
     @staticmethod
     def build_serialize_engine_from_spec(spec, buffer):
-        rules, _ = validate_spec(
+        rules, _ = validate_rules_spec(
             spec,
             {"serialize": partial(TestEngine.serialize_impl, result_buffer=buffer)},
         )

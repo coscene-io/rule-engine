@@ -13,7 +13,7 @@
 # limitations under the License.
 import unittest
 
-from rule_engine.rule import validate_spec
+from rule_engine.rule import validate_rules_spec
 from rule_engine.utils import ErrorSectionEnum
 
 
@@ -52,7 +52,7 @@ class TestRule(unittest.TestCase):
             ]
         }
 
-        rules, result = validate_spec(rule_spec, {})
+        rules, result = validate_rules_spec(rule_spec, {})
         self.assertDictEqual(
             result.model_dump(exclude_unset=True),
             {
@@ -82,7 +82,7 @@ class TestRule(unittest.TestCase):
                 }
             ]
         }
-        rules, result = validate_spec(rule_spec, {})
+        rules, result = validate_rules_spec(rule_spec, {})
         self.assertDictEqual(
             result.model_dump(exclude_unset=True),
             {
@@ -113,7 +113,7 @@ class TestRule(unittest.TestCase):
                 }
             ]
         }
-        rules, result = validate_spec(rule_spec, {})
+        rules, result = validate_rules_spec(rule_spec, {})
         self.assertDictEqual(
             result.model_dump(exclude_unset=True),
             {
@@ -166,7 +166,7 @@ class TestRule(unittest.TestCase):
                 }
             ]
         }
-        rules, result = validate_spec(rule_spec, {})
+        rules, result = validate_rules_spec(rule_spec, {})
         self.assertDictEqual(
             result.model_dump(exclude_unset=True),
             {

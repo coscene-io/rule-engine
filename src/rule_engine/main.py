@@ -17,7 +17,7 @@ from sys import argv
 
 from rule_engine.rule import (
     ALLOWED_VERSIONS as ALLOWED_VERSIONS_2,
-    validate_spec,
+    validate_rule_spec,
 )
 from rule_engine.utils import (
     ValidationError,
@@ -57,7 +57,11 @@ def main(rule_set_spec_str: str):
         exit(0 if result["success"] else 1)
 
     if rule_set_spec.get("version") in ALLOWED_VERSIONS_2:
-        _, result = validate_spec(rule_set_spec, {})
+        errors = []
+        for rule_idx, rule_spec in enumerate(rule_set_spec.get("rules", [])):
+            _, errs = validate_rule_spec(rule_spec, {}, rule_idx)
+            errors.extend(errs)
+        result = ValidationResult(success=not errors, errors=errors)
         print(result.model_dump(exclude_unset=True))
         exit(0 if result.success else 1)
 

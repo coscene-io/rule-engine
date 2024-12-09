@@ -92,81 +92,99 @@ class Rule:
         self.metadata = metadata or {}
 
 
-def validate_spec(
-    spec: dict[str, any], action_impls: dict[str, any]
+def validate_rules_spec(
+    rules_spec: dict[str, any], action_impls: dict[str, any]
 ) -> tuple[list[Rule], ValidationResult]:
     """
-    Validate the spec
+    Validate rules spec, this function will only validate the structure of the rules spec
     """
-    rules: list[Rule] = []
+    all_rules = []
+    errors = []
+    for rule_idx, rule_spec in enumerate(rules_spec.get("rules", [])):
+        rules, errs = validate_rule_spec(rule_spec, action_impls, rule_idx)
+        all_rules.extend(rules)
+        errors.extend(errs)
+
+    return all_rules, ValidationResult(success=not errors, errors=errors)
+
+
+def validate_rule_spec(
+    rule_spec: dict[str, any], action_impls: dict[str, any], rule_idx: int
+) -> tuple[list[Rule], list[ValidationError]]:
+    """
+    Validate single rule spec
+    """
     errors: list[ValidationError] = []
 
-    for rule_idx, rule_spec in enumerate(spec.get("rules", [])):
-        if not rule_spec.get("conditions", []):
+    if not rule_spec.get("conditions", []):
+        errors.append(
+            ValidationError(
+                location=ValidationErrorLocation(
+                    ruleIndex=rule_idx, section=ErrorSectionEnum.CONDITION
+                ),
+                emptySection={},
+            ),
+        )
+
+    conditions = []
+    for condition_idx, condition_spec in enumerate(rule_spec.get("conditions", [])):
+        condition, err = Condition.compile_and_validate(condition_spec)
+        if err:
             errors.append(
                 ValidationError(
                     location=ValidationErrorLocation(
-                        ruleIndex=rule_idx, section=ErrorSectionEnum.CONDITION
+                        ruleIndex=rule_idx,
+                        section=ErrorSectionEnum.CONDITION,
+                        itemIndex=condition_idx,
                     ),
-                    emptySection={},
+                    syntaxError={},
                 ),
             )
-            continue
-
-        conditions = []
-        for condition_idx, condition_spec in enumerate(rule_spec.get("conditions", [])):
-            condition, err = Condition.compile_and_validate(condition_spec)
-            if err:
-                errors.append(
-                    ValidationError(
-                        location=ValidationErrorLocation(
-                            ruleIndex=rule_idx,
-                            section=ErrorSectionEnum.CONDITION,
-                            itemIndex=condition_idx,
-                        ),
-                        syntaxError={},
-                    ),
-                )
-                break
+        else:
             conditions.append(condition)
 
-        if not rule_spec.get("actions", []):
+    if not rule_spec.get("actions", []):
+        errors.append(
+            ValidationError(
+                location=ValidationErrorLocation(
+                    ruleIndex=rule_idx, section=ErrorSectionEnum.ACTION
+                ),
+                emptySection={},
+            ),
+        )
+
+    actions = []
+    for action_idx, action_spec in enumerate(rule_spec.get("actions", [])):
+        action_name = action_spec.get("name", "")
+        action_kwargs = action_spec.get("kwargs", {})
+        action_impl = action_impls.get(action_name)
+        action, err = Action.compile_and_validate(
+            action_name, action_kwargs, action_impl
+        )
+        if err:
             errors.append(
                 ValidationError(
                     location=ValidationErrorLocation(
-                        ruleIndex=rule_idx, section=ErrorSectionEnum.ACTION
+                        ruleIndex=rule_idx,
+                        section=ErrorSectionEnum.ACTION,
+                        itemIndex=action_idx,
                     ),
-                    emptySection={},
+                    syntaxError={},
                 ),
             )
-            continue
-        actions = []
-        for action_idx, action_spec in enumerate(rule_spec.get("actions", [])):
-            action_name = action_spec.get("name", "")
-            action_kwargs = action_spec.get("kwargs", {})
-            action_impl = action_impls.get(action_name)
-            action, err = Action.compile_and_validate(
-                action_name, action_kwargs, action_impl
-            )
-            if err:
-                errors.append(
-                    ValidationError(
-                        location=ValidationErrorLocation(
-                            ruleIndex=rule_idx,
-                            section=ErrorSectionEnum.ACTION,
-                            itemIndex=action_idx,
-                        ),
-                        syntaxError={},
-                    ),
-                )
-                break
+        else:
             actions.append(action)
 
-        scopes = rule_spec.get("scopes", [])
-        topics = rule_spec.get("topics", [])
-        if not scopes:
-            scopes = [{}]
-        for scope in scopes:
-            rules.append(Rule(rule_spec, conditions, actions, scope, topics))
+    if errors:
+        return [], errors
 
-    return rules, ValidationResult(success=not errors, errors=errors)
+    scopes = rule_spec.get("scopes", [])
+    topics = rule_spec.get("topics", [])
+    if not scopes:
+        scopes = [{}]
+
+    rules = []
+    for scope in scopes:
+        rules.append(Rule(rule_spec, conditions, actions, scope, topics))
+
+    return rules, []
