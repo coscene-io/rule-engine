@@ -15,7 +15,7 @@ import unittest
 from functools import partial
 
 from rule_engine.engine import Engine
-from rule_engine.rule import spec_to_rules
+from rule_engine.rule import validate_spec
 
 
 class TestEngine(unittest.TestCase):
@@ -29,16 +29,11 @@ class TestEngine(unittest.TestCase):
 
     @staticmethod
     def build_serialize_engine_from_spec(spec, buffer):
-        return Engine(
-            spec_to_rules(
-                spec,
-                {
-                    "serialize": partial(
-                        TestEngine.serialize_impl, result_buffer=buffer
-                    ),
-                },
-            )
+        rules, _ = validate_spec(
+            spec,
+            {"serialize": partial(TestEngine.serialize_impl, result_buffer=buffer)},
         )
+        return Engine(rules)
 
     def test_engine_comprehensive_single_condition(self):
         spec = {

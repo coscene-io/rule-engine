@@ -13,10 +13,8 @@
 # limitations under the License.
 import unittest
 
-from rule_engine.condition import Condition
-from rule_engine.rule import Rule, validate_rules
+from rule_engine.rule import validate_spec
 from rule_engine.utils import ErrorSectionEnum
-from tests.test_action import TestAction
 
 
 def _serialize_impl(str_arg, int_arg):
@@ -25,15 +23,14 @@ def _serialize_impl(str_arg, int_arg):
 
 class TestRule(unittest.TestCase):
     def test_compile_and_validate_success(self):
-        rules = [
-            Rule(
-                "raw_rule",
-                [
-                    Condition("msg['temperature'] > 20"),
-                    Condition("msg['humidity'] > 20"),
-                ],
-                [
-                    TestAction.get_action(
+        rule_spec = {
+            "rules": [
+                {
+                    "conditions": [
+                        "msg['temperature'] > 20",
+                        "msg['humidity'] > 20",
+                    ],
+                    "actions": [
                         {
                             "name": "serialize",
                             "kwargs": {
@@ -41,9 +38,6 @@ class TestRule(unittest.TestCase):
                                 "int_arg": 1,
                             },
                         },
-                        [""],
-                    ),
-                    TestAction.get_action(
                         {
                             "name": "serialize",
                             "kwargs": {
@@ -51,15 +45,16 @@ class TestRule(unittest.TestCase):
                                 "int_arg": 1,
                             },
                         },
-                        [""],
-                    ),
-                ],
-                {},
-                ["test"],
-            )
-        ]
+                    ],
+                    "scopes": [],
+                    "topics": ["test"],
+                }
+            ]
+        }
+
+        rules, result = validate_spec(rule_spec, {})
         self.assertDictEqual(
-            validate_rules(rules).model_dump(exclude_unset=True),
+            result.model_dump(exclude_unset=True),
             {
                 "success": True,
                 "errors": [],
@@ -67,12 +62,13 @@ class TestRule(unittest.TestCase):
         )
 
     def test_compile_and_validate_empty_condition(self):
-        rules = [
-            Rule(
-                "raw_rule",
-                [],
-                [
-                    TestAction.get_action(
+        rule_spec = {
+            "rules": [
+                {
+                    "conditions": [
+                        "",
+                    ],
+                    "actions": [
                         {
                             "name": "serialize",
                             "kwargs": {
@@ -80,15 +76,15 @@ class TestRule(unittest.TestCase):
                                 "int_arg": 1,
                             },
                         },
-                        [""],
-                    ),
-                ],
-                {},
-                ["test"],
-            )
-        ]
+                    ],
+                    "scopes": [],
+                    "topics": ["test"],
+                }
+            ]
+        }
+        rules, result = validate_spec(rule_spec, {})
         self.assertDictEqual(
-            validate_rules(rules).model_dump(exclude_unset=True),
+            result.model_dump(exclude_unset=True),
             {
                 "success": False,
                 "errors": [
@@ -96,27 +92,30 @@ class TestRule(unittest.TestCase):
                         "location": {
                             "ruleIndex": 0,
                             "section": ErrorSectionEnum.CONDITION,
+                            "itemIndex": 0,
                         },
-                        "emptySection": {},
+                        "syntaxError": {},
                     }
                 ],
             },
         )
 
     def test_compile_and_validate_empty_action(self):
-        rules = [
-            Rule(
-                "raw_rule",
-                [
-                    Condition("msg['temperature'] > 20"),
-                ],
-                [],
-                {},
-                ["test"],
-            )
-        ]
+        rule_spec = {
+            "rules": [
+                {
+                    "conditions": [
+                        "msg['temperature'] > 20",
+                    ],
+                    "actions": [],
+                    "scopes": [],
+                    "topics": ["test"],
+                }
+            ]
+        }
+        rules, result = validate_spec(rule_spec, {})
         self.assertDictEqual(
-            validate_rules(rules).model_dump(exclude_unset=True),
+            result.model_dump(exclude_unset=True),
             {
                 "success": False,
                 "errors": [
@@ -132,42 +131,44 @@ class TestRule(unittest.TestCase):
         )
 
     def test_compile_and_validate_multiple_errors(self):
-        rules = [
-            Rule(
-                "raw_rule",
-                [
-                    Condition("msg['temperature'] > 20"),
-                    Condition("msg['humidity'] > "),
-                ],
-                [
-                    TestAction.get_action(
+        rule_spec = {
+            "rules": [
+                {
+                    "conditions": [
+                        "msg['temperature'] > 20",
+                        "msg['humidity'] > ",
+                    ],
+                    "actions": [
                         {
-                            "str_arg": "{msg['item']}",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg['item']}",
+                                "int_arg": 1,
+                            },
                         },
-                        [""],
-                    ),
-                    TestAction.get_action(
                         {
-                            "str_arg": "{msg[}",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg[}",
+                                "int_arg": 1,
+                            },
                         },
-                        [""],
-                    ),
-                    TestAction.get_action(
                         {
-                            "str_arg": "{msg['item']}",
-                            "int_arg": 1,
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{msg['item']}",
+                                "int_arg": 1,
+                            },
                         },
-                        [""],
-                    ),
-                ],
-                {},
-                ["test"],
-            )
-        ]
+                    ],
+                    "scopes": [],
+                    "topics": ["test"],
+                }
+            ]
+        }
+        rules, result = validate_spec(rule_spec, {})
         self.assertDictEqual(
-            validate_rules(rules).model_dump(exclude_unset=True),
+            result.model_dump(exclude_unset=True),
             {
                 "success": False,
                 "errors": [

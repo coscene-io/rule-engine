@@ -82,7 +82,6 @@ class Rule:
         actions: list[Action],
         scope: dict[str, str],
         topics: list[str],
-        rule_idx: int = 0,  # the index of the rule in the rule set, used for validation error reporting
         metadata: dict[str, any] = None,  # user-defined metadata
     ):
         self.raw = raw
@@ -90,94 +89,84 @@ class Rule:
         self.actions = actions
         self.scope = celpy.adapter.json_to_cel(scope)
         self.topics = topics
-        self.rule_idx = rule_idx
         self.metadata = metadata or {}
 
-    def get_validation_errors(self) -> list[ValidationError]:
-        """
-        Compile and validate the rule, returning a list of errors
 
-        rule_idx: the index of the rule in the rule set
-        """
-        errors = []
-        if not self.conditions:
-            errors.append(
-                ValidationError(
-                    location=ValidationErrorLocation(
-                        ruleIndex=self.rule_idx, section=ErrorSectionEnum.CONDITION
-                    ),
-                    emptySection={},
-                ),
-            )
-        if not self.actions:
-            errors.append(
-                ValidationError(
-                    location=ValidationErrorLocation(
-                        ruleIndex=self.rule_idx, section=ErrorSectionEnum.ACTION
-                    ),
-                    emptySection={},
-                ),
-            )
-
-        for idx, condition in enumerate(self.conditions):
-            if not condition.validation_result:
-                errors.append(
-                    ValidationError(
-                        location=ValidationErrorLocation(
-                            ruleIndex=self.rule_idx,
-                            section=ErrorSectionEnum.CONDITION,
-                            itemIndex=idx,
-                        ),
-                        syntaxError={},
-                    ),
-                )
-        for idx, action in enumerate(self.actions):
-            if not action.validation_result:
-                errors.append(
-                    ValidationError(
-                        location=ValidationErrorLocation(
-                            ruleIndex=self.rule_idx,
-                            section=ErrorSectionEnum.ACTION,
-                            itemIndex=idx,
-                        ),
-                        syntaxError={},
-                    ),
-                )
-        return errors
-
-
-def validate_rules(rules: list[Rule]) -> ValidationResult:
+def validate_spec(
+    spec: dict[str, any], action_impls: dict[str, any]
+) -> tuple[list[Rule], ValidationResult]:
     """
-    Validate the rules
+    Validate the spec
     """
-    errors = []
-    for idx, rule in enumerate(rules):
-        errors += rule.get_validation_errors()
-    return ValidationResult(success=not errors, errors=errors)
+    rules: list[Rule] = []
+    errors: list[ValidationError] = []
 
-
-def spec_to_rules(spec: dict[str, any], action_impls: dict[str, any]) -> list[Rule]:
-    """
-    Convert the spec to an engine, mainly used to validate a json-formed rule set.
-    """
-    rules = []
     for rule_idx, rule_spec in enumerate(spec.get("rules", [])):
-        conditions = [
-            Condition(condition_spec)
-            for condition_spec in rule_spec.get("conditions", [])
-        ]
+        if not rule_spec.get("conditions", []):
+            errors.append(
+                ValidationError(
+                    location=ValidationErrorLocation(
+                        ruleIndex=rule_idx, section=ErrorSectionEnum.CONDITION
+                    ),
+                    emptySection={},
+                ),
+            )
+            continue
 
+        conditions = []
+        for condition_idx, condition_spec in enumerate(rule_spec.get("conditions", [])):
+            condition, err = Condition.compile_and_validate(condition_spec)
+            if err:
+                errors.append(
+                    ValidationError(
+                        location=ValidationErrorLocation(
+                            ruleIndex=rule_idx,
+                            section=ErrorSectionEnum.CONDITION,
+                            itemIndex=condition_idx,
+                        ),
+                        syntaxError={},
+                    ),
+                )
+                break
+            conditions.append(condition)
+
+        if not rule_spec.get("actions", []):
+            errors.append(
+                ValidationError(
+                    location=ValidationErrorLocation(
+                        ruleIndex=rule_idx, section=ErrorSectionEnum.ACTION
+                    ),
+                    emptySection={},
+                ),
+            )
+            continue
         actions = []
-        for action_obj in rule_spec.get("actions", []):
-            action_name = action_obj.get("name", "")
-            action_kwargs = action_obj.get("kwargs", {})
+        for action_idx, action_spec in enumerate(rule_spec.get("actions", [])):
+            action_name = action_spec.get("name", "")
+            action_kwargs = action_spec.get("kwargs", {})
             action_impl = action_impls.get(action_name)
-            actions.append(Action(action_name, action_kwargs, action_impl))
+            action, err = Action.compile_and_validate(
+                action_name, action_kwargs, action_impl
+            )
+            if err:
+                errors.append(
+                    ValidationError(
+                        location=ValidationErrorLocation(
+                            ruleIndex=rule_idx,
+                            section=ErrorSectionEnum.ACTION,
+                            itemIndex=action_idx,
+                        ),
+                        syntaxError={},
+                    ),
+                )
+                break
+            actions.append(action)
 
         scopes = rule_spec.get("scopes", [])
         topics = rule_spec.get("topics", [])
         if not scopes:
             scopes = [{}]
         for scope in scopes:
-            rules.append(Rule(rule_spec, conditions, actions, scope, topics, rule_idx))
-    return rules
+            rules.append(Rule(rule_spec, conditions, actions, scope, topics))
+
+    return rules, ValidationResult(success=not errors, errors=errors)

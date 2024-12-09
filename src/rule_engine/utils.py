@@ -64,9 +64,3 @@ class ValidationResult(BaseModel):
 
     success: bool
     errors: list[ValidationError]
-
-
-ACCEPTED_RULE_VERSIONS = [
-    "v1",
-    "v2",
-]

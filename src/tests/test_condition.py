@@ -29,104 +29,126 @@ TestActivation = {
 
 class TestCondition(unittest.TestCase):
     def test_int_int(self):
-        condition = Condition(""" 1 == 1 """)
+        condition, _ = Condition.compile_and_validate(""" 1 == 1 """)
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" 1 == 2 """)
+        condition, _ = Condition.compile_and_validate(""" 1 == 2 """)
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_int_other(self):
-        condition = Condition(""" 1 == "1" """)
+        condition, _ = Condition.compile_and_validate(""" 1 == "1" """)
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" 1 == "2" """)
+        condition, _ = Condition.compile_and_validate(""" 1 == "2" """)
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" 1 == 1.0 """)
+        condition, _ = Condition.compile_and_validate(""" 1 == 1.0 """)
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" 1 == 2.0 """)
+        condition, _ = Condition.compile_and_validate(""" 1 == 2.0 """)
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_msg_int(self):
-        condition = Condition(""" msg.message.code == 200 """)
+        condition, _ = Condition.compile_and_validate(""" msg.message.code == 200 """)
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == 201 """)
+        condition, _ = Condition.compile_and_validate(""" msg.message.code == 201 """)
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_msg_other(self):
-        condition = Condition(""" msg.message.code == "200" """)
+        condition, _ = Condition.compile_and_validate(""" msg.message.code == "200" """)
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == "201" """)
+        condition, _ = Condition.compile_and_validate(""" msg.message.code == "201" """)
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == 200.0 """)
+        condition, _ = Condition.compile_and_validate(""" msg.message.code == 200.0 """)
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == 201.0 """)
+        condition, _ = Condition.compile_and_validate(""" msg.message.code == 201.0 """)
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_msg_cast_other(self):
-        condition = Condition(""" msg.message.code == int("200") """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.message.code == int("200") """
+        )
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == int("201") """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.message.code == int("201") """
+        )
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == int(200.0) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.message.code == int(200.0) """
+        )
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == int(201.0) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.message.code == int(201.0) """
+        )
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_msg_scope(self):
-        condition = Condition(""" msg.message.code == scope.code """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.message.code == scope.code """
+        )
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.message.code == scope.invalid_attr """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.message.code == scope.invalid_attr """
+        )
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_invalid(self):
-        condition = Condition(""" mmm.message.code == 200 """)
-        self.assertFalse(condition.evaluate(TestActivation))
-
-        condition = Condition(""" msg.message.code == 200.0.0 """)
-        self.assertFalse(condition.evaluate(TestActivation))
-
-        condition = Condition(""" msg.message.code == """)
+        condition, _ = Condition.compile_and_validate(""" mmm.message.code == 200 """)
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_map_contains(self):
-        condition = Condition(""" msg.lst.map(x, x.code).contains(2) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.map(x, x.code).contains(2) """
+        )
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.lst.map(x, x.code).contains(4) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.map(x, x.code).contains(4) """
+        )
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.lst.map(x, x.code * 2).contains(6) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.map(x, x.code * 2).contains(6) """
+        )
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.lst.map(x, x.code * 2).contains(7) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.map(x, x.code * 2).contains(7) """
+        )
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_exists(self):
-        condition = Condition(""" msg.lst.exists(x, x.code == 2) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.exists(x, x.code == 2) """
+        )
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.lst.exists(x, x.code == 4) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.exists(x, x.code == 4) """
+        )
         self.assertFalse(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.lst.exists(x, x.code * 2 == 6) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.exists(x, x.code * 2 == 6) """
+        )
         self.assertTrue(condition.evaluate(TestActivation))
 
-        condition = Condition(""" msg.lst.exists(x, x.code * 2 == 7) """)
+        condition, _ = Condition.compile_and_validate(
+            """ msg.lst.exists(x, x.code * 2 == 7) """
+        )
         self.assertFalse(condition.evaluate(TestActivation))
 
     def test_compile_and_validate(self):
-        condition = Condition("""msg.message.code == """)
-        self.assertFalse(condition.validation_result)
+        _, err = Condition.compile_and_validate("""msg.message.code == """)
+        self.assertIsNotNone(err)
 
-        condition = Condition("""msg[0 """)
-        self.assertFalse(condition.validation_result)
+        _, err = Condition.compile_and_validate("""msg[0 """)
+        self.assertIsNotNone(err)

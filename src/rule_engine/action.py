@@ -25,33 +25,34 @@ class Action:
     Defining an action, of which the underlying implementation is a function
     """
 
+    @staticmethod
+    def compile_and_validate(name: str, raw_kwargs: dict[str, any], impl: Callable):
+        """
+        Compile and validate the action
+        """
+        try:
+            kwargs = {k: compile_value(v) for k, v in raw_kwargs.items()}
+            return Action(name, raw_kwargs, kwargs, impl), None
+        except Exception as e:
+            return None, e
+
     def __init__(
         self,
         name: str,
         raw_kwargs: dict[str, any],
+        kwargs: dict[str, Callable[[celpy.Context], any]],
         impl: Callable,
     ):
         self.name = name
         self.raw_kwargs = raw_kwargs
         self._impl = impl
-        self._kwargs = {}
-        self.validation_result = self.compile_and_validate()
+        self._kwargs = kwargs
 
     def run(self, activation: celpy.Context):
         """
         Run the action with the activation dictionary
         """
         self._impl(**{k: v(activation) for k, v in self._kwargs.items()})
-
-    def compile_and_validate(self) -> bool:
-        """
-        Compile and validate the action
-        """
-        try:
-            self._kwargs = {k: compile_value(v) for k, v in self.raw_kwargs.items()}
-            return True
-        except Exception:
-            return False
 
     def __repr__(self):
         return f"Action({self.name}){self.raw_kwargs}"

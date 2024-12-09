@@ -29,7 +29,7 @@ class TestAction(unittest.TestCase):
 
     @staticmethod
     def get_action(raw_kwargs, action_result):
-        return Action(
+        return Action.compile_and_validate(
             name="serialize",
             raw_kwargs=raw_kwargs,
             impl=partial(TestAction.serialize_impl, action_result=action_result),
@@ -37,7 +37,7 @@ class TestAction(unittest.TestCase):
 
     def test_simple(self):
         action_result = [""]
-        action = self.get_action(
+        action, _ = self.get_action(
             {
                 "str_arg": "hello",
                 "int_arg": 123,
@@ -57,7 +57,7 @@ class TestAction(unittest.TestCase):
 
     def test_single(self):
         action_result = [""]
-        action = self.get_action(
+        action, _ = self.get_action(
             {
                 "str_arg": "aaa{ msg.message.code } bbb",
                 "int_arg": 123,
@@ -78,7 +78,7 @@ class TestAction(unittest.TestCase):
 
     def test_dict(self):
         action_result = [""]
-        action = self.get_action(
+        action, _ = self.get_action(
             {
                 "str_arg": "ccc",
                 "int_arg": 123,
@@ -98,7 +98,7 @@ class TestAction(unittest.TestCase):
         )
 
     def test_validation(self):
-        action = self.get_action(
+        action, err = self.get_action(
             {
                 "str_arg": "hello",
                 "int_arg": 123,
@@ -107,9 +107,9 @@ class TestAction(unittest.TestCase):
             },
             [""],
         )
-        self.assertTrue(action.validation_result)
+        self.assertIsNone(err)
 
-        action = self.get_action(
+        action, err = self.get_action(
             {
                 "str_arg": "hello",
                 "int_arg": 123,
@@ -118,9 +118,9 @@ class TestAction(unittest.TestCase):
             },
             [""],
         )
-        self.assertFalse(action.validation_result)
+        self.assertIsNotNone(err)
 
-        action = self.get_action(
+        action, err = self.get_action(
             {
                 "str_arg": "ccc",
                 "int_arg": 123,
@@ -130,7 +130,7 @@ class TestAction(unittest.TestCase):
             },
             [""],
         )
-        self.assertFalse(action.validation_result)
+        self.assertIsNotNone(err)
 
 
 class TestEvaluateEmbeddedExpression(unittest.TestCase):

@@ -21,10 +21,20 @@ class Condition:
     Defining a condition with a CEL expression
     """
 
-    def __init__(self, condition: str):
-        self.raw = condition
-        self.program = None
-        self.validation_result = self.compile_and_validate()
+    @staticmethod
+    def compile_and_validate(raw_condition: str):
+        """
+        Validate the condition
+        """
+        try:
+            program = ENV.program(ENV.compile(raw_condition))
+            return Condition(raw_condition, program), None
+        except Exception as e:
+            return None, e
+
+    def __init__(self, raw: str, program: celpy.Runner):
+        self.raw = raw
+        self.program = program
 
     def evaluate(self, activation: celpy.Context):
         """
@@ -33,16 +43,6 @@ class Condition:
         try:
             # Restrict the return to be true when the condition evaluates exactly to boolean true
             return self.program.evaluate(activation).__repr__() == "BoolType(True)"
-        except Exception:
-            return False
-
-    def compile_and_validate(self) -> bool:
-        """
-        Validate the condition
-        """
-        try:
-            self.program = ENV.program(ENV.compile(self.raw))
-            return True
         except Exception:
             return False
 
