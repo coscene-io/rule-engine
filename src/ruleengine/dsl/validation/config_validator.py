@@ -41,7 +41,7 @@ def validate_config(config, action_impls, project_name=""):
     action_impls_wrapped = {}
     for k, v in action_impls.items():
         action_impls[k] = lambda _: v
-    return validate_config_wrapped(config, action_impls_wrapped, project_name)
+    return validate_config_wrapped(config, action_impls, project_name)
 
 
 def validate_config_wrapped(config, action_impls_wrapped, project_name=""):
