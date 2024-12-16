@@ -62,7 +62,7 @@ def main(rule_set_spec_str: str):
             _, errs = validate_rule_spec(rule_spec, {}, rule_idx)
             errors.extend(errs)
         result = ValidationResult(success=not errors, errors=errors)
-        print(result.model_dump(exclude_unset=True))
+        print(result.model_dump_json(exclude_unset=True))
         exit(0 if result.success else 1)
 
 
