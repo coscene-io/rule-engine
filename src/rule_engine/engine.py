@@ -50,7 +50,7 @@ class Engine:
         rule = self.rules[rule_idx]
         activation = {
             **self.cur_activation,
-            "scope": rule.scope,
+            "scope": celpy.adapter.json_to_cel(rule.scope),
         }
         return all(cond.evaluate(activation) for cond in rule.conditions)
 
@@ -59,7 +59,7 @@ class Engine:
         rule = self.rules[rule_idx]
         activation = {
             **self.cur_activation,
-            "scope": rule.scope,
+            "scope": celpy.adapter.json_to_cel(rule.scope),
         }
         for action in rule.actions:
             action.run(activation)

@@ -166,3 +166,31 @@ class TestEngine(unittest.TestCase):
                 "int_arg": 1,
             },
         )
+
+    def test_engine_scope(self):
+        spec = {
+            "rules": [
+                {
+                    "conditions": ["msg.code > 20", "int(scope.level) <= int(3)"],
+                    "actions": [
+                        {
+                            "name": "serialize",
+                            "kwargs": {
+                                "str_arg": "{scope.code}",
+                                "int_arg": 1,
+                            },
+                        },
+                    ],
+                    "scopes": [{"code": 77, "level": 1}],
+                    "topics": ["test_topic"],
+                }
+            ]
+        }
+        result_buffer = [{}]
+        engine = self.build_serialize_engine_from_spec(spec, result_buffer)
+
+        engine.example_consume_next({"code": 21}, "test_topic", 0.0)
+        self.assertDictEqual(
+            result_buffer[0],
+            {"int_arg": 1, "str_arg": "77"},
+        )

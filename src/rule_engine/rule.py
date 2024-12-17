@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import celpy.adapter
 
 from rule_engine.action import Action
 from rule_engine.condition import Condition
@@ -87,7 +86,7 @@ class Rule:
         self.raw = raw
         self.conditions = conditions
         self.actions = actions
-        self.scope = celpy.adapter.json_to_cel(scope)
+        self.scope = scope
         self.topics = topics
         self.metadata = metadata or {}
 
