@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 from enum import IntEnum
+from functools import wraps
 from typing import Optional
 
 import celpy
@@ -64,3 +66,23 @@ class ValidationResult(BaseModel):
 
     success: bool
     errors: list[ValidationError]
+
+
+def log_level_decorator(level):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Save the original logging level
+            original_level = logging.getLogger().level
+            # Set logging level to the specified level
+            logging.getLogger().setLevel(level)
+            try:
+                # Execute the function
+                return func(*args, **kwargs)
+            finally:
+                # Reset logging level to original
+                logging.getLogger().setLevel(original_level)
+
+        return wrapper
+
+    return decorator

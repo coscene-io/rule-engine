@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import re
 from functools import partial
 from typing import Callable
 
 import celpy
 
-from rule_engine.utils import ENV
+from rule_engine.utils import ENV, log_level_decorator
 
 
 class Action:
@@ -26,6 +27,7 @@ class Action:
     """
 
     @staticmethod
+    @log_level_decorator(logging.WARN)
     def compile_and_validate(name: str, raw_kwargs: dict[str, any], impl: Callable):
         """
         Compile and validate the action
@@ -48,6 +50,7 @@ class Action:
         self._impl = impl
         self._kwargs = kwargs
 
+    @log_level_decorator(logging.WARN)
     def run(self, activation: celpy.Context):
         """
         Run the action with the activation dictionary

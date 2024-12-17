@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
+
 import celpy
 
-from rule_engine.utils import ENV
+from rule_engine.utils import ENV, log_level_decorator
 
 
 class Condition:
@@ -22,6 +24,7 @@ class Condition:
     """
 
     @staticmethod
+    @log_level_decorator(logging.WARN)
     def compile_and_validate(raw_condition: str):
         """
         Validate the condition
@@ -36,6 +39,7 @@ class Condition:
         self.raw = raw
         self.program = program
 
+    @log_level_decorator(logging.WARN)
     def evaluate(self, activation: celpy.Context):
         """
         Evaluate the condition as boolean
