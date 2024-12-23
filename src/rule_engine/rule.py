@@ -214,6 +214,8 @@ def validate_rule_spec(
     rules = []
     condition_debounce = rule_spec.get("condition_debounce", 0)
     for scope in scopes:
-        rules.append(Rule(rule_spec, conditions, actions, scope, topics, condition_debounce))
+        rules.append(
+            Rule(rule_spec, conditions, actions, scope, topics, condition_debounce)
+        )
 
     return rules, []
