@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import celpy
 
 from rule_engine.action import Action
 from rule_engine.condition import Condition
@@ -63,7 +64,8 @@ class Rule:
                         "scope_key_b": "scope_value_b_2"
                     }
                 ],
-                "topics": ["topic_1", "topic_2"]
+                "topics": ["topic_1", "topic_2"],
+                "condition_debounce": 10,
             }
         ]
     }
@@ -81,6 +83,7 @@ class Rule:
         actions: list[Action],
         scope: dict[str, str],
         topics: list[str],
+        debounce_time: int,  # debounce time in seconds
         metadata: dict[str, any] = None,  # user-defined metadata
     ):
         self.raw = raw
@@ -88,7 +91,33 @@ class Rule:
         self.actions = actions
         self.scope = scope
         self.topics = topics
+        self.debounce_time = debounce_time
+        self._prev_activation_time = None
         self.metadata = metadata or {}
+
+    def eval_conditions(self, activation: celpy.Context, ts: float) -> bool:
+        """
+        Evaluate the conditions of a rule against the current activation
+        """
+        result = all(cond.evaluate(activation) for cond in self.conditions)
+
+        # directly return false if any condition is not met
+        if not result:
+            return False
+
+        # directly return true if no debounce time is set
+        if self.debounce_time <= 0:
+            return True
+
+        if self._prev_activation_time is None:
+            ret = True
+        elif ts - self._prev_activation_time > self.debounce_time:
+            ret = True
+        else:
+            ret = False
+
+        self._prev_activation_time = ts
+        return ret
 
 
 def validate_rules_spec(
@@ -183,7 +212,8 @@ def validate_rule_spec(
         scopes = [{}]
 
     rules = []
+    condition_debounce = rule_spec.get("condition_debounce", 0)
     for scope in scopes:
-        rules.append(Rule(rule_spec, conditions, actions, scope, topics))
+        rules.append(Rule(rule_spec, conditions, actions, scope, topics, condition_debounce))
 
     return rules, []
